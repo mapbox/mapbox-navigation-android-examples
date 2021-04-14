@@ -1,0 +1,37 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.google.gms:google-services:4.3.5"
+        classpath "com.android.tools.build:gradle:4.0.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.31"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        maven { url 'https://plugins.gradle.org/m2' }
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = project.hasProperty('SDK_REGISTRY_TOKEN') ? project.property('SDK_REGISTRY_TOKEN') : System.getenv('SDK_REGISTRY_TOKEN')
+            }
+        }
+        maven { url 'https://mapbox.bintray.com/mapbox' }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
