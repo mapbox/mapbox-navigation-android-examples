@@ -1,0 +1,97 @@
+version: 2.1
+
+#-------------------------------
+#---------- EXECUTORS ----------
+#-------------------------------
+executors:
+  ndk-r21-latest-executor:
+    docker:
+      - image: mbgl/android-ndk-r21:latest
+    working_directory: ~/code
+
+#-------------------------------
+#---------- WORKFLOWS ----------
+#-------------------------------
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - prepare-and-assemble
+      - static-analysis:
+          requires:
+            - prepare-and-assemble
+
+#------------------------------
+#---------- COMMANDS ----------
+#------------------------------
+commands:
+  write-workspace:
+    steps:
+      - persist_to_workspace:
+          root: ~/code
+          paths:
+            - ./
+
+  read-workspace:
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+  restore-gradle-cache:
+    steps:
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+            - deps-
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: deps-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+
+  verify-codebase:
+    steps:
+      - run:
+          name: Check codebase
+          command: ./gradlew ktlint
+
+  assemble-app:
+    parameters:
+      variant:
+        description: Debug or Release
+        type: string
+      inject_token:
+        description: whether to inject an access token file
+        type: boolean
+        default: false
+    steps:
+      - run:
+          name: Assemble examples APK in << parameters.variant >> mode
+          command: |
+            if << parameters.inject_token >>; then
+                echo "${MAPBOX_DEVELOPER_CONFIG}" > /root/code/app/src/main/res/values/mapbox_access_token.xml
+            fi
+            ./gradlew assemble<< parameters.variant >>
+
+#--------------------------
+#---------- JOBS ----------
+#--------------------------
+
+jobs:
+  prepare-and-assemble:
+    executor: ndk-r21-latest-executor
+    steps:
+      - checkout
+      - restore-gradle-cache
+      - assemble-app:
+          variant: "Debug"
+      - write-workspace
+
+  static-analysis:
+    executor: ndk-r21-latest-executor
+    steps:
+      - read-workspace
+      - verify-codebase

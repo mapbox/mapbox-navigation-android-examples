@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.ajoberstar:grgit:1.5.0'
+        classpath 'org.ajoberstar:grgit:2.3.0'
     }
 }
 
@@ -26,16 +26,14 @@ ext {
     gitVersionCode = -1
     gitVersionCodeTime = -1
     try {
-        git = Grgit.open(currentDir: projectDir)
+        git = org.ajoberstar.grgit.Grgit.open()
         gitVersionName = git.describe()
-        gitVersionCode = git.tag.list().count {
-            it.getName().contains("testapp")
-        }
+        gitVersionCode = git.tag.list().size()
         gitVersionCodeTime = git.head().time
     } catch (Exception exception) {
-        println("Does your build of mapbox-navigation-android have a Git directory?" +
+        println("Does your build of mapbox-navigation-android-examples have a Git directory?" +
                 "The try/catch in the script-git-version.gradle file is for the situation " +
-                "when there is no Git setup. Try cloning the mapbox-navigation-android repo, " +
+                "when there is no Git setup. Try cloning the mapbox-navigation-android-examples repo, " +
                 "rather than downloading the repo as a .zip file.")
     }
 }
