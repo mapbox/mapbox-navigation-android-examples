@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
-apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -42,15 +41,6 @@ android {
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
-    signingConfigs {
-        release {
-            keyAlias System.getenv("CIRCLECI_ANDROID_KEYSTORE_ALIAS")
-            keyPassword System.getenv("CIRCLECI_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD")
-            storeFile file("$project.rootDir/navigation_examples.keystore")
-            storePassword System.getenv("CIRCLECI_ANDROID_KEYSTORE_PASSWORD")
-        }
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = false
@@ -58,7 +48,6 @@ android {
         }
         release {
             minifyEnabled true
-            signingConfig signingConfigs.release
             manifestPlaceholders = [enableCrashReporting: "true"]
         }
     }
