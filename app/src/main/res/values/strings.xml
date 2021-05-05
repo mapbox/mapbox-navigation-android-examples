@@ -1,3 +1,27 @@
 <resources>
   <string name="app_name">Mapbox Navigation Examples</string>
+
+  <!-- Fetch Route -->
+  <string name="title_fetch_route">Fetch routes between origin and destination</string>
+  <string name="description_fetch_route">Use the example to fetch multiple routes using Navigation SDK APIs and Views.</string>
+
+  <!-- Trip progress -->
+  <string name="title_trip_progress">Render trip progress information</string>
+  <string name="description_trip_progress">Use the example to draw trip progress information using Navigation SDK APIs and Views.</string>
+
+  <!-- Maneuvers -->
+  <string name="title_maneuver">Render maneuver instructions for a route</string>
+  <string name="description_maneuver">Use the example to draw maneuver instructions using Navigation SDK APIs and Views.</string>
+
+  <!-- Current Location -->
+  <string name="title_current_location">Render current location on a map</string>
+  <string name="description_current_location">Use the example to show current location with a puck using Navigation SDK APIs and Views.</string>
+
+  <!-- Route line and route arrow -->
+  <string name="title_route">Draw route lines on a map</string>
+  <string name="description_route">Use the example to draw multiple route lines using Navigation SDK APIs and Views.</string>
+
+  <!-- Turn by Turn -->
+  <string name="title_turn_by_turn">Add a turn by turn experience</string>
+  <string name="description_turn_by_turn">Use this example to render complete turn by turn experience using Navigation SDK APIs and Views.</string>
 </resources>
