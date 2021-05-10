@@ -9,8 +9,8 @@ import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
-import com.mapbox.navigation.base.internal.extensions.applyDefaultParams
-import com.mapbox.navigation.base.internal.extensions.coordinates
+import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
+import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesRequestCallback
@@ -51,8 +51,8 @@ class FetchARouteActivity : AppCompatActivity() {
     private lateinit var mapboxNavigation: MapboxNavigation
     private lateinit var binding: MapboxActivityFetchARouteBinding
 
-    private val origin = Point.fromLngLat(-121.9820, 37.5298)
-    private val destination = Point.fromLngLat(-122.001473, 37.531544)
+    private val origin = Point.fromLngLat(-122.4192, 37.7627)
+    private val destination = Point.fromLngLat(-122.4106, 37.7676)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +61,11 @@ class FetchARouteActivity : AppCompatActivity() {
         mapboxMap = binding.mapView.getMapboxMap()
 
         init()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
     }
 
     private fun init() {
@@ -93,12 +98,13 @@ class FetchARouteActivity : AppCompatActivity() {
     private fun fetchARoute() {
         val routeOptions = RouteOptions.builder()
             // applies the default parameters to route options
-            .applyDefaultParams()
+            .applyDefaultNavigationOptions()
+            .applyLanguageAndVoiceUnitOptions(this)
             // specifies the access token required to fetch a route
             .accessToken(getMapboxAccessTokenFromResources())
             // lists the coordinate pair i.e. origin and destination
             // If you want to specify waypoints you can pass list of points instead of null
-            .coordinates(origin, null, destination)
+            .coordinates(listOf(origin, destination))
             // set it to true if you want to receive alternate routes to your destination
             .alternatives(false)
             .build()
@@ -144,9 +150,13 @@ class FetchARouteActivity : AppCompatActivity() {
         )
     }
 
+    override fun onStop() {
+        super.onStop()
+        binding.mapView.onStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        // make sure that map view is destroyed to avoid leaks.
         binding.mapView.onDestroy()
     }
 }
