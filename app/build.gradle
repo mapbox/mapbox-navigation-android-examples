@@ -69,7 +69,7 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:android:2.0.0-beta.8"
+    implementation "com.mapbox.navigation:android:2.0.0-beta.9"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32"
     implementation "androidx.core:core-ktx:1.3.2"
     implementation "com.google.android.material:material:1.3.0"
