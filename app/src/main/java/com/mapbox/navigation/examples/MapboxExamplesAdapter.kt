@@ -27,7 +27,7 @@ class MapboxExamplesAdapter(
         private val viewBinding: MapboxItemViewRecyclerBinding
     ) : RecyclerView.ViewHolder(viewBinding.root) {
         fun bindItem(example: MapboxExample) {
-            // viewBinding.itemImage.setImageDrawable(example.image)
+            viewBinding.itemImage.setImageDrawable(example.image)
             viewBinding.itemTitle.text = example.title
             viewBinding.itemDescription.text = example.description
 

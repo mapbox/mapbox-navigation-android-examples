@@ -2,6 +2,8 @@
   <string name="app_name">Mapbox Navigation Examples</string>
 
   <!-- Fetch Route -->
+  <string name="fetch_a_route">Fetch A Route</string>
+  <string name="fetch_a_route_message">Route was fetched successfully</string>
   <string name="title_fetch_route">Fetch routes between origin and destination</string>
   <string name="description_fetch_route">Use the example to fetch multiple routes using Navigation SDK APIs and Views.</string>
 
