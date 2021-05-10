@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
     private fun buildExamplesList(): List<MapboxExample> {
         return listOf(
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
                 getString(R.string.title_current_location),
                 getString(R.string.description_current_location),
                 ShowCurrentLocationActivity::class.java
