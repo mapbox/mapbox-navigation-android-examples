@@ -14,6 +14,8 @@ import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
 import com.mapbox.navigation.examples.basics.FetchARouteActivity
 import com.mapbox.navigation.examples.basics.RenderRouteLineActivity
+import com.mapbox.navigation.examples.basics.ShowBuildingExtrusionsActivity
+import com.mapbox.navigation.examples.basics.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.basics.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.basics.ShowManeuversActivity
 import com.mapbox.navigation.examples.basics.ShowSpeedLimitActivity
@@ -66,6 +68,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
@@ -115,10 +118,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 FetchARouteActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_ic_route_line),
                 getString(R.string.title_route),
                 getString(R.string.description_route),
                 RenderRouteLineActivity::class.java
+            ),
+            MapboxExample(
+                null,
+                getString(R.string.title_camera_transitions),
+                getString(R.string.description_camera_transitions),
+                ShowCameraTransitionsActivity::class.java
             ),
             MapboxExample(
                 ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_trip_progress),
@@ -137,6 +146,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 getString(R.string.title_speed_limit),
                 getString(R.string.description_speed_limit),
                 ShowSpeedLimitActivity::class.java
+            ),
+            MapboxExample(
+                null,
+                getString(R.string.title_building_extrusions),
+                getString(R.string.description_building_extrusions),
+                ShowBuildingExtrusionsActivity::class.java
             ),
             MapboxExample(
                 ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_tbt_experience),

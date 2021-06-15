@@ -1,74 +1,20 @@
 package com.mapbox.navigation.examples.basics
 
-import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.geojson.Point
-import com.mapbox.maps.CameraOptions
-import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.Style
-import com.mapbox.maps.plugin.animation.MapAnimationOptions
-import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigationProvider
-import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
-import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
-import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.core.trip.session.MapMatcherResultObserver
 import com.mapbox.navigation.examples.R
-import com.mapbox.navigation.examples.databinding.MapboxActivityShowSpeedLimitBinding
-import com.mapbox.navigation.ui.maps.internal.route.line.MapboxRouteLineApiExtensions.setRoutes
+import com.mapbox.navigation.examples.databinding.MapboxActivityBuildingExtrusionsBinding
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
-import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
-import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
-import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
-import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
-import com.mapbox.navigation.ui.speedlimit.api.MapboxSpeedLimitApi
-import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
-import com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView
 
-/**
- * The example demonstrates how to draw speed limit information during active navigation.
- *
- * Before running the example make sure you have put your access_token in the correct place
- * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
- * at the location mentioned above and add the following content to it
- *
- * <?xml version="1.0" encoding="utf-8"?>
- * <resources xmlns:tools="http://schemas.android.com/tools">
- *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
- * </resources>
- *
- * The example assumes that you have granted location permissions and does not enforce it. However,
- * the permission is essential for proper functioning of this example. The example also uses replay
- * location engine to facilitate navigation without actually physically moving.
- *
- * How to use this example:
- * - The example uses a single hardcoded route with no alternatives.
- * - When the example starts, the camera transitions to the location where the route is.
- * - It then draws a route line on the map using the hardcoded route.
- * - Click on start navigation.
- * - You should now see speed limit related information throughout the trip wherever accessible.
- * - The speed limit window will not show speed limit values if the data is not available.
- *
- * Note:
- * The example does not demonstrates the use of [MapboxRouteArrowApi] and [MapboxRouteArrowView].
- * Kindly look at [RenderRouteLineActivity] example to learn more about route line and route arrow.
- */
-class ShowSpeedLimitActivity : AppCompatActivity() {
+class ShowBuildingExtrusionsActivity : AppCompatActivity() {
 
     // todo move to resources
     private val route = DirectionsRoute.fromJson(
@@ -127,235 +73,11 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
     /**
      * Bindings to the example layout.
      */
-    private val binding: MapboxActivityShowSpeedLimitBinding by lazy {
-        MapboxActivityShowSpeedLimitBinding.inflate(layoutInflater)
-    }
-
-    /**
-     * Defines options for both [routeLineApi] and [routeLineView].
-     */
-    private val options: MapboxRouteLineOptions by lazy {
-        MapboxRouteLineOptions.Builder(this)
-            .withRouteLineResources(RouteLineResources.Builder().build())
-            .withRouteLineBelowLayerId("road-label")
-            .build()
-    }
-
-    /**
-     * Draws route lines on the map based on the data from the [routeLineApi]
-     */
-    private val routeLineView by lazy {
-        MapboxRouteLineView(options)
-    }
-
-    /**
-     * Generates updates for the [routeLineView] with the geometries and properties of the routes that should be drawn on the map.
-     */
-    private val routeLineApi: MapboxRouteLineApi by lazy {
-        MapboxRouteLineApi(options)
-    }
-
-    /**
-     * The data in the [MapboxSpeedLimitView] is formatted by different formatting implementations.
-     * Below is the default formatter using default options but you can use your own formatting
-     * classes.
-     */
-    private val speedLimitFormatter: SpeedLimitFormatter by lazy {
-        SpeedLimitFormatter(this)
-    }
-
-    /**
-     * API used for formatting speed limit related data.
-     */
-    private val speedLimitApi: MapboxSpeedLimitApi by lazy {
-        MapboxSpeedLimitApi(speedLimitFormatter)
-    }
-
-    /**
-     * Gets notified with location updates.
-     *
-     * Exposes raw updates coming directly from the location services
-     * and the updates enhanced by the Navigation SDK (cleaned up and matched to the road).
-     */
-    private val locationObserver = object : LocationObserver {
-        /**
-         * Invoked as soon as the [Location] is available.
-         */
-        override fun onRawLocationChanged(rawLocation: Location) {
-            // Not implemented in this example. However, if you want you can also
-            // use this callback to get location updates, but as the name suggests
-            // these are raw location updates which are usually noisy.
-        }
-
-        /**
-         * Provides the best possible location update, snapped to the route or
-         * map-matched to the road if possible.
-         */
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
-            navigationLocationProvider.changePosition(
-                enhancedLocation,
-                keyPoints,
-            )
-            // Invoke this method to move the camera to your current location as the route progresses.
-            updateCamera(
-                Point.fromLngLat(
-                    enhancedLocation.longitude,
-                    enhancedLocation.latitude
-                ),
-                enhancedLocation.bearing.toDouble()
-            )
-        }
-    }
-
-    /**
-     * Register the observer to listen to map matching events to get the speed limit related information.
-     */
-    private val mapMatcherObserver = MapMatcherResultObserver { mapMatcherResult ->
-        val value = speedLimitApi.updateSpeedLimit(mapMatcherResult.speedLimit)
-        binding.speedLimitView.render(value)
-    }
-
-    /**
-     * This is one way to keep the route(s) appearing on the map in sync with
-     * MapboxNavigation. When this observer is called the route data is used to draw route(s)
-     * on the map.
-     */
-    private val routesObserver: RoutesObserver = RoutesObserver { routes ->
-        // RouteLine: wrap the DirectionRoute objects and pass them
-        // to the MapboxRouteLineApi to generate the data necessary to draw the route(s)
-        // on the map.
-        val routeLines = routes.map { RouteLine(it, null) }
-
-        routeLineApi.setRoutes(
-            routeLines
-        ) { value ->
-            // RouteLine: The MapboxRouteLineView expects a non-null reference to the map style.
-            // the data generated by the call to the MapboxRouteLineApi above must be rendered
-            // by the MapboxRouteLineView in order to visualize the changes on the map.
-            mapboxMap.getStyle()?.apply {
-                routeLineView.renderRouteDrawData(this, value)
-            }
-        }
+    private val binding: MapboxActivityBuildingExtrusionsBinding by lazy {
+        MapboxActivityBuildingExtrusionsBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
-        init()
-    }
-
-    private fun init() {
-        initStyle()
-        initLocationPlugin()
-        initNavigation()
-        initListeners()
-    }
-
-    private fun initStyle() {
-        mapboxMap.loadStyleUri(Style.MAPBOX_STREETS) {
-            // The initial camera point to the origin where the route line starts from.
-            updateCamera(Point.fromLngLat(-121.981985, 37.529766))
-            binding.startNavigation.visibility = VISIBLE
-        }
-    }
-
-    private fun initLocationPlugin() {
-        binding.mapView.location.apply {
-            setLocationProvider(navigationLocationProvider)
-            // When true, the blue circular puck is shown on the map. If set to false, user
-            // location in the form of puck will not be shown on the map.
-            enabled = true
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initNavigation() {
-        mapboxNavigation.run {
-            setRoutes(listOf(route))
-            registerRoutesObserver(routesObserver)
-            registerLocationObserver(locationObserver)
-            registerMapMatcherResultObserver(mapMatcherObserver)
-            registerRouteProgressObserver(replayProgressObserver)
-            startTripSession()
-        }
-    }
-
-    private fun initListeners() {
-        binding.startNavigation.setOnClickListener {
-            startSimulation()
-            binding.startNavigation.visibility = GONE
-        }
-    }
-
-    private fun updateCamera(point: Point, bearing: Double? = null) {
-        val mapAnimationOptions = MapAnimationOptions.Builder().duration(1500L).build()
-        binding.mapView.camera.easeTo(
-            CameraOptions.Builder()
-                // Centers the camera to the lng/lat specified.
-                .center(point)
-                // specifies the zoom value. Increase or decrease to zoom in or zoom out
-                .zoom(17.0)
-                // adjusts the bearing of the camera measured in degrees from true north
-                .bearing(bearing)
-                // adjusts the pitch towards the horizon
-                .pitch(45.0)
-                // specify frame of reference from the center.
-                .padding(EdgeInsets(1000.0, 0.0, 0.0, 0.0))
-                .build(),
-            mapAnimationOptions
-        )
-    }
-
-    private fun startSimulation() {
-        mapboxReplayer.run {
-            stop()
-            clearEvents()
-            pushRealLocation(this@ShowSpeedLimitActivity, 0.0)
-            val replayEvents = ReplayRouteMapper().mapDirectionsRouteGeometry(route)
-            pushEvents(replayEvents)
-            seekTo(replayEvents.first())
-            play()
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onStart() {
-        super.onStart()
-        // make sure that map view is started
-        binding.mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        // make sure that map view is stopped
-        binding.mapView.onStop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // make sure that map view is destroyed to avoid leaks.
-        binding.mapView.onDestroy()
-        mapboxNavigation.run {
-            // make sure to stop the trip session. In this case it is being called inside `onDestroy`.
-            stopTripSession()
-            // make sure to unregister the routes observer you have registered.
-            unregisterRoutesObserver(routesObserver)
-            // make sure to unregister the location observer you have registered.
-            unregisterLocationObserver(locationObserver)
-            // make sure to unregister the map matcher observer you have registered.
-            unregisterMapMatcherResultObserver(mapMatcherObserver)
-            // make sure to unregister the route progress observer you have registered.
-            unregisterRouteProgressObserver(replayProgressObserver)
-        }
-        mapboxNavigation.onDestroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
     }
 }
