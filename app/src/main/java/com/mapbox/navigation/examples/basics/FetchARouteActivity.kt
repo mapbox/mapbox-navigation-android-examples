@@ -17,7 +17,6 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
@@ -57,51 +56,49 @@ class FetchARouteActivity : AppCompatActivity() {
     }
 
     /**
-     * Mapbox Maps entry point obtained from the [MapView].
-     * You need to get a new reference to this object whenever the [MapView] is recreated.
-     */
-    private lateinit var mapboxMap: MapboxMap
-
-    /**
      * Mapbox Navigation entry point. There should only be one instance of this object for the app.
      * You can use [MapboxNavigationProvider] to help create and obtain that instance.
      */
-    private lateinit var mapboxNavigation: MapboxNavigation
+    private val mapboxNavigation by lazy {
+        if (MapboxNavigationProvider.isCreated()) {
+            MapboxNavigationProvider.retrieve()
+        } else {
+            MapboxNavigationProvider.create(
+                NavigationOptions.Builder(this)
+                    .accessToken(getString(R.string.mapbox_access_token))
+                    .build()
+            )
+        }
+    }
+
+    /**
+     * Mapbox Maps entry point obtained from the [MapView].
+     * You need to get a new reference to this object whenever the [MapView] is recreated.
+     */
+    private val mapboxMap: MapboxMap by lazy {
+        binding.mapView.getMapboxMap()
+    }
 
     /**
      * Bindings to the example layout.
      */
-    private lateinit var binding: MapboxActivityFetchARouteBinding
+    private val binding: MapboxActivityFetchARouteBinding by lazy {
+        MapboxActivityFetchARouteBinding.inflate(layoutInflater)
+    }
 
     private val origin = Point.fromLngLat(-122.4192, 37.7627)
     private val destination = Point.fromLngLat(-122.4106, 37.7676)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MapboxActivityFetchARouteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mapboxMap = binding.mapView.getMapboxMap()
 
         init()
     }
 
-    override fun onStart() {
-        super.onStart()
-        binding.mapView.onStart()
-    }
-
     private fun init() {
         initStyle()
-        initNavigation()
         binding.fetchARouteButton.setOnClickListener { fetchARoute() }
-    }
-
-    private fun initNavigation() {
-        mapboxNavigation = MapboxNavigation(
-            NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                .build()
-        )
     }
 
     private fun initStyle() {
@@ -170,6 +167,11 @@ class FetchARouteActivity : AppCompatActivity() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
+    }
+
     override fun onStop() {
         super.onStop()
         binding.mapView.onStop()
@@ -178,5 +180,6 @@ class FetchARouteActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding.mapView.onDestroy()
+        mapboxNavigation.onDestroy()
     }
 }

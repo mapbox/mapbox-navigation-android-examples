@@ -29,6 +29,10 @@
         android:screenOrientation="portrait"
         />
 
+    <activity android:name=".basics.ShowCameraTransitionsActivity"
+        android:screenOrientation="portrait"
+        />
+
     <activity android:name=".basics.ShowTripProgressActivity"
         android:screenOrientation="portrait"
         />
@@ -38,6 +42,10 @@
         />
 
     <activity android:name=".basics.ShowSpeedLimitActivity"
+        android:screenOrientation="portrait"
+        />
+
+    <activity android:name=".basics.ShowBuildingExtrusionsActivity"
         android:screenOrientation="portrait"
         />
 
