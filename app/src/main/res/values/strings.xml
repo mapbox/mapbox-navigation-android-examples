@@ -1,6 +1,9 @@
 <resources>
   <string name="app_name">Mapbox Navigation Examples</string>
 
+  <!-- Start Navigation -->
+  <string name="start_navigation">Start Navigation</string>
+
   <!-- Fetch Route -->
   <string name="fetch_a_route">Fetch A Route</string>
   <string name="fetch_a_route_message">Route was fetched successfully</string>
