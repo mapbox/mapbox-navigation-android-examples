@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 RenderRouteLineActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_trip_progress),
                 getString(R.string.title_trip_progress),
                 getString(R.string.description_trip_progress),
                 ShowTripProgressActivity::class.java

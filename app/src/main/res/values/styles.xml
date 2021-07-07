@@ -7,4 +7,9 @@
     <item name="colorAccent">@color/colorAccent</item>
   </style>
 
+  <style name="MapboxCustomTripProgressStyle" parent="MapboxStyleTripProgressView">
+    <item name="tripProgressTextColor">#7B3CEA</item>
+    <item name="tripProgressViewBackgroundColor">#EEEEEE</item>
+  </style>
+
 </resources>
