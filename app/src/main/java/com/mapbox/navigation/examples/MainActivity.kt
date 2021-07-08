@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 ShowTripProgressActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_maneuvers),
                 getString(R.string.title_maneuver),
                 getString(R.string.description_maneuver),
                 ShowManeuversActivity::class.java
