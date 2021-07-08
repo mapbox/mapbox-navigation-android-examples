@@ -12,8 +12,9 @@ import com.mapbox.maps.Style
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.base.route.RouterCallback
+import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.directions.session.RoutesRequestCallback
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
 
@@ -110,7 +111,7 @@ class FetchARouteActivity : AppCompatActivity() {
             .build()
         mapboxNavigation.requestRoutes(
             routeOptions,
-            object : RoutesRequestCallback {
+            object : RouterCallback {
                 /**
                  * The callback is triggered when the routes are ready to be displayed.
                  */
@@ -126,7 +127,7 @@ class FetchARouteActivity : AppCompatActivity() {
                 /**
                  * The callback is triggered if the request to fetch a route was canceled.
                  */
-                override fun onRoutesRequestCanceled(routeOptions: RouteOptions) {
+                override fun onCanceled(routeOptions: RouteOptions) {
                     // This particular callback is executed if you invoke
                     // mapboxNavigation.cancelRouteRequest()
                     Toast.makeText(
@@ -139,7 +140,7 @@ class FetchARouteActivity : AppCompatActivity() {
                 /**
                  * The callback is triggered if the request to fetch a route failed for any reason.
                  */
-                override fun onRoutesRequestFailure(throwable: Throwable, routeOptions: RouteOptions) {
+                override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
                     Toast.makeText(
                         this@FetchARouteActivity,
                         getString(R.string.fetch_a_route_error_message),
