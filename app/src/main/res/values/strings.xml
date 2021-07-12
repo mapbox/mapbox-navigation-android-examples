@@ -28,6 +28,10 @@
   <string name="title_route">Draw route lines on a map</string>
   <string name="description_route">Use the example to draw multiple route lines using Navigation SDK APIs and Views.</string>
 
+  <!-- Speed Limit -->
+  <string name="title_speed_limit">Render speed limit for a route</string>
+  <string name="description_speed_limit">Use the example to render speed limits using Navigation SDK APIs and Views.</string>
+
   <!-- Turn by Turn -->
   <string name="title_turn_by_turn">Add a turn by turn experience</string>
   <string name="description_turn_by_turn">Use this example to render complete turn by turn experience using Navigation SDK APIs and Views.</string>
