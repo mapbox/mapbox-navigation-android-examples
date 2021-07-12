@@ -39,8 +39,7 @@ import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 /**
@@ -237,6 +236,8 @@ class ShowTripProgressActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun initNavigation() {
+        // This is important to call as the [LocationProvider] will only start sending
+        // location updates when the trip session has started.
         mapboxNavigation.startTripSession()
     }
 
@@ -271,7 +272,7 @@ class ShowTripProgressActivity : AppCompatActivity() {
     }
 
     private fun drawRoute() {
-        CoroutineScope(Dispatchers.Main).launch {
+        MainScope().launch {
             routeLineApi.setRoutes(
                 listOf(RouteLine(route, null))
             ).apply {
