@@ -1,6 +1,7 @@
 package com.mapbox.navigation.examples.basics
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View.GONE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
+import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
@@ -48,6 +50,10 @@ import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBindi
  */
 class FetchARouteActivity : AppCompatActivity() {
 
+    private companion object {
+        private const val LOG_TAG = "FetchARouteActivity"
+    }
+
     private lateinit var mapboxMap: MapboxMap
     private lateinit var mapboxNavigation: MapboxNavigation
     private lateinit var binding: MapboxActivityFetchARouteBinding
@@ -78,17 +84,13 @@ class FetchARouteActivity : AppCompatActivity() {
     private fun initNavigation() {
         mapboxNavigation = MapboxNavigation(
             NavigationOptions.Builder(this)
-                .accessToken(getMapboxAccessTokenFromResources())
+                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         )
     }
 
     private fun initStyle() {
         mapboxMap.loadStyleUri(Style.MAPBOX_STREETS)
-    }
-
-    private fun getMapboxAccessTokenFromResources(): String {
-        return getString(this.resources.getIdentifier("mapbox_access_token", "string", packageName))
     }
 
     /**
@@ -101,11 +103,9 @@ class FetchARouteActivity : AppCompatActivity() {
             // applies the default parameters to route options
             .applyDefaultNavigationOptions()
             .applyLanguageAndVoiceUnitOptions(this)
-            // specifies the access token required to fetch a route
-            .accessToken(getMapboxAccessTokenFromResources())
             // lists the coordinate pair i.e. origin and destination
             // If you want to specify waypoints you can pass list of points instead of null
-            .coordinates(listOf(origin, destination))
+            .coordinatesList(listOf(origin, destination))
             // set it to true if you want to receive alternate routes to your destination
             .alternatives(false)
             .build()
@@ -115,7 +115,10 @@ class FetchARouteActivity : AppCompatActivity() {
                 /**
                  * The callback is triggered when the routes are ready to be displayed.
                  */
-                override fun onRoutesReady(routes: List<DirectionsRoute>) {
+                override fun onRoutesReady(
+                    routes: List<DirectionsRoute>,
+                    routerOrigin: RouterOrigin
+                ) {
                     binding.fetchARouteButton.visibility = GONE
                     Toast.makeText(
                         this@FetchARouteActivity,
@@ -127,7 +130,7 @@ class FetchARouteActivity : AppCompatActivity() {
                 /**
                  * The callback is triggered if the request to fetch a route was canceled.
                  */
-                override fun onCanceled(routeOptions: RouteOptions) {
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
                     // This particular callback is executed if you invoke
                     // mapboxNavigation.cancelRouteRequest()
                     Toast.makeText(
@@ -141,6 +144,7 @@ class FetchARouteActivity : AppCompatActivity() {
                  * The callback is triggered if the request to fetch a route failed for any reason.
                  */
                 override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
+                    Log.e(LOG_TAG, "route request failed with $reasons")
                     Toast.makeText(
                         this@FetchARouteActivity,
                         getString(R.string.fetch_a_route_error_message),
