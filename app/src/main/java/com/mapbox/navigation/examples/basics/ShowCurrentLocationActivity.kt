@@ -16,6 +16,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationObserver
+import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityUserCurrentLocationBinding
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 
@@ -115,7 +116,7 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
     private fun initNavigation() {
         mapboxNavigation = MapboxNavigation(
             NavigationOptions.Builder(this)
-                .accessToken(getMapboxAccessTokenFromResources())
+                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         ).apply {
             // This is important to call as the [LocationProvider] will only start sending
@@ -129,10 +130,6 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
 
     private fun initStyle() {
         mapboxMap.loadStyleUri(Style.MAPBOX_STREETS)
-    }
-
-    private fun getMapboxAccessTokenFromResources(): String {
-        return getString(this.resources.getIdentifier("mapbox_access_token", "string", packageName))
     }
 
     private fun updateCamera(location: Location) {
