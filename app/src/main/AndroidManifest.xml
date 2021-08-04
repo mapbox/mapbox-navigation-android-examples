@@ -41,9 +41,7 @@
         android:screenOrientation="portrait"
         />
 
-    <activity android:name=".basics.TurnByTurnExperienceActivity"
-        android:screenOrientation="portrait"
-        />
+    <activity android:name=".basics.TurnByTurnExperienceActivity"/>
   </application>
 
 </manifest>

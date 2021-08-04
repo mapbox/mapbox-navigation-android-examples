@@ -204,7 +204,7 @@ class ShowManeuversActivity : AppCompatActivity() {
     /**
      * Register the observer to listen to route progress events to get the trip progress related information.
      *
-     * Then, use that information to generate a list of upcoming maneuvers and their shields, and render them in the view.
+     * Then, use that information to generate a list of all maneuvers starting at the current step you are on, along with their shields, and render them in the view.
      */
     private val routeProgressObserver = RouteProgressObserver { progress ->
         val expected = maneuverApi.getManeuvers(progress)
