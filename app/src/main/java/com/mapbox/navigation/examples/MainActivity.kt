@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 ShowSpeedLimitActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_tbt_experience),
                 getString(R.string.title_turn_by_turn),
                 getString(R.string.description_turn_by_turn),
                 TurnByTurnExperienceActivity::class.java
