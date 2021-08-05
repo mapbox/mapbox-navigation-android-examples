@@ -199,14 +199,13 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
      */
     private lateinit var tripProgressApi: MapboxTripProgressApi
 
-    // route line
     /**
      * Generates updates for the [routeLineView] with the geometries and properties of the routes that should be drawn on the map.
      */
     private lateinit var routeLineApi: MapboxRouteLineApi
 
     /**
-     * Draws route lines on the map based on the data from the [routeArrowApi]
+     * Draws route lines on the map based on the data from the [routeLineApi]
      */
     private lateinit var routeLineView: MapboxRouteLineView
 
