@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
+import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
@@ -17,6 +18,7 @@ import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
 
@@ -54,8 +56,21 @@ class FetchARouteActivity : AppCompatActivity() {
         private const val LOG_TAG = "FetchARouteActivity"
     }
 
+    /**
+     * Mapbox Maps entry point obtained from the [MapView].
+     * You need to get a new reference to this object whenever the [MapView] is recreated.
+     */
     private lateinit var mapboxMap: MapboxMap
+
+    /**
+     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
+     * You can use [MapboxNavigationProvider] to help create and obtain that instance.
+     */
     private lateinit var mapboxNavigation: MapboxNavigation
+
+    /**
+     * Bindings to the example layout.
+     */
     private lateinit var binding: MapboxActivityFetchARouteBinding
 
     private val origin = Point.fromLngLat(-122.4192, 37.7627)
