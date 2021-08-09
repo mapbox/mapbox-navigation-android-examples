@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sample list of allowed hosts. Do not translate -->
+    <string-array name="android_auto_allow_list" translatable="false">
+        <!-- <sha256>,<package name> -->
+
+        <!-- Android Automotive OS Template Host - Debug -->
+        <item>abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123,
+            com.mapbox.examples.androidauto</item>
+
+    </string-array>
+</resources>

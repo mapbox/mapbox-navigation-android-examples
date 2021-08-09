@@ -1,0 +1,8 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="CarAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="maneuverTurnIconColor">@android:color/white</item>
+    </style>
+
+</resources>
