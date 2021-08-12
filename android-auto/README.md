@@ -19,13 +19,26 @@ Testing on a car, requires us to release a version of one tap and then getting a
 
 1. Install the emulator: SDK Manager > SDK Tools > Android Auto Desktop Head Unit Emulator > **install**
 1. Make sure you have the Android Auto app on your phone https://play.google.com/store/apps/details?id=com.google.android.projection.gearhead
-1. Android Auto App, enable developer settings by tapping on device info and then version info
+1. Android Auto App, enable developer settings (of the Android Auto application) by tapping on version info (several times) under "About"
 1. Android Auto App > click the hamburger on the top right > Start head unit server
 1. Set the `ANDROID_HOME` environment variable to your android SDK location (e.g., /Users/{user}/Library/Android/sdk)
-1. $ make car
+1. $ make car (this does not work when "make" file is not present in current directory) --> TODO: Add Make file, or follow below commands
+
+    1. Install adb (or use adb from $ANDROID_HOME/platform-tools)
     1. $ adb forward tcp:5277 tcp:5277
     1. $ cd $(ANDROID_HOME)/extras/google/auto/
     1. $ ./desktop-head-unit
+
+1. Allow notification access on the phone for Android Auto after being prompted
+2. Install all applications that are prompted to be installed (e.g. Google App)
+3. Add Mapbox Access Token to both `app` and `android-auto-app` modules `mapbox_access_token.xml`
+4. Install Mapbox Example App as Build Type `Android-auto-app`
+5. Restart both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
+
+### Hints
+
+- use a Google Pixel device, Xiaomi does not offer Additional Settings in Android Auto App details
+- When changing settings, both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
 
 ## Development
 
