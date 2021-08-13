@@ -19,8 +19,8 @@ Testing on a car, requires us to release a version of one tap and then getting a
 
 1. Install the emulator: SDK Manager > SDK Tools > Android Auto Desktop Head Unit Emulator > **install**
 1. Make sure you have the Android Auto app on your phone https://play.google.com/store/apps/details?id=com.google.android.projection.gearhead
-1. Android Auto App, enable developer settings (of the Android Auto application) by tapping on version info (several times) under "About"
-1. Android Auto App > click the hamburger on the top right > Start head unit server
+1. In the Android Auto mobile app, [enable developer settings](https://developer.android.com/training/cars/testing#step1) by tapping on version info (several times) under "About"
+1. Android Auto mobile app > click the hamburger on the top right > Start head unit server
 1. Set the `ANDROID_HOME` environment variable to your android SDK location (e.g., /Users/{user}/Library/Android/sdk)
 1. $ make car (this does not work when "make" file is not present in current directory) --> TODO: Add Make file, or follow below commands
 
