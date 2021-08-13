@@ -31,9 +31,7 @@ Testing on a car, requires us to release a version of one tap and then getting a
 
 1. Allow notification access on the phone for Android Auto after being prompted
 2. Install all applications that are prompted to be installed (e.g. Google App)
-3. Add Mapbox Access Token to both `app` and `android-auto-app` modules `mapbox_access_token.xml`
-4. Install Mapbox Example App as Build Type `Android-auto-app`
-5. Restart both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
+
 
 ### Hints
 
@@ -41,6 +39,10 @@ Testing on a car, requires us to release a version of one tap and then getting a
 - When changing settings, both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
 
 ## Development
+
+1. Add Mapbox Access Token to both `app` and `android-auto-app` modules `mapbox_access_token.xml`
+1. Install Mapbox Example App as Build Type `Android-auto-app`
+1. Restart both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
 
 Running into emulator issues: https://issuetracker.google.com/issues/174231592
 
