@@ -36,8 +36,7 @@ Testing on a car, requires us to release a version of one tap and then getting a
 
 ### Hints
 
-- use a Google Pixel device, Xiaomi does not offer Additional Settings in Android Auto App details
-- When changing settings, both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
+
 
 ## Development
 
@@ -50,6 +49,8 @@ Running into emulator issues: https://issuetracker.google.com/issues/174231592
 Android Auto doesn't show the app, the fix sometimes feels random.
  - Android Auto App: Try Developer settings > Application Mode > Developer
  - Android Auto App: Try clearing data and setting it all up again
+ - use a Google Pixel device, Xiaomi does not offer Additional Settings in Android Auto App details
+ - When changing settings, both `stop head unit server` from the device (hamburger menu) and restart desktop head unit via  `./desktop-head-unit`
 
 Maps multiple subscriptions to locations https://github.com/mapbox/mapbox-maps-android/issues/301
 
