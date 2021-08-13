@@ -22,9 +22,10 @@ Testing on a car, requires us to release a version of one tap and then getting a
 1. In the Android Auto mobile app, [enable developer settings](https://developer.android.com/training/cars/testing#step1) by tapping on version info (several times) under "About"
 1. Android Auto mobile app > click the hamburger on the top right > Start head unit server
 1. Set the `ANDROID_HOME` environment variable to your android SDK location (e.g., /Users/{user}/Library/Android/sdk)
+1. Install adb (or use adb from $ANDROID_HOME/platform-tools)
 1. $ make car (this does not work when "make" file is not present in current directory) --> TODO: Add Make file, or follow below commands
 
-    1. Install adb (or use adb from $ANDROID_HOME/platform-tools)
+    
     1. $ adb forward tcp:5277 tcp:5277
     1. $ cd $(ANDROID_HOME)/extras/google/auto/
     1. $ ./desktop-head-unit
