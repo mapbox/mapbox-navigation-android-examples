@@ -6,6 +6,7 @@
     <string name="car_search_no_results">No results</string>
     <string name="car_search_unknown_current_location">Unknown current location</string>
     <string name="car_search_unknown_search_location">Unknown search location</string>
+    <string name="car_label_ok">OK</string>
 
     <string name="car_action_preview_title" translatable="false">Route preview</string>
     <string name="car_action_preview_no_location" translatable="false">Current location not found</string>
@@ -18,5 +19,6 @@
     <string name="car_settings_toggle_place_holder_key" translatable="false">settings_place_holder</string>
     <string name="car_settings_preload_failure_title">Failed to pre-load settings</string>
     <string name="car_settings_preload_failure_message">Try opening the app again.</string>
-
+    <string name="car_message_location_permissions">Please open the application and enable location permission.</string>
+    <string name="car_message_location_permissions_title">Needs location permission</string>
 </resources>
