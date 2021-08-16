@@ -1,17 +1,19 @@
 # Mapbox Navigation Android SDK Examples
 
-The repository is a collection of examples showing off the [Mapbox Navigation Android SDK](https://github.com/mapbox/mapbox-navigation-android). The repository
-also hosts a separate module for **Android-Auto** and showcases examples to run on a desktop head unit. To understand how to use `android-auto` examples,
-look at [Android Auto Readme](https://github.com/mapbox/mapbox-navigation-android-examples/blob/main/android-auto/README.md).
+The repository is a collection of examples showing off the [Mapbox Navigation Android SDK](https://github.com/mapbox/mapbox-navigation-android). In order to support minSdkVersion 21 and Android Auto, there are two example apps.
+
+1. [app](app) minSdkVersion of 21
+2. [android-auto-app](android-auto-app) minSdkVersion of 23
 
 <div align="center">
-<img src="https://github.com/mapbox/mapbox-navigation-android-examples/blob/main/.github/splash_example.png" width="300"/>
+  <img align="center" src=".github/splash_example.png" width="300"/>
 </div>
 
 ## Installation
 
-Before you go ahead and clone the repository, make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/beta/navigation/guides/install/) guide.
-Once you have your public access token and secret token ready, do the following:
+Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/beta/navigation/guides/install/) guide. Once you have your public access token and secret token ready, do the following:
+
+### [app](app)
 
 1. `git clone git@github.com:mapbox/mapbox-navigation-android-examples.git`
 2. Go to `app/src/main/res/values`
@@ -25,6 +27,7 @@ Once you have your public access token and secret token ready, do the following:
    </resources>
    ```
 6. Run the examples under `app`.
+
 
 ## Getting Help
 
