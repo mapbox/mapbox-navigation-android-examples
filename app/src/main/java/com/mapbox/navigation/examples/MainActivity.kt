@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 RenderRouteLineActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_basic_camera),
                 getString(R.string.title_camera_transitions),
                 getString(R.string.description_camera_transitions),
                 ShowCameraTransitionsActivity::class.java
