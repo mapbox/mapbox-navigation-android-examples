@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
@@ -619,7 +620,8 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     }
 
     private fun findRoute(destination: Point) {
-        val origin = navigationLocationProvider.lastLocation?.let {
+        val originLocation = navigationLocationProvider.lastLocation
+        val originPoint = originLocation?.let {
             Point.fromLngLat(it.longitude, it.latitude)
         } ?: return
 
@@ -632,7 +634,18 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             RouteOptions.builder()
                 .applyDefaultNavigationOptions()
                 .applyLanguageAndVoiceUnitOptions(this)
-                .coordinatesList(listOf(origin, destination))
+                .coordinatesList(listOf(originPoint, destination))
+                // provide the bearing for the origin of the request to ensure
+                // that the returned route faces in the direction of the current user movement
+                .bearingsList(
+                    listOf(
+                        Bearing.builder()
+                            .angle(originLocation.bearing.toDouble())
+                            .degrees(45.0)
+                            .build(),
+                        null
+                    )
+                )
                 .build(),
             object : RouterCallback {
                 override fun onRoutesReady(
