@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 ShowCurrentLocationActivity::class.java
             ),
             MapboxExample(
-                ContextCompat.getDrawable(this, R.drawable.mapbox_ic_fetch_a_route),
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_fetch_a_route),
                 getString(R.string.title_fetch_route),
                 getString(R.string.description_fetch_route),
                 FetchARouteActivity::class.java
