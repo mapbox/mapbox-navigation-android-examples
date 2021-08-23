@@ -8,8 +8,6 @@ The android-auto-app showcases the minimum integration needed to support the and
 
 ## Installation
 
-### [android-auto-app](android-auto-app)
-
 1. Change "Configuration" of "android-auto-app". "Launch Options - Launch" should be "Nothing"
 1. Update or create the "mapbox_access_token.xml" under "android-auto-app/src/main/res/values" and put below
    <?xml version="1.0" encoding="utf-8"?>
