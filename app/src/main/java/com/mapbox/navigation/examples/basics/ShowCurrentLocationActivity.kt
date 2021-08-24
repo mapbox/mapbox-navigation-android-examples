@@ -171,23 +171,8 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("MissingPermission")
-    override fun onStart() {
-        super.onStart()
-        // make sure that map view is started
-        binding.mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        // make sure that map view is stopped
-        binding.mapView.onStop()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        // make sure that map view is destroyed to avoid leaks.
-        binding.mapView.onDestroy()
         // make sure to stop the trip session. In this case it is being called inside `onDestroy`.
         mapboxNavigation.stopTripSession()
         // make sure to unregister the observer you have registered.
