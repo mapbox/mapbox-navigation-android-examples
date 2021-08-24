@@ -63,7 +63,7 @@ import com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
  * The example uses camera API's exposed by the Maps SDK rather than using the API's exposed by the
  * Navigation SDK. This is done to make the example concise and keep the focus on actual feature at
  * hand. To learn more about how to use the camera API's provided by the Navigation SDK look at
- * these examples
+ * [ShowCameraTransitionsActivity]
  *
  * How to use this example:
  * - The example uses a single hardcoded route with no alternatives.

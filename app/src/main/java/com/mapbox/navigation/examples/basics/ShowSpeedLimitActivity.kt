@@ -56,6 +56,11 @@ import com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView
  * the permission is essential for proper functioning of this example. The example also uses replay
  * location engine to facilitate navigation without actually physically moving.
  *
+ * The example uses camera API's exposed by the Maps SDK rather than using the API's exposed by the
+ * Navigation SDK. This is done to make the example concise and keep the focus on actual feature at
+ * hand. To learn more about how to use the camera API's provided by the Navigation SDK look at
+ * [ShowCameraTransitionsActivity]
+ *
  * How to use this example:
  * - The example uses a single hardcoded route with no alternatives.
  * - When the example starts, the camera transitions to the location where the route is.

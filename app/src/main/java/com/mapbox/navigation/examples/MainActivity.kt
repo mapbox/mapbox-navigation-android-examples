@@ -148,7 +148,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 ShowSpeedLimitActivity::class.java
             ),
             MapboxExample(
-                null,
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.mapbox_screenshot_building_extrusion
+                ),
                 getString(R.string.title_building_extrusions),
                 getString(R.string.description_building_extrusions),
                 ShowBuildingExtrusionsActivity::class.java
