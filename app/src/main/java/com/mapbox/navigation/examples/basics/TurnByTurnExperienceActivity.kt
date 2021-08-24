@@ -569,7 +569,6 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        binding.mapView.onStart()
 
         // register event listeners
         mapboxNavigation.registerRoutesObserver(routesObserver)
@@ -596,7 +595,6 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        binding.mapView.onStop()
 
         // unregister event listeners to prevent leaks or unnecessary resource consumption
         mapboxNavigation.unregisterRoutesObserver(routesObserver)
@@ -608,15 +606,9 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.mapView.onDestroy()
         MapboxNavigationProvider.destroy()
         speechApi.cancel()
         voiceInstructionsPlayer.shutdown()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
     }
 
     private fun findRoute(destination: Point) {

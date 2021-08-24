@@ -356,7 +356,6 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        binding.mapView.onStart()
 
         // register event listeners
         mapboxNavigation.registerRoutesObserver(routesObserver)
@@ -367,7 +366,6 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        binding.mapView.onStop()
 
         // unregister event listeners to prevent leaks or unnecessary resource consumption
         mapboxNavigation.unregisterRoutesObserver(routesObserver)
@@ -378,13 +376,7 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.mapView.onDestroy()
         MapboxNavigationProvider.destroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
     }
 
     private fun startSimulation(route: DirectionsRoute) {

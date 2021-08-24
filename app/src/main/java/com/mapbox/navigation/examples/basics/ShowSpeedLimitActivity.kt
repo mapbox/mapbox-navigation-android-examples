@@ -27,7 +27,6 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.MapMatcherResultObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowSpeedLimitBinding
-import com.mapbox.navigation.ui.maps.internal.route.line.MapboxRouteLineApiExtensions.setRoutes
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
@@ -327,23 +326,8 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    override fun onStart() {
-        super.onStart()
-        // make sure that map view is started
-        binding.mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        // make sure that map view is stopped
-        binding.mapView.onStop()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        // make sure that map view is destroyed to avoid leaks.
-        binding.mapView.onDestroy()
         mapboxNavigation.run {
             // make sure to stop the trip session. In this case it is being called inside `onDestroy`.
             stopTripSession()
@@ -357,10 +341,5 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
             unregisterRouteProgressObserver(replayProgressObserver)
         }
         mapboxNavigation.onDestroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
     }
 }

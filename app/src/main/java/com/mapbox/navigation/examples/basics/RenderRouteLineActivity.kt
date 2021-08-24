@@ -378,19 +378,8 @@ class RenderRouteLineActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewBinding.mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewBinding.mapView.onStop()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        viewBinding.mapView.onDestroy()
         locationComponent.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
         mapboxNavigation.run {
             // make sure to stop the trip session. In this case it is being called inside `onDestroy`.
@@ -405,10 +394,5 @@ class RenderRouteLineActivity : AppCompatActivity() {
             unregisterRouteProgressObserver(replayProgressObserver)
         }
         mapboxNavigation.onDestroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        viewBinding.mapView.onLowMemory()
     }
 }
