@@ -3,6 +3,8 @@ package com.mapbox.examples.androidauto.car.navigation
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.RoutingInfo
 import androidx.car.app.navigation.model.Step
+import com.mapbox.androidauto.car.navigation.lanes.CarLanesImageRenderer
+import com.mapbox.androidauto.car.navigation.lanes.useMapboxLaneGuidance
 import com.mapbox.bindgen.Expected
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.ui.maneuver.model.Maneuver
@@ -15,9 +17,11 @@ import com.mapbox.navigation.ui.maneuver.model.ManeuverError
  */
 class CarNavigationInfoMapper(
     private val carManeuverMapper: CarManeuverMapper,
+    private val carLanesImageGenerator: CarLanesImageRenderer,
     private val carDistanceFormatter: CarDistanceFormatter
 ) {
-    fun from(
+
+    fun mapNavigationInfo(
         expectedManeuvers: Expected<ManeuverError, List<Maneuver>>?,
         routeProgress: RouteProgress?
     ): NavigationTemplate.NavigationInfo? {
@@ -26,10 +30,13 @@ class CarNavigationInfoMapper(
         val maneuver = expectedManeuvers?.value?.firstOrNull()
         val primaryManeuver = maneuver?.primary
         return if (primaryManeuver != null) {
-            val carManeuver = carManeuverMapper.from(primaryManeuver.type, primaryManeuver.modifier)
+            val carManeuver = carManeuverMapper
+                .from(primaryManeuver.type, primaryManeuver.modifier)
             val step = Step.Builder(primaryManeuver.text)
                 .setManeuver(carManeuver)
+                .useMapboxLaneGuidance(carLanesImageGenerator, maneuver.laneGuidance)
                 .build()
+
             val stepDistance = carDistanceFormatter.carDistance(distanceRemaining.toDouble())
             RoutingInfo.Builder()
                 .setCurrentStep(step, stepDistance)

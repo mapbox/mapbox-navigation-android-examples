@@ -11,14 +11,15 @@ import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.mapbox.examples.androidauto.car.MainActionStrip
-import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.examples.androidauto.car.navigation.CarNavigateScreen
-import com.mapbox.examples.androidauto.car.navigation.CarNavigationCarContext
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
+import com.mapbox.examples.androidauto.car.MainActionStrip
+import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
+import com.mapbox.examples.androidauto.car.navigation.CarNavigateScreen
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
+import com.mapbox.examples.androidauto.car.navigation.CarNavigationCarContext
 import com.mapbox.search.result.SearchResult
 
 /**
@@ -34,6 +35,7 @@ class CarRoutePreviewScreen(
     var selectedIndex = 0
     val carRouteLine = CarRouteLine(routePreviewCarContext.mainCarContext, lifecycle)
     val carLocationRenderer = CarLocationRenderer(routePreviewCarContext.mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(routePreviewCarContext.mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         routePreviewCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.OVERVIEW
@@ -102,6 +104,7 @@ class CarRoutePreviewScreen(
             fun onStart() {
                 logAndroidAuto("CarRoutePreviewScreen onStart")
                 routePreviewCarContext.mapboxCarMap.registerListener(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.registerListener(carNavigationCamera)
                 routePreviewCarContext.mapboxCarMap.registerListener(carRouteLine)
             }
@@ -110,6 +113,7 @@ class CarRoutePreviewScreen(
             fun onStop() {
                 logAndroidAuto("CarRoutePreviewScreen onStop")
                 routePreviewCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
                 routePreviewCarContext.mapboxCarMap.unregisterListener(carRouteLine)
             }

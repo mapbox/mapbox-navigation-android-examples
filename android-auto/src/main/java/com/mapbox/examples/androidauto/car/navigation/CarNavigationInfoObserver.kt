@@ -1,6 +1,7 @@
 package com.mapbox.examples.androidauto.car.navigation
 
 import androidx.car.app.navigation.model.NavigationTemplate
+import androidx.car.app.navigation.model.TravelEstimate
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.bindgen.Expected
 import com.mapbox.navigation.base.trip.model.RouteProgress
@@ -26,6 +27,7 @@ class CarNavigationInfoObserver(
             }
         }
 
+    var travelEstimateInfo: TravelEstimate? = null
     private var expectedManeuvers: Expected<ManeuverError, List<Maneuver>>? = null
     private var routeProgress: RouteProgress? = null
 
@@ -37,7 +39,9 @@ class CarNavigationInfoObserver(
 
     private fun updateNavigationInfo() {
         this.navigationInfo = carNavigationCarContext.navigationInfoMapper
-            .from(expectedManeuvers, routeProgress)
+            .mapNavigationInfo(expectedManeuvers, routeProgress)
+
+        this.travelEstimateInfo = carNavigationCarContext.tripProgressMapper.from(routeProgress)
     }
 
     fun start(onNavigationInfoChanged: () -> Unit) {

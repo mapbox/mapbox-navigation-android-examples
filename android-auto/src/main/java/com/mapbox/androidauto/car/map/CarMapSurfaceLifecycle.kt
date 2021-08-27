@@ -12,6 +12,12 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
 import com.mapbox.maps.ResourceOptionsManager
+import com.mapbox.maps.extension.androidauto.CompassWidget
+import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
+import com.mapbox.maps.extension.androidauto.LogoWidget
+import com.mapbox.maps.extension.androidauto.addCompassWidget
+import com.mapbox.maps.extension.androidauto.addLogoWidget
+import com.mapbox.maps.extension.androidauto.addSpeedLimitWidget
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.maps.plugin.delegates.listeners.eventdata.MapLoadErrorType
 
@@ -49,18 +55,14 @@ internal class CarMapSurfaceLifecycle internal constructor(
 
     override fun onStart(owner: LifecycleOwner) {
         logAndroidAuto("CarMapSurfaceLifecycle onStart")
-        carMapSurfaceSession.mapboxCarMapSurface?.mapSurface?.onStart()
     }
 
     override fun onStop(owner: LifecycleOwner) {
         logAndroidAuto("CarMapSurfaceLifecycle onStop")
-        carMapSurfaceSession.mapboxCarMapSurface?.mapSurface?.onStop()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
         logAndroidAuto("CarMapSurfaceLifecycle onDestroy")
-        carMapSurfaceSession.mapboxCarMapSurface?.mapSurface?.surfaceDestroyed()
-        carMapSurfaceSession.mapboxCarMapSurface?.mapSurface?.onDestroy()
     }
 
     /** Surface lifecycle events */
@@ -75,12 +77,14 @@ internal class CarMapSurfaceLifecycle internal constructor(
                 resourceOptions = resourceOptions
             )
             val mapSurface = MapSurface(carContext, it, mapInitOptions)
+            mapSurface.onStart()
             mapSurface.surfaceCreated()
             mapSurface.getMapboxMap().loadStyleUri(mapStyleUri, onStyleLoaded = { style ->
                 logAndroidAuto("CarMapSurfaceLifecycle styleAvailable")
                 mapSurface.surfaceChanged(surfaceContainer.width, surfaceContainer.height)
                 val carMapSurface = MapboxCarMapSurface(mapSurface, surfaceContainer, style)
                 carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
+                setupWidgets(mapSurface)
             }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
                 override fun onMapLoadError(mapLoadErrorType: MapLoadErrorType, message: String) {
                     logAndroidAuto("CarMapSurfaceLifecycle onMapLoadError " +
@@ -88,6 +92,14 @@ internal class CarMapSurfaceLifecycle internal constructor(
                 }
             })
         }
+    }
+
+    private fun setupWidgets(mapSurface: MapSurface) {
+        val speedLimitWidget = SpeedLimitWidget()
+        mapSurface.addLogoWidget(LogoWidget(carContext))
+        mapSurface.addCompassWidget(CompassWidget(carContext))
+        mapSurface.addSpeedLimitWidget(speedLimitWidget)
+        carMapSurfaceSession.carSpeedLimitWidgetAvailable(speedLimitWidget)
     }
 
     override fun onVisibleAreaChanged(visibleArea: Rect) {

@@ -9,10 +9,12 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.mapbox.examples.androidauto.car.customlayers.CarRoadLabelLayer
 import com.mapbox.androidauto.car.navigation.voice.CarNavigationVoiceAction
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 
 /**
@@ -25,9 +27,14 @@ class CarNavigateScreen(
 
     val carRouteLine = CarRouteLine(carNavigationCarContext.mainCarContext, lifecycle)
     val carLocationRenderer = CarLocationRenderer(carNavigationCarContext.mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carNavigationCarContext.mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         carNavigationCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
+    )
+    private val carMapViewLayer = CarRoadLabelLayer(
+        carNavigationCarContext.carContext,
+        carNavigationCarContext.mapboxNavigation
     )
 
     private val carRouteProgressObserver = CarNavigationInfoObserver(carNavigationCarContext)
@@ -35,7 +42,7 @@ class CarNavigateScreen(
     override fun onGetTemplate(): Template {
         logAndroidAuto("CarNavigateScreen onGetTemplate")
         val builder = NavigationTemplate.Builder()
-            .setBackgroundColor(CarColor.SECONDARY)
+            .setBackgroundColor(CarColor.PRIMARY)
             .setActionStrip(
                 ActionStrip.Builder()
                     .addAction(
@@ -53,6 +60,10 @@ class CarNavigateScreen(
 
         carRouteProgressObserver.navigationInfo?.let {
             builder.setNavigationInfo(it)
+        }
+
+        carRouteProgressObserver.travelEstimateInfo?.let {
+            builder.setDestinationTravelEstimate(it)
         }
 
         return builder.build()
@@ -83,8 +94,10 @@ class CarNavigateScreen(
             fun onStart() {
                 logAndroidAuto("CarNavigateScreen onStart")
                 carNavigationCarContext.mapboxCarMap.registerListener(carLocationRenderer)
+                carNavigationCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
                 carNavigationCarContext.mapboxCarMap.registerListener(carNavigationCamera)
                 carNavigationCarContext.mapboxCarMap.registerListener(carRouteLine)
+                carNavigationCarContext.mapboxCarMap.registerListener(carMapViewLayer)
                 carRouteProgressObserver.start {
                     invalidate()
                 }
@@ -94,8 +107,10 @@ class CarNavigateScreen(
             fun onStop() {
                 logAndroidAuto("CarNavigateScreen onStop")
                 carNavigationCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
+                carNavigationCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
                 carNavigationCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
                 carNavigationCarContext.mapboxCarMap.unregisterListener(carRouteLine)
+                carNavigationCarContext.mapboxCarMap.unregisterListener(carMapViewLayer)
                 carRouteProgressObserver.stop()
             }
         })

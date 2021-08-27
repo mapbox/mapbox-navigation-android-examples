@@ -3,6 +3,7 @@ package com.mapbox.androidauto.car.map
 import android.graphics.Rect
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 import com.mapbox.navigation.utils.internal.ifNonNull
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -19,6 +20,8 @@ internal class CarMapSurfaceSession {
         private set
     internal var edgeInsets: EdgeInsets? = null
         private set
+    internal var speedLimitWidget: SpeedLimitWidget? = null
+        private set
 
     private val mapSurfaceLifecycleListeners = CopyOnWriteArraySet<MapboxCarMapSurfaceListener>()
 
@@ -28,6 +31,9 @@ internal class CarMapSurfaceSession {
 
         mapboxCarMapSurface?.let { carMapSurface ->
             mapboxCarMapSurfaceListener.loaded(carMapSurface)
+        }
+        speedLimitWidget?.let { widget ->
+            mapboxCarMapSurfaceListener.onSpeedLimitWidgetAvailable(widget)
         }
         ifNonNull(mapboxCarMapSurface, visibleArea, edgeInsets) { _, area, edge ->
             logAndroidAuto("CarMapSurfaceSession registerLifecycleListener visibleAreaChanged")
@@ -52,11 +58,17 @@ internal class CarMapSurfaceSession {
         notifyVisibleAreaChanged()
     }
 
+    fun carSpeedLimitWidgetAvailable(speedLimitWidget: SpeedLimitWidget) {
+        logAndroidAuto("CarMapSurfaceSession carSpeedLimitWidgetAvailable")
+        this.speedLimitWidget = speedLimitWidget
+        mapSurfaceLifecycleListeners.forEach { it.onSpeedLimitWidgetAvailable(speedLimitWidget) }
+    }
+
     fun carMapSurfaceDestroyed() {
         val detachSurface = this.mapboxCarMapSurface
-        // Only stopping the surface here. onSurfaceDestroyed is called for screen changes,
-        // but it is restored after reaching a screen again.
         detachSurface?.mapSurface?.onStop()
+        detachSurface?.mapSurface?.surfaceDestroyed()
+        detachSurface?.mapSurface?.onDestroy()
         this.mapboxCarMapSurface = null
         detachSurface?.let { mapSurfaceLifecycleListeners.forEach { it.detached(detachSurface) } }
     }
