@@ -13,4 +13,11 @@ class MapboxCarMapSurface internal constructor(
     val mapSurface: MapSurface,
     val surfaceContainer: SurfaceContainer,
     val style: Style
-)
+) {
+    override fun toString(): String {
+        return "MapboxCarMapSurface(mapSurface=$mapSurface," +
+                " surfaceContainer=$surfaceContainer," +
+                " style=$style" +
+                ")"
+    }
+}

@@ -8,7 +8,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.examples.androidauto.car.customlayers.CarRoadLabelLayer
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 
 /**
@@ -19,21 +21,24 @@ class MainCarScreen(
 ) : Screen(mainCarContext.carContext) {
 
     val carLocationRenderer = CarLocationRenderer(mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         mainCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
     )
+    private val carMapViewLayer = CarRoadLabelLayer(
+        mainCarContext.carContext,
+        mainCarContext.mapboxNavigation
+    )
 
     override fun onGetTemplate(): Template {
-        val builder = NavigationTemplate.Builder()
-        builder.setBackgroundColor(CarColor.SECONDARY)
-
-        builder.setActionStrip(
-            MainActionStrip(mainCarContext, this).builder()
-                .build()
-        )
-
-        return builder.build()
+        return NavigationTemplate.Builder()
+            .setBackgroundColor(CarColor.PRIMARY)
+            .setActionStrip(
+                MainActionStrip(mainCarContext, this).builder()
+                    .build()
+            )
+            .build()
     }
 
     init {
@@ -43,14 +48,18 @@ class MainCarScreen(
             fun onStart() {
                 logAndroidAuto("MainCarScreen onStart")
                 mainCarContext.mapboxCarMap.registerListener(carLocationRenderer)
+                mainCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.registerListener(carNavigationCamera)
+                mainCarContext.mapboxCarMap.registerListener(carMapViewLayer)
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
                 logAndroidAuto("MainCarScreen onStop")
                 mainCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
+                mainCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
+                mainCarContext.mapboxCarMap.unregisterListener(carMapViewLayer)
             }
         })
     }

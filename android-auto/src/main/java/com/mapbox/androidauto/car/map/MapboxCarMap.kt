@@ -35,7 +35,7 @@ class MapboxCarMap constructor(
         lifecycle.addObserver(mapSurfaceCallback)
     }
 
-    fun registerListener(mapboxCarMapSurfaceListener: MapboxCarMapSurfaceListener) {
+    fun registerListener(mapboxCarMapSurfaceListener: MapboxCarMapSurfaceListener) = apply {
         carMapSurfaceSession.registerLifecycleListener(mapboxCarMapSurfaceListener)
     }
 
