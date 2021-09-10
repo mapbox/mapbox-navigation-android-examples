@@ -13,6 +13,7 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
 import com.mapbox.navigation.examples.basics.FetchARouteActivity
+import com.mapbox.navigation.examples.basics.PlayVoiceInstructionsActivity
 import com.mapbox.navigation.examples.basics.RenderRouteLineActivity
 import com.mapbox.navigation.examples.basics.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.basics.ShowCameraTransitionsActivity
@@ -140,6 +141,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 getString(R.string.title_maneuver),
                 getString(R.string.description_maneuver),
                 ShowManeuversActivity::class.java
+            ),
+            MapboxExample(
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_voice),
+                getString(R.string.title_voice),
+                getString(R.string.description_voice),
+                PlayVoiceInstructionsActivity::class.java
             ),
             MapboxExample(
                 ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_speed_limit),

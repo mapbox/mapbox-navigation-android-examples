@@ -23,21 +23,22 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:textAllCaps="false"
+        android:visibility="gone"
         android:background="@drawable/mapbox_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-    <com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
-        android:id="@+id/tripProgressView"
-        android:layout_width="0dp"
+    <com.mapbox.navigation.ui.voice.view.MapboxSoundButton
+        android:id="@+id/soundButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <!-- Uncomment the following line of code to customize the MapboxTripProgressView -->
-        <!-- style="@style/MapboxCustomTripProgressStyle" -->
-    </com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView>
+        android:visibility="invisible"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

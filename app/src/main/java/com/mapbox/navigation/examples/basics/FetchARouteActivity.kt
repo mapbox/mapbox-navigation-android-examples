@@ -87,10 +87,12 @@ class FetchARouteActivity : AppCompatActivity() {
     }
     private val destination = Point.fromLngLat(-122.4106, 37.7676)
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        binding.fetchARouteButton.text = "Fetch A Route"
         binding.fetchARouteButton.setOnClickListener { fetchARoute() }
     }
 
