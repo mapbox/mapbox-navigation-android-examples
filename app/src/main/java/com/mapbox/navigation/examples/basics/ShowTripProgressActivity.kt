@@ -44,9 +44,6 @@ import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatt
 import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
 import com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * The example demonstrates how to draw trip progress information during active navigation.
@@ -228,13 +225,13 @@ class ShowTripProgressActivity : AppCompatActivity() {
      * on the map.
      */
     private val routesObserver: RoutesObserver = RoutesObserver { routes ->
-        CoroutineScope(Dispatchers.Main).launch {
-            val result = routeLineApi.setRoutes(
-                listOf(RouteLine(routes.first(), null))
-            )
-            val style = mapboxMap.getStyle()
-            if (style != null) {
-                routeLineView.renderRouteDrawData(style, result)
+        val routeLines = routes.map { RouteLine(it, null) }
+
+        routeLineApi.setRoutes(
+            routeLines
+        ) { value ->
+            mapboxMap.getStyle()?.apply {
+                routeLineView.renderRouteDrawData(this, value)
             }
         }
     }
@@ -283,12 +280,12 @@ class ShowTripProgressActivity : AppCompatActivity() {
 
         binding.actionButton.text = "Set Route"
         binding.actionButton.setOnClickListener {
-            when (binding.actionButton.text) {
-                "Set Route" -> {
+            when (mapboxNavigation.getRoutes().isEmpty()) {
+                true -> {
                     binding.actionButton.text = "Start Navigation"
                     mapboxNavigation.setRoutes(listOf(route))
                 }
-                "Start Navigation" -> {
+                false -> {
                     startSimulation()
                     binding.actionButton.visibility = GONE
                     binding.tripProgressView.visibility = VISIBLE

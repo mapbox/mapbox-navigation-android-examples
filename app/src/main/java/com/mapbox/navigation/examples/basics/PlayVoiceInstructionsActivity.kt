@@ -45,9 +45,6 @@ import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.ui.voice.model.SpeechError
 import com.mapbox.navigation.ui.voice.model.SpeechValue
 import com.mapbox.navigation.ui.voice.model.SpeechVolume
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 /**
@@ -259,13 +256,13 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
      * on the map.
      */
     private val routesObserver: RoutesObserver = RoutesObserver { routes ->
-        CoroutineScope(Dispatchers.Main).launch {
-            val result = routeLineApi.setRoutes(
-                listOf(RouteLine(routes.first(), null))
-            )
-            val style = mapboxMap.getStyle()
-            if (style != null) {
-                routeLineView.renderRouteDrawData(style, result)
+        val routeLines = routes.map { RouteLine(it, null) }
+
+        routeLineApi.setRoutes(
+            routeLines
+        ) { value ->
+            mapboxMap.getStyle()?.apply {
+                routeLineView.renderRouteDrawData(this, value)
             }
         }
     }
@@ -325,12 +322,12 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
 
         binding.actionButton.text = "Set Route"
         binding.actionButton.setOnClickListener {
-            when (binding.actionButton.text) {
-                "Set Route" -> {
+            when (mapboxNavigation.getRoutes().isEmpty()) {
+                true -> {
                     binding.actionButton.text = "Start Navigation"
                     mapboxNavigation.setRoutes(listOf(route))
                 }
-                "Start Navigation" -> {
+                false -> {
                     startSimulation()
                     binding.soundButton.visibility = View.VISIBLE
                     binding.actionButton.visibility = View.GONE

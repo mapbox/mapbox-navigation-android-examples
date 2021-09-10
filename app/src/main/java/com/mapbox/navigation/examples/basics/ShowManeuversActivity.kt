@@ -43,9 +43,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * The example demonstrates how to draw maneuver information during active navigation.
@@ -223,13 +220,13 @@ class ShowManeuversActivity : AppCompatActivity() {
      * on the map.
      */
     private val routesObserver: RoutesObserver = RoutesObserver { routes ->
-        CoroutineScope(Dispatchers.Main).launch {
-            val result = routeLineApi.setRoutes(
-                listOf(RouteLine(routes.first(), null))
-            )
-            val style = mapboxMap.getStyle()
-            if (style != null) {
-                routeLineView.renderRouteDrawData(style, result)
+        val routeLines = routes.map { RouteLine(it, null) }
+
+        routeLineApi.setRoutes(
+            routeLines
+        ) { value ->
+            mapboxMap.getStyle()?.apply {
+                routeLineView.renderRouteDrawData(this, value)
             }
         }
     }
@@ -294,12 +291,12 @@ class ShowManeuversActivity : AppCompatActivity() {
 
         binding.actionButton.text = "Set Route"
         binding.actionButton.setOnClickListener {
-            when (binding.actionButton.text) {
-                "Set Route" -> {
+            when (mapboxNavigation.getRoutes().isEmpty()) {
+                true -> {
                     binding.actionButton.text = "Start Navigation"
                     mapboxNavigation.setRoutes(listOf(route))
                 }
-                "Start Navigation" -> {
+                false -> {
                     startSimulation()
                     binding.actionButton.visibility = GONE
                     binding.maneuverView.visibility = VISIBLE
