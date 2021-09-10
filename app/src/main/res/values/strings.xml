@@ -5,42 +5,42 @@
   <string name="fetch_a_route_message">Route was fetched successfully</string>
   <string name="fetch_a_route_cancel_message">Route request was canceled</string>
   <string name="fetch_a_route_error_message">Route request returned error</string>
-  <string name="title_fetch_route">Fetch routes between origin and destination</string>
-  <string name="description_fetch_route">Use the example to fetch multiple routes using Navigation SDK APIs and Views.</string>
+  <string name="title_fetch_route">Fetch routes between an origin and destination</string>
+  <string name="description_fetch_route">Fetch routes by specifying two coordinates in RouteOptions and passing those options to MapboxNavigation\'s requestRoutes method.</string>
 
   <!-- Current Location -->
   <string name="title_current_location">Render current location on a map</string>
-  <string name="description_current_location">Use the example to show current location with a puck using Navigation SDK APIs and Views.</string>
+  <string name="description_current_location">Use NavigationLocationProvider to show a device\'s current location as a puck on a map.</string>
 
   <!-- Route line and route arrow -->
   <string name="title_route">Draw route lines on a map</string>
-  <string name="description_route">Use the example to draw multiple route lines using Navigation SDK APIs and Views.</string>
+  <string name="description_route">Draw route lines on a map using the route line and route arrow APIs and the related MapboxRouteLineView and MapboxRouteArrowView.</string>
 
   <!-- Show camera transitions -->
   <string name="title_camera_transitions">Use camera to frame the map</string>
-  <string name="description_camera_transitions">Use the example to shows various map camera transitions using live location and routing data.</string>
+  <string name="description_camera_transitions">Use NavigationCamera to show various map camera transitions using live location and routing data.</string>
 
   <!-- Trip progress -->
   <string name="title_trip_progress">Render trip progress information</string>
-  <string name="description_trip_progress">Use the example to draw trip progress information using Navigation SDK APIs and Views.</string>
+  <string name="description_trip_progress">Draw trip progress information using the Trip Progress API and MapboxTripProgressView.</string>
 
   <!-- Maneuvers -->
   <string name="title_maneuver">Render maneuver instructions for a route</string>
-  <string name="description_maneuver">Use the example to draw maneuver instructions using Navigation SDK APIs and Views.</string>
+  <string name="description_maneuver">Draw maneuver instructions using the Maneuver API and MapboxManeuverView.</string>
 
-  <!-- Maneuvers -->
+  <!-- Voice -->
   <string name="title_voice">Play voice instructions for a route</string>
-  <string name="description_voice">Use the example to play voice instructions using Navigation SDK APIs and Views.</string>
+  <string name="description_voice">Use the example to play voice instructions using Speech API and Voice Instruction Player.</string>
 
   <!-- Speed Limit -->
   <string name="title_speed_limit">Render speed limit for a route</string>
-  <string name="description_speed_limit">Use the example to render speed limits using Navigation SDK APIs and Views.</string>
+  <string name="description_speed_limit">Render the speed limit of the current road using the Speed Limit API and MapboxSpeedLimitView.</string>
 
   <!-- Building Extrusions -->
   <string name="title_building_extrusions">Render building extrusion on arrival</string>
-  <string name="description_building_extrusions">Use the example to render building extrusions on arrival using Navigation SDK APIs and Views.</string>
+  <string name="description_building_extrusions">Use the example to render building extrusions on arrival using building API and MapboxBuildingView.</string>
 
   <!-- Turn by Turn -->
-  <string name="title_turn_by_turn">Add a turn by turn experience</string>
-  <string name="description_turn_by_turn">Use this example to render complete turn by turn experience using Navigation SDK APIs and Views.</string>
+  <string name="title_turn_by_turn">Add a complete turn-by-turn experience</string>
+  <string name="description_turn_by_turn">Render a complete turn-by-turn experience using all relevant Navigation SDK APIs and pre-built UI components.</string>
 </resources>
