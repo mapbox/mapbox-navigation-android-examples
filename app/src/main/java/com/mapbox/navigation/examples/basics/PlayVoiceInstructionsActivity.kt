@@ -3,10 +3,11 @@ package com.mapbox.navigation.examples.basics
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.bindgen.Expected
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -16,7 +17,6 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.base.formatter.DistanceFormatterOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
@@ -26,9 +26,10 @@ import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.core.trip.session.RouteProgressObserver
+import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
 import com.mapbox.navigation.examples.R
-import com.mapbox.navigation.examples.databinding.MapboxActivityTripProgressBinding
+import com.mapbox.navigation.examples.databinding.MapboxActivityPlayVoiceInstructionBinding
+import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
 import com.mapbox.navigation.ui.maps.internal.route.line.MapboxRouteLineApiExtensions.setRoutes
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
@@ -38,18 +39,19 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
-import com.mapbox.navigation.ui.tripprogress.api.MapboxTripProgressApi
-import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
-import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
-import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
-import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
-import com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
+import com.mapbox.navigation.ui.voice.api.MapboxSpeechApi
+import com.mapbox.navigation.ui.voice.api.MapboxVoiceInstructionsPlayer
+import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
+import com.mapbox.navigation.ui.voice.model.SpeechError
+import com.mapbox.navigation.ui.voice.model.SpeechValue
+import com.mapbox.navigation.ui.voice.model.SpeechVolume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
- * The example demonstrates how to draw trip progress information during active navigation.
+ * The example demonstrates how to integrate voice instructions, listen to them and control the volume.
  *
  * Before running the example make sure you have put your access_token in the correct place
  * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
@@ -71,17 +73,17 @@ import kotlinx.coroutines.launch
  *
  * How to use this example:
  * - The example uses a single hardcoded route with no alternatives.
- * - When the example starts, the camera transitions to the location where the route is.
+ * - When the example starts, the camera transitions to the location where the route origin is.
  * - Click on Set Route to draw a route line on the map using the hardcoded route.
  * - Click on start navigation.
- * - You should now start to navigate and see trip progress information throughout the trip.
+ * - You should now start to navigate and hear voice instructions at relevant intersections.
+ * - You can click on the mute/unmute button to mute or unmute the voice instructions.
  *
  * Note:
  * The example does not demonstrates the use of [MapboxRouteArrowApi] and [MapboxRouteArrowView].
  * Take a look at [RenderRouteLineActivity] example to learn more about route line and route arrow.
  */
-
-class ShowTripProgressActivity : AppCompatActivity() {
+class PlayVoiceInstructionsActivity : AppCompatActivity() {
 
     // todo move to resources
     private val route = DirectionsRoute.fromJson(
@@ -124,7 +126,34 @@ class ShowTripProgressActivity : AppCompatActivity() {
     /**
      * Bindings to the example layout.
      */
-    private lateinit var binding: MapboxActivityTripProgressBinding
+    private lateinit var binding: MapboxActivityPlayVoiceInstructionBinding
+
+    /**
+     * Extracts message that should be communicated to the driver about the upcoming maneuver.
+     * When possible, downloads a synthesized audio file that can be played back to the driver.
+     */
+    private lateinit var speechApi: MapboxSpeechApi
+
+    /**
+     * Plays the synthesized audio files with upcoming maneuver instructions
+     * or uses an on-device Text-To-Speech engine to communicate the message to the driver.
+     */
+    private lateinit var voiceInstructionsPlayer: MapboxVoiceInstructionsPlayer
+
+    /**
+     * Stores and updates the state of whether the voice instructions should be played as they come or muted.
+     */
+    private var isVoiceInstructionsMuted = false
+        set(value) {
+            field = value
+            if (value) {
+                binding.soundButton.muteAndExtend(1500L)
+                voiceInstructionsPlayer.volume(SpeechVolume(0f))
+            } else {
+                binding.soundButton.unmuteAndExtend(1500L)
+                voiceInstructionsPlayer.volume(SpeechVolume(1f))
+            }
+        }
 
     /**
      * Additional route line options are available through the [MapboxRouteLineOptions].
@@ -151,37 +180,39 @@ class ShowTripProgressActivity : AppCompatActivity() {
     }
 
     /**
-     * The data in the [MapboxTripProgressView] is formatted by different formatting implementations.
-     * Below are default formatters using default options but you can use your own formatting
-     * classes.
+     * Based on whether the synthesized audio file is available, the callback plays the file
+     * or uses the fall back which is played back using the on-device Text-To-Speech engine.
      */
-    private val tripProgressFormatter: TripProgressUpdateFormatter by lazy {
-        /**
-         * Here a distance formatter with default values is being created. The distance remaining formatter can also come from
-         * MapboxNavigation just be sure it is instantiated and configured first. The formatting options in MapboxNavigation
-         * can be found at: MapboxNavigation.navigationOptions.distanceFormatterOptions
-         */
-        val distanceFormatterOptions =
-            DistanceFormatterOptions.Builder(this).build()
-
-        /**
-         * These are Mapbox formatters being created with default values. You can provide your own custom formatters by implementing
-         * the appropriate interface. The expected output of a formatter is a SpannableString that is applied to the the view
-         * component in [MapboxTripProgressView].
-         */
-        TripProgressUpdateFormatter.Builder(this)
-            .distanceRemainingFormatter(DistanceRemainingFormatter(distanceFormatterOptions))
-            .timeRemainingFormatter(TimeRemainingFormatter(this))
-            .estimatedTimeToArrivalFormatter(EstimatedTimeToArrivalFormatter(this))
-            .build()
-    }
+    private val speechCallback =
+        MapboxNavigationConsumer<Expected<SpeechError, SpeechValue>> { expected ->
+            expected.fold(
+                { error ->
+                    Log.d("abhishek_testing", "speechCallback: $error")
+                    // play the instruction via fallback text-to-speech engine
+                    voiceInstructionsPlayer.play(
+                        error.fallback,
+                        voiceInstructionsPlayerCallback
+                    )
+                },
+                { value ->
+                    Log.d("abhishek_testing", "speechCallback: $value")
+                    // play the sound file from the external generator
+                    voiceInstructionsPlayer.play(
+                        value.announcement,
+                        voiceInstructionsPlayerCallback
+                    )
+                }
+            )
+        }
 
     /**
-     * The methods in this API is used to fetch trip progress related information.
+     * When a synthesized audio file was downloaded, this callback cleans up the disk after it was played.
      */
-    private val tripProgressApi: MapboxTripProgressApi by lazy {
-        MapboxTripProgressApi(tripProgressFormatter)
-    }
+    private val voiceInstructionsPlayerCallback =
+        MapboxNavigationConsumer<SpeechAnnouncement> { value ->
+            // remove already consumed file to free-up space
+            speechApi.clean(value)
+        }
 
     /**
      * Gets notified with location updates.
@@ -240,17 +271,17 @@ class ShowTripProgressActivity : AppCompatActivity() {
     }
 
     /**
-     * Gets notified with progress along the currently active route.
+     * Observes when a new voice instruction should be played.
      */
-    private val routeProgressObserver = RouteProgressObserver { progress ->
-        val tripProgress = tripProgressApi.getTripProgress(progress)
-        binding.tripProgressView.render(tripProgress)
+    private val voiceInstructionsObserver = VoiceInstructionsObserver { voiceInstructions ->
+        Log.d("abhishek_testing", "voiceInstructionsObserver: $voiceInstructions")
+        speechApi.generate(voiceInstructions, speechCallback)
     }
 
     @SuppressLint("MissingPermission", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MapboxActivityTripProgressBinding.inflate(layoutInflater)
+        binding = MapboxActivityPlayVoiceInstructionBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mapboxMap = binding.mapView.getMapboxMap()
 
@@ -278,8 +309,19 @@ class ShowTripProgressActivity : AppCompatActivity() {
         ) {
             // The initial camera point to the origin where the route line starts from.
             updateCamera(Point.fromLngLat(-122.4192, 37.7627))
-            binding.actionButton.visibility = VISIBLE
+            binding.actionButton.visibility = View.VISIBLE
         }
+
+        speechApi = MapboxSpeechApi(
+            this,
+            getString(R.string.mapbox_access_token),
+            Locale.US.language
+        )
+        voiceInstructionsPlayer = MapboxVoiceInstructionsPlayer(
+            this,
+            getString(R.string.mapbox_access_token),
+            Locale.US.language
+        )
 
         binding.actionButton.text = "Set Route"
         binding.actionButton.setOnClickListener {
@@ -290,11 +332,18 @@ class ShowTripProgressActivity : AppCompatActivity() {
                 }
                 "Start Navigation" -> {
                     startSimulation()
-                    binding.actionButton.visibility = GONE
-                    binding.tripProgressView.visibility = VISIBLE
+                    binding.soundButton.visibility = View.VISIBLE
+                    binding.actionButton.visibility = View.GONE
                 }
             }
         }
+        binding.soundButton.setOnClickListener {
+            // mute/unmute voice instructions
+            isVoiceInstructionsMuted = !isVoiceInstructionsMuted
+        }
+
+        // set initial sounds button state
+        binding.soundButton.unmute()
 
         mapboxNavigation.startTripSession()
     }
@@ -322,7 +371,7 @@ class ShowTripProgressActivity : AppCompatActivity() {
         mapboxReplayer.run {
             stop()
             clearEvents()
-            pushRealLocation(this@ShowTripProgressActivity, 0.0)
+            pushRealLocation(this@PlayVoiceInstructionsActivity, 0.0)
             val replayEvents = ReplayRouteMapper().mapDirectionsRouteGeometry(route)
             pushEvents(replayEvents)
             seekTo(replayEvents.first())
@@ -335,8 +384,8 @@ class ShowTripProgressActivity : AppCompatActivity() {
         mapboxNavigation.run {
             registerRoutesObserver(routesObserver)
             registerLocationObserver(locationObserver)
-            registerRouteProgressObserver(routeProgressObserver)
             registerRouteProgressObserver(replayProgressObserver)
+            registerVoiceInstructionsObserver(voiceInstructionsObserver)
         }
     }
 
@@ -348,10 +397,12 @@ class ShowTripProgressActivity : AppCompatActivity() {
             // make sure to unregister the location observer you have registered.
             unregisterLocationObserver(locationObserver)
             // make sure to unregister the route progress observer you have registered.
-            unregisterRouteProgressObserver(routeProgressObserver)
-            // make sure to unregister the route progress observer you have registered.
             unregisterRouteProgressObserver(replayProgressObserver)
+            // make sure to unregister the voice instruction observer you have registered.
+            unregisterVoiceInstructionsObserver(voiceInstructionsObserver)
         }
+        speechApi.cancel()
+        voiceInstructionsPlayer.shutdown()
         MapboxNavigationProvider.destroy()
     }
 }

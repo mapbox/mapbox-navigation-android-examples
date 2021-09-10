@@ -1,11 +1,7 @@
 <resources>
   <string name="app_name">Mapbox Navigation Examples</string>
 
-  <!-- Start Navigation -->
-  <string name="start_navigation">Start Navigation</string>
-
   <!-- Fetch Route -->
-  <string name="fetch_a_route">Fetch A Route</string>
   <string name="fetch_a_route_message">Route was fetched successfully</string>
   <string name="fetch_a_route_cancel_message">Route request was canceled</string>
   <string name="fetch_a_route_error_message">Route request returned error</string>
@@ -31,6 +27,10 @@
   <!-- Maneuvers -->
   <string name="title_maneuver">Render maneuver instructions for a route</string>
   <string name="description_maneuver">Use the example to draw maneuver instructions using Navigation SDK APIs and Views.</string>
+
+  <!-- Maneuvers -->
+  <string name="title_voice">Play voice instructions for a route</string>
+  <string name="description_voice">Use the example to play voice instructions using Navigation SDK APIs and Views.</string>
 
   <!-- Speed Limit -->
   <string name="title_speed_limit">Render speed limit for a route</string>

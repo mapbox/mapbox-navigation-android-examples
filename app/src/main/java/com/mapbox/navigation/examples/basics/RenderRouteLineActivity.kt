@@ -339,7 +339,9 @@ class RenderRouteLineActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initListeners() {
+        viewBinding.startNavigation.text = "Start Navigation"
         viewBinding.startNavigation.setOnClickListener {
             viewBinding.startNavigation.visibility = View.INVISIBLE
             locationComponent.addOnIndicatorPositionChangedListener(onPositionChangedListener)
