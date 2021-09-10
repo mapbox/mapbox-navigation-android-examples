@@ -38,9 +38,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * This example demonstrates the usage of [NavigationCamera] to track user location, and frame the route and upcoming maneuvers.
@@ -214,16 +211,15 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
     private val routesObserver = RoutesObserver { routes ->
         if (routes.isNotEmpty()) {
             // generate route geometries asynchronously and render them
-            CoroutineScope(Dispatchers.Main).launch {
-                val result = routeLineApi.setRoutes(
-                    listOf(RouteLine(routes.first(), null))
-                )
-                val style = mapboxMap.getStyle()
-                if (style != null) {
-                    routeLineView.renderRouteDrawData(style, result)
+            val routeLines = routes.map { RouteLine(it, null) }
+
+            routeLineApi.setRoutes(
+                routeLines
+            ) { value ->
+                mapboxMap.getStyle()?.apply {
+                    routeLineView.renderRouteDrawData(this, value)
                 }
             }
-
             // update the camera position to account for the new route
             viewportDataSource.onRouteChanged(routes.first())
             viewportDataSource.evaluate()
