@@ -7,6 +7,7 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.examples.androidauto.car.MainCarContext
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 
 /**
  * Create a simple 3d location puck. This class is demonstrating how to
@@ -33,17 +34,14 @@ class CarLocationRenderer(
     }
 
     private val locationObserver = object : LocationObserver {
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
             mainCarContext.navigationLocationProvider.changePosition(
-                enhancedLocation,
-                keyPoints,
+                locationMatcherResult.enhancedLocation,
+                locationMatcherResult.keyPoints,
             )
         }
 
-        override fun onRawLocationChanged(rawLocation: Location) {
+        override fun onNewRawLocation(rawLocation: Location) {
             // no op
         }
     }

@@ -29,6 +29,7 @@ import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityBuildingExtrusionsBinding
@@ -193,7 +194,7 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         /**
          * Invoked as soon as the [Location] is available.
          */
-        override fun onRawLocationChanged(rawLocation: Location) {
+        override fun onNewRawLocation(rawLocation: Location) {
             // Not implemented in this example. However, if you want you can also
             // use this callback to get location updates, but as the name suggests
             // these are raw location updates which are usually noisy.
@@ -203,13 +204,11 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
          * Provides the best possible location update, snapped to the route or
          * map-matched to the road if possible.
          */
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val enhancedLocation = locationMatcherResult.enhancedLocation
             navigationLocationProvider.changePosition(
                 enhancedLocation,
-                keyPoints,
+                locationMatcherResult.keyPoints,
             )
             // Invoke this method to move the camera to your current location.
             updateCamera(

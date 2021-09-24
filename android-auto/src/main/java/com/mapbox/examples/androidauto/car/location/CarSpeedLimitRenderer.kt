@@ -1,11 +1,13 @@
 package com.mapbox.examples.androidauto.car.location
 
+import android.location.Location
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
-import com.mapbox.navigation.core.trip.session.MapMatcherResultObserver
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
+import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.ui.speedlimit.api.MapboxSpeedLimitApi
 import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
 
@@ -26,20 +28,25 @@ class CarSpeedLimitRenderer(
 
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarLocationRenderer carMapSurface loaded")
-        mainCarContext.mapboxNavigation.registerMapMatcherResultObserver(mapMatcherObserver)
+        mainCarContext.mapboxNavigation.registerLocationObserver(locationMatcherObserver)
     }
 
     override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
         logAndroidAuto("CarLocationRenderer carMapSurface detached")
-        mainCarContext.mapboxNavigation.registerMapMatcherResultObserver(mapMatcherObserver)
+        mainCarContext.mapboxNavigation.registerLocationObserver(locationMatcherObserver)
     }
 
     override fun onSpeedLimitWidgetAvailable(speedLimitWidget: SpeedLimitWidget) {
         this.speedLimitWidget = speedLimitWidget
     }
 
-    private val mapMatcherObserver = MapMatcherResultObserver { mapMatcherResult ->
-        val value = speedLimitApi.updateSpeedLimit(mapMatcherResult.speedLimit)
-        speedLimitWidget?.update(value)
+    private val locationMatcherObserver = object : LocationObserver {
+
+        override fun onNewRawLocation(rawLocation: Location) {}
+
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val value = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
+            speedLimitWidget?.update(value)
+        }
     }
 }

@@ -36,7 +36,6 @@ class CarLanesImageRendererTest {
     fun one_lane_uturn() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "uturn"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns true
@@ -54,7 +53,6 @@ class CarLanesImageRendererTest {
     fun two_lanes_straight_sharp_left_straight() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "sharp left"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns true
@@ -76,7 +74,6 @@ class CarLanesImageRendererTest {
     fun three_lanes_straight_left_straight_right() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "straight"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns true
@@ -102,7 +99,6 @@ class CarLanesImageRendererTest {
     fun four_lanes_right_left_straight_right() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "right"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns false
@@ -132,7 +128,6 @@ class CarLanesImageRendererTest {
     fun five_lanes_straight_various() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "straight"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns true
@@ -166,7 +161,6 @@ class CarLanesImageRendererTest {
     fun six_lanes_left_various() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "left"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns false
@@ -204,7 +198,6 @@ class CarLanesImageRendererTest {
     fun seven_lanes_left_various() {
         val carLanesImage = carLanesImageGenerator.renderLanesImage(
             lane = mockk {
-                every { activeDirection } returns "left"
                 every { allLanes } returns listOf(
                     mockk {
                         every { isActive } returns false
