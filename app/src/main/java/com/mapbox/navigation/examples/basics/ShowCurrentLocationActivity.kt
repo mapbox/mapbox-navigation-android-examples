@@ -16,6 +16,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityUserCurrentLocationBinding
@@ -63,7 +64,7 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
         /**
          * Invoked as soon as the [Location] is available.
          */
-        override fun onRawLocationChanged(rawLocation: Location) {
+        override fun onNewRawLocation(rawLocation: Location) {
             // Not implemented in this example. However, if you want you can also
             // use this callback to get location updates, but as the name suggests
             // these are raw location updates which are usually noisy.
@@ -73,13 +74,11 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
          * Provides the best possible location update, snapped to the route or
          * map-matched to the road if possible.
          */
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val enhancedLocation = locationMatcherResult.enhancedLocation
             navigationLocationProvider.changePosition(
                 enhancedLocation,
-                keyPoints,
+                locationMatcherResult.keyPoints,
             )
             // Invoke this method to move the camera to your current location.
             updateCamera(enhancedLocation)

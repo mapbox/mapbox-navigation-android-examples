@@ -16,7 +16,6 @@ class CarLaneMapperTest {
     @Test
     fun `empty values should return empty list`() {
         val lanes = carLaneMapper.mapLanes(mockk {
-            every { activeDirection } returns null
             every { allLanes } returns emptyList()
         })
 
@@ -26,7 +25,6 @@ class CarLaneMapperTest {
     @Test
     fun `map a lane that is valid but not active`() {
         val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
-            every { activeDirection } returns "straight"
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns false
@@ -45,7 +43,6 @@ class CarLaneMapperTest {
     @Test
     fun `map a lane with multiple indications`() {
         val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
-            every { activeDirection } returns "straight"
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns true
@@ -66,7 +63,6 @@ class CarLaneMapperTest {
     @Test
     fun `map a lane without valid indication`() {
         val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
-            every { activeDirection } returns null
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns false

@@ -24,11 +24,10 @@ import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.core.trip.session.MapMatcherResultObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowSpeedLimitBinding
-import com.mapbox.navigation.ui.maps.internal.route.line.MapboxRouteLineApiExtensions.setRoutes
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
@@ -169,7 +168,7 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
         /**
          * Invoked as soon as the [Location] is available.
          */
-        override fun onRawLocationChanged(rawLocation: Location) {
+        override fun onNewRawLocation(rawLocation: Location) {
             // Not implemented in this example. However, if you want you can also
             // use this callback to get location updates, but as the name suggests
             // these are raw location updates which are usually noisy.
@@ -179,13 +178,11 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
          * Provides the best possible location update, snapped to the route or
          * map-matched to the road if possible.
          */
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val enhancedLocation = locationMatcherResult.enhancedLocation
             navigationLocationProvider.changePosition(
                 enhancedLocation,
-                keyPoints,
+                locationMatcherResult.keyPoints,
             )
             // Invoke this method to move the camera to your current location as the route progresses.
             updateCamera(
@@ -195,15 +192,9 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
                 ),
                 enhancedLocation.bearing.toDouble()
             )
+            val speedLimitValue = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
+            binding.speedLimitView.render(speedLimitValue)
         }
-    }
-
-    /**
-     * Register the observer to listen to map matching events to get the speed limit related information.
-     */
-    private val mapMatcherObserver = MapMatcherResultObserver { mapMatcherResult ->
-        val value = speedLimitApi.updateSpeedLimit(mapMatcherResult.speedLimit)
-        binding.speedLimitView.render(value)
     }
 
     /**
@@ -310,7 +301,6 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
         mapboxNavigation.run {
             registerRoutesObserver(routesObserver)
             registerLocationObserver(locationObserver)
-            registerMapMatcherResultObserver(mapMatcherObserver)
             registerRouteProgressObserver(replayProgressObserver)
         }
     }
@@ -322,8 +312,6 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
             unregisterRoutesObserver(routesObserver)
             // make sure to unregister the location observer you have registered.
             unregisterLocationObserver(locationObserver)
-            // make sure to unregister the map matcher observer you have registered.
-            unregisterMapMatcherResultObserver(mapMatcherObserver)
             // make sure to unregister the route progress observer you have registered.
             unregisterRouteProgressObserver(replayProgressObserver)
         }

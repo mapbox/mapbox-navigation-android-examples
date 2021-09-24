@@ -37,6 +37,7 @@ import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
@@ -299,18 +300,16 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     private val locationObserver = object : LocationObserver {
         var firstLocationUpdateReceived = false
 
-        override fun onRawLocationChanged(rawLocation: Location) {
+        override fun onNewRawLocation(rawLocation: Location) {
             // not handled
         }
 
-        override fun onEnhancedLocationChanged(
-            enhancedLocation: Location,
-            keyPoints: List<Location>
-        ) {
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val enhancedLocation = locationMatcherResult.enhancedLocation
             // update location puck's position on the map
             navigationLocationProvider.changePosition(
                 location = enhancedLocation,
-                keyPoints = keyPoints
+                keyPoints = locationMatcherResult.keyPoints,
             )
 
             // update camera position to account for new location

@@ -7,7 +7,7 @@ import androidx.car.app.model.CarIcon
 import androidx.car.app.navigation.model.Step
 import com.mapbox.navigation.ui.maneuver.api.MapboxLaneIconsApi
 import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
-import com.mapbox.navigation.utils.internal.ifNonNull
+import com.mapbox.navigation.ui.maneuver.model.Lane
 
 /**
  * This class generates a [CarLanesImage] needed for the lane guidance in android auto.
@@ -28,29 +28,19 @@ class CarLanesImageRenderer(
      * @param lane retrieve the lane guidance through the [MapboxManeuverApi]
      * @return the lanes image, null when there is no lange guidance
      */
-    fun renderLanesImage(
-        lane: com.mapbox.navigation.ui.maneuver.model.Lane?
-    ): CarLanesImage? {
-        return ifNonNull(lane, lane?.activeDirection) {
-                laneGuidance, activeDirection ->
+    fun renderLanesImage(lane: Lane?): CarLanesImage? {
+        return lane?.let { laneGuidance ->
             val lanes = carLaneIconMapper.mapLanes(laneGuidance)
-            val carIcon = renderLanesImage(laneGuidance, activeDirection)
+            val carIcon = renderLanesImage(laneGuidance)
             CarLanesImage(lanes, carIcon)
         }
     }
 
-    private fun renderLanesImage(
-        laneGuidance: com.mapbox.navigation.ui.maneuver.model.Lane,
-        activeDirection: String
-    ): CarIcon {
+    private fun renderLanesImage(laneGuidance: Lane): CarIcon {
         val carLaneIcons = laneGuidance.allLanes.map { laneIndicator ->
-            val laneIconExpected = laneIconsApi.laneIcon(laneIndicator, activeDirection)
-                .onError { error ->
-                    // Crash to let us know what is not mapped.
-                    error(error.errorMessage)
-                }
+            val laneIcon = laneIconsApi.getTurnLane(laneIndicator)
             CarLaneIcon(
-                laneIconExpected.value!!,
+                laneIcon,
                 laneIndicator.isActive
             )
         }
@@ -67,7 +57,7 @@ class CarLanesImageRenderer(
  */
 fun Step.Builder.useMapboxLaneGuidance(
     imageGenerator: CarLanesImageRenderer,
-    laneGuidance: com.mapbox.navigation.ui.maneuver.model.Lane?
+    laneGuidance: Lane?,
 ) = apply {
     val lanesImage = imageGenerator.renderLanesImage(laneGuidance)
     if (lanesImage != null) {
