@@ -12,12 +12,16 @@
 
     <style name="CarLaneActiveTheme" parent="CarAppTheme">
         <item name="maneuverTurnIconColor">@android:color/white</item>
-        <item name="maneuverTurnIconShadowColor">#7F000000</item>
+        <item name="maneuverTurnIconShadowColor">#FF9E9E9E</item>
     </style>
 
     <style name="CarLaneNotActiveTheme" parent="CarAppTheme">
-        <item name="maneuverTurnIconColor">#7F000000</item>
-        <item name="maneuverTurnIconShadowColor">#7F000000</item>
+<!--
+        https://github.com/mapbox/mapbox-navigation-android/pull/4928
+        These colors can be updated with a new release of 2.0.0-rc
+-->
+        <item name="maneuverTurnIconColor">#FF9E9E9E</item>
+        <item name="maneuverTurnIconShadowColor">#FF9E9E9E</item>
     </style>
 
 </resources>

@@ -1,15 +1,16 @@
-package com.mapbox.examples.androidauto.car.customlayers.textview
+package com.mapbox.androidauto.surfacelayer.textview
 
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.opengl.Matrix
-import com.mapbox.examples.androidauto.car.customlayers.GLUtils
-import com.mapbox.examples.androidauto.car.customlayers.GLUtils.BYTES_PER_FLOAT
-import com.mapbox.examples.androidauto.car.customlayers.toFloatBuffer
+import com.mapbox.androidauto.surfacelayer.CarSurfaceLayer
+import com.mapbox.androidauto.surfacelayer.GLUtils
+import com.mapbox.androidauto.surfacelayer.GLUtils.BYTES_PER_FLOAT
+import com.mapbox.androidauto.surfacelayer.toFloatBuffer
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.navigation.utils.internal.ifNonNull
 
-class CarTextModel2d : CarSurfaceListener() {
+class CarTextModel2d : CarSurfaceLayer() {
 
     val dimensions = COORDS_PER_VERTEX_2D
     val stride = COORDS_PER_VERTEX_2D * BYTES_PER_FLOAT
@@ -20,27 +21,27 @@ class CarTextModel2d : CarSurfaceListener() {
     /**
      * Transformation matrix describes this model orientation space.
      */
-    val modelM = FloatArray(GLUtils.MATRIX_SIZE).also {
+    val modelMatrix = FloatArray(GLUtils.MATRIX_SIZE).also {
         Matrix.setIdentityM(it, 0)
     }
 
     private var bitmap: Bitmap? = null
 
-    fun render(nextBitmap: Bitmap?) {
+    fun updateModelMatrix(nextBitmap: Bitmap?) {
         bitmap = nextBitmap
         ifNonNull(visibleArea, edgeInsets) { visibleArea, edgeInsets ->
-            renderToBounds(visibleArea, edgeInsets)
+            updateModelMatrix(visibleArea, edgeInsets)
         }
     }
 
     override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
         super.visibleAreaChanged(visibleArea, edgeInsets)
 
-        renderToBounds(visibleArea, edgeInsets)
+        updateModelMatrix(visibleArea, edgeInsets)
     }
 
-    private fun renderToBounds(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        Matrix.setIdentityM(modelM, 0)
+    private fun updateModelMatrix(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        Matrix.setIdentityM(modelMatrix, 0)
         val bitmap = bitmap ?: return
 
         val paddingWidth = padding.left + padding.right
@@ -53,12 +54,15 @@ class CarTextModel2d : CarSurfaceListener() {
         val scaleX = bitmap.width / width.toFloat()
         val scaleY = bitmap.height / height.toFloat()
 
-        Matrix.translateM(modelM, 0, translateX.toFloat(), translateY.toFloat(), 0.0f)
-        Matrix.translateM(modelM, 0,
+        Matrix.translateM(modelMatrix, 0,
+            translateX.toFloat(),
+            translateY.toFloat(),
+            0.0f)
+        Matrix.translateM(modelMatrix, 0,
             (width / 2.0f).toFloat() - bitmap.width / 2.0f,
             height.toFloat() - bitmap.height,
             0.0f)
-        Matrix.scaleM(modelM, 0,
+        Matrix.scaleM(modelMatrix, 0,
             width.toFloat() * scaleX,
             height.toFloat() * scaleY,
             1.0f)

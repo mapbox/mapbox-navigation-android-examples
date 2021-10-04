@@ -11,7 +11,7 @@ class CarManeuverMapper(
     private val carManeuverIconFactory: CarManeuverIconFactory
 ) {
 
-    fun from(maneuverType: String?, maneuverModifier: String?): Maneuver {
+    fun from(maneuverType: String?, maneuverModifier: String?, degrees: Double? = null): Maneuver {
         return when (maneuverType) {
             StepManeuver.TURN -> mapTurn(maneuverModifier)
             StepManeuver.DEPART -> Maneuver.Builder(Maneuver.TYPE_DEPART).build()
@@ -26,7 +26,7 @@ class CarManeuverMapper(
             StepManeuver.EXIT_ROTARY,
             StepManeuver.EXIT_ROUNDABOUT,
             StepManeuver.ROUNDABOUT_TURN,
-            StepManeuver.ROUNDABOUT -> mapRoundabout(maneuverModifier)
+            StepManeuver.ROUNDABOUT -> mapRoundabout(maneuverModifier, degrees)
             StepManeuver.NOTIFICATION -> error("Handle notifications elsewhere")
             else -> mapEmptyManeuverType(maneuverModifier)
         }
@@ -162,7 +162,7 @@ class CarManeuverMapper(
         }
     }
 
-    private fun mapRoundabout(maneuverModifier: String?): Maneuver {
+    private fun mapRoundabout(maneuverModifier: String?, degrees: Double?): Maneuver {
         return when (maneuverModifier) {
             ManeuverModifier.UTURN,
             ManeuverModifier.STRAIGHT,
@@ -171,7 +171,16 @@ class CarManeuverMapper(
             ManeuverModifier.SHARP_RIGHT,
             ManeuverModifier.LEFT,
             ManeuverModifier.SLIGHT_LEFT,
-            ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW).build()
+            ManeuverModifier.SHARP_LEFT -> {
+                // TODO fix hardcoded roundabout exit number https://github.com/mapbox/mapbox-navigation-android/issues/4855
+                if (degrees != null) {
+                    Maneuver.Builder(Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE)
+                        .setRoundaboutExitNumber(1).setRoundaboutExitAngle(degrees.toInt()).build()
+                } else {
+                    Maneuver.Builder(Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+                        .setRoundaboutExitNumber(1).build()
+                }
+            }
             else -> error("Unknown roundabout modifier $maneuverModifier")
         }
     }

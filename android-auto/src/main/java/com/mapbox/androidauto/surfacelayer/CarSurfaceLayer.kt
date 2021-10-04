@@ -1,4 +1,4 @@
-package com.mapbox.examples.androidauto.car.customlayers.textview
+package com.mapbox.androidauto.surfacelayer
 
 import android.graphics.Rect
 import androidx.annotation.CallSuper
@@ -12,7 +12,7 @@ import com.mapbox.maps.EdgeInsets
  * This class is meant to have [children] so you don't
  * have to forward the calls and store surface state.
  */
-open class CarSurfaceListener : MapboxCarMapSurfaceListener {
+open class CarSurfaceLayer : MapboxCarMapSurfaceListener {
     protected var mapboxCarMapSurface: MapboxCarMapSurface? = null
         private set
     var visibleArea: Rect? = null
@@ -54,20 +54,20 @@ open class CarSurfaceListener : MapboxCarMapSurfaceListener {
     ) {
         children().forEach { childListener ->
             when (childListener) {
-                is CarSurfaceListener -> notifyListenerAndChildren(childListener, method)
+                is CarSurfaceLayer -> notifyListenerAndChildren(childListener, method)
                 else -> childListener.method()
             }
         }
     }
 
     private fun notifyListenerAndChildren(
-        listener: CarSurfaceListener,
+        layer: CarSurfaceLayer,
         method: MapboxCarMapSurfaceListener.() -> Unit
     ) {
-        listener.method()
-        listener.children().forEach { childListener ->
+        layer.method()
+        layer.children().forEach { childListener ->
             when (childListener) {
-                is CarSurfaceListener -> notifyListenerAndChildren(childListener, method)
+                is CarSurfaceLayer -> notifyListenerAndChildren(childListener, method)
                 else -> childListener.method()
             }
         }

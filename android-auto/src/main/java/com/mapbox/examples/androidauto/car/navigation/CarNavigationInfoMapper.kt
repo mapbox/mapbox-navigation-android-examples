@@ -31,7 +31,7 @@ class CarNavigationInfoMapper(
         val primaryManeuver = maneuver?.primary
         return if (primaryManeuver != null) {
             val carManeuver = carManeuverMapper
-                .from(primaryManeuver.type, primaryManeuver.modifier)
+                .from(primaryManeuver.type, primaryManeuver.modifier, primaryManeuver.degrees)
             val step = Step.Builder(primaryManeuver.text)
                 .setManeuver(carManeuver)
                 .useMapboxLaneGuidance(carLanesImageGenerator, maneuver.laneGuidance)
@@ -51,7 +51,8 @@ class CarNavigationInfoMapper(
         maneuvers?.getOrNull(1)?.primary?.let { nextPrimaryManeuver ->
             val nextCarManeuver = carManeuverMapper.from(
                 nextPrimaryManeuver.type,
-                nextPrimaryManeuver.modifier
+                nextPrimaryManeuver.modifier,
+                nextPrimaryManeuver.degrees
             )
             val nextStep = Step.Builder(nextPrimaryManeuver.text)
                 .setManeuver(nextCarManeuver)

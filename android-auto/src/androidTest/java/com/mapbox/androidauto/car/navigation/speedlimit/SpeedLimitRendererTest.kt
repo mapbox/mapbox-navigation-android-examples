@@ -25,22 +25,42 @@ class SpeedLimitRendererTest {
     private val speedLimitWidget = SpeedLimitWidget()
 
     @Test
-    fun speed_limit_120() {
-        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawSpeedLimitSign(text = "100"))
+    fun round_speed_limit_120() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRoundSpeedLimitSign(text = "120"))
     }
 
     @Test
-    fun speed_limit_59() {
-        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawSpeedLimitSign(text = "59"))
+    fun round_speed_limit_65() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRoundSpeedLimitSign(text = "65"))
     }
 
     @Test
-    fun speed_limit_9() {
-        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawSpeedLimitSign(text = "9"))
+    fun round_speed_limit_5() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRoundSpeedLimitSign(text = "5"))
     }
 
     @Test
-    fun speed_limit_empty() {
-        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawSpeedLimitSign(text = ""))
+    fun round_speed_limit_empty() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRoundSpeedLimitSign(text = ""))
+    }
+
+    @Test
+    fun rect_speed_limit_120() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRectSpeedLimitSign(text = "MAX\n120"))
+    }
+
+    @Test
+    fun rect_speed_limit_65() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRectSpeedLimitSign(text = "MAX\n65"))
+    }
+
+    @Test
+    fun rect_speed_limit_5() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRectSpeedLimitSign(text = "MAX\n5"))
+    }
+
+    @Test
+    fun rect_speed_limit_empty() {
+        bitmapTestUtils.assertBitmapsEqual(testName, speedLimitWidget.drawRectSpeedLimitSign(text = ""))
     }
 }

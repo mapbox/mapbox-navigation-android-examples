@@ -9,10 +9,6 @@ import android.graphics.Rect
  * This class will a road name and create a bitmap that fits the text.
  */
 class RoadLabelRenderer {
-    /**
-     * Reference to the bitmap created by the [render] function.
-     */
-    var bitmap: Bitmap? = null
 
     /**
      * Render the [text] to a [Bitmap]
@@ -21,30 +17,26 @@ class RoadLabelRenderer {
         text: String?,
         options: RoadLabelOptions = RoadLabelOptions.default
     ): Bitmap? {
-        bitmap?.apply {
-            recycle()
-            bitmap = null
-        }
         text ?: return null
-        measureTextBitmap(text)
+        val bitmap = measureTextBitmap(text)
+        bitmap.eraseColor(options.backgroundColor)
+        Canvas(bitmap)
             .drawLabelBackground(options)
             .drawRoadLabelText(text, options)
 
         return bitmap
     }
 
-    private fun measureTextBitmap(text: String): Canvas {
+    private fun measureTextBitmap(text: String): Bitmap {
         val textBounds = Rect()
         textPaint.getTextBounds(text, 0, text.length, textBounds)
         val width = textBounds.right - textBounds.left + TEXT_PADDING * 2
         val height = textBounds.bottom - textBounds.top + TEXT_PADDING * 2
 
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        return Canvas(bitmap!!)
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     }
 
     private fun Canvas.drawLabelBackground(options: RoadLabelOptions) = apply {
-        bitmap!!.eraseColor(options.backgroundColor)
         val cardWidth = width - LABEL_PADDING
         val cardHeight = height - LABEL_PADDING
 

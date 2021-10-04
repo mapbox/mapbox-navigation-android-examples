@@ -8,10 +8,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.examples.androidauto.car.customlayers.CarRoadLabelLayer
+import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
+import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 
 /**
  * When the app is launched from Android Auto
@@ -20,13 +21,14 @@ class MainCarScreen(
     private val mainCarContext: MainCarContext
 ) : Screen(mainCarContext.carContext) {
 
+    val carRouteLine = CarRouteLine(mainCarContext, lifecycle)
     val carLocationRenderer = CarLocationRenderer(mainCarContext)
     val carSpeedLimitRenderer = CarSpeedLimitRenderer(mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         mainCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
     )
-    private val carMapViewLayer = CarRoadLabelLayer(
+    private val carMapViewLayer = RoadLabelSurfaceLayer(
         mainCarContext.carContext,
         mainCarContext.mapboxNavigation
     )
@@ -47,6 +49,7 @@ class MainCarScreen(
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
                 logAndroidAuto("MainCarScreen onStart")
+                mainCarContext.mapboxCarMap.registerListener(carRouteLine)
                 mainCarContext.mapboxCarMap.registerListener(carLocationRenderer)
                 mainCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.registerListener(carNavigationCamera)
@@ -56,6 +59,7 @@ class MainCarScreen(
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
                 logAndroidAuto("MainCarScreen onStop")
+                mainCarContext.mapboxCarMap.unregisterListener(carRouteLine)
                 mainCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
                 mainCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)

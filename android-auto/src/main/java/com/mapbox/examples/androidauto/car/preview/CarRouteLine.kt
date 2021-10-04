@@ -1,7 +1,12 @@
 package com.mapbox.examples.androidauto.car.preview
 
 import androidx.lifecycle.Lifecycle
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
+import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
+import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
+import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.ui.base.model.route.RouteLayerConstants.PRIMARY_ROUTE_TRAFFIC_LAYER_ID
@@ -14,11 +19,6 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineColorResources
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
-import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
-import com.mapbox.maps.plugin.locationcomponent.location
 
 /**
  * This class is to simplify the interaction with [MapboxRouteLineApi], [MapboxRouteArrowView]
@@ -86,6 +86,12 @@ class CarRouteLine(
             routeLineApi.setRoutes(routeLines) { value ->
                 routeLineView.renderRouteDrawData(carMapSurface.style, value)
             }
+        } else {
+            routeLineApi.clearRouteLine { value ->
+                routeLineView.renderClearRouteLineValue(carMapSurface.style, value)
+            }
+            val clearArrowValue = routeArrowApi.clearArrows()
+            routeArrowView.render(carMapSurface.style, clearArrowValue)
         }
     }
 

@@ -1,12 +1,13 @@
-package com.mapbox.examples.androidauto.car.customlayers.textview
+package com.mapbox.androidauto.surfacelayer.textview
 
 import android.graphics.Rect
 import android.opengl.GLES20
 import android.opengl.Matrix
-import com.mapbox.examples.androidauto.car.customlayers.GLUtils
+import com.mapbox.androidauto.surfacelayer.CarSurfaceLayer
+import com.mapbox.androidauto.surfacelayer.GLUtils
 import com.mapbox.maps.EdgeInsets
 
-class CarCamera2d : CarSurfaceListener() {
+class CarCamera2d : CarSurfaceLayer() {
     /**
      * Transformation matrix describes the projection orientation space.
      */

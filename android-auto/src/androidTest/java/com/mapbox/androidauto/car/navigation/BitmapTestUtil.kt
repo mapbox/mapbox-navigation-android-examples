@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.test.core.app.ApplicationProvider
-import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.rules.TestName
 import java.io.File
 
@@ -46,7 +46,7 @@ class BitmapTestUtil(
 
         val expectedPixels = getSingleImagePixels(expected)
         val actualPixels = getSingleImagePixels(actual)
-        Assert.assertTrue(
+        assertTrue(
             "Bitmaps are not equal for ${testName.methodName}",
             expectedPixels.contentEquals(actualPixels)
         )
