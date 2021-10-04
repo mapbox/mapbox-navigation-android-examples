@@ -14,13 +14,14 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.mapbox.androidauto.MapboxAndroidAuto
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 
 class MainCarSession : Session() {
     lateinit var mainCarContext: MainCarContext
 
     override fun onCreateScreen(intent: Intent): Screen {
         logAndroidAuto("MainCarSession onCreateScreen")
-        MapboxAndroidAuto.createCarMap(lifecycle, carContext)
+        MapboxAndroidAuto.createCarMap(this, carContext)
         mainCarContext = MainCarContext(carContext)
 
         return when (hasLocationPermission()) {
@@ -33,8 +34,16 @@ class MainCarSession : Session() {
     }
 
     @SuppressLint("MissingPermission")
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun startTripSession() {
-        mainCarContext.mapboxNavigation.startTripSession()
+        if (MapboxAndroidAuto.options.replayEnabled) {
+            val mapboxReplayer = mainCarContext.mapboxNavigation.mapboxReplayer
+            mapboxReplayer.pushRealLocation(carContext, 0.0)
+            mainCarContext.mapboxNavigation.startReplayTripSession()
+            mapboxReplayer.play()
+        } else {
+            mainCarContext.mapboxNavigation.startTripSession()
+        }
     }
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {

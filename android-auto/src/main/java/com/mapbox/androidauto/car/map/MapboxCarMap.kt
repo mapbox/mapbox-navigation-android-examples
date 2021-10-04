@@ -21,7 +21,7 @@ class MapboxCarMap constructor(
     private val mapSurfaceCallback = CarMapSurfaceLifecycle(
         carContext,
         carMapSurfaceSession,
-        mapboxCarOptions.navigationOptions.accessToken!!
+        mapboxCarOptions.mapInitOptions
     )
 
     val mapboxCarMapSurface: MapboxCarMapSurface?

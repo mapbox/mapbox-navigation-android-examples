@@ -1,6 +1,7 @@
 package com.mapbox.androidauto.car.navigation.lanes
 
 import android.content.Context
+import android.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
@@ -29,7 +30,7 @@ class CarLanesImageRendererTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val carLanesImageGenerator = CarLanesImageRenderer(
         context = context,
-        background = 0x784D4DD3
+        background = Color.RED
     )
 
     @Test
@@ -38,6 +39,8 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "uturn"
                         every { isActive } returns true
                         every { directions } returns listOf("uturn")
                     }
@@ -55,10 +58,14 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "sharp left"
                         every { isActive } returns true
                         every { directions } returns listOf("sharp left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "sharp left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight")
                     }
@@ -76,14 +83,20 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns true
                         every { directions } returns listOf("straight", "left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns true
                         every { directions } returns listOf("straight")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns false
                         every { directions } returns listOf("right")
                     }
@@ -101,18 +114,26 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "right"
                         every { isActive } returns false
                         every { directions } returns listOf("straight", "left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "right"
                         every { isActive } returns false
                         every { directions } returns listOf("straight")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "right"
                         every { isActive } returns true
                         every { directions } returns listOf("straight", "right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "right"
                         every { isActive } returns true
                         every { directions } returns listOf("right")
                     }
@@ -130,22 +151,32 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns true
                         every { directions } returns listOf("straight", "left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns true
                         every { directions } returns listOf("straight", "slight left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns true
                         every { directions } returns listOf("straight", "slight right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns false
                         every { directions } returns listOf("right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "straight"
                         every { isActive } returns false
                         every { directions } returns listOf("sharp right")
                     }
@@ -163,26 +194,38 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns null
                         every { isActive } returns false
                         every { directions } returns listOf("uturn")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight", "left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight", "slight left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight", "slight right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns true
                         every { directions } returns listOf("right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("sharp right")
                     }
@@ -200,30 +243,44 @@ class CarLanesImageRendererTest {
             lane = mockk {
                 every { allLanes } returns listOf(
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns false
                         every { directions } returns listOf("straight", "slight left")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns true
                         every { directions } returns listOf("slight right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns true
                         every { directions } returns listOf("right")
                     },
                     mockk {
+                        every { drivingSide } returns "right"
+                        every { activeDirection } returns "left"
                         every { isActive } returns true
                         every { directions } returns listOf("sharp right")
                     }

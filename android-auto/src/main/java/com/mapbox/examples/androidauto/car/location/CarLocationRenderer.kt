@@ -34,6 +34,7 @@ class CarLocationRenderer(
     }
 
     private val locationObserver = object : LocationObserver {
+
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
             mainCarContext.navigationLocationProvider.changePosition(
                 locationMatcherResult.enhancedLocation,

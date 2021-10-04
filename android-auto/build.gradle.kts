@@ -21,8 +21,8 @@ android {
 }
 
 dependencies {
-    api("com.mapbox.navigation:android:2.0.0-rc.3")
-    api("com.mapbox.search:mapbox-search-android:1.0.0-beta.17")
+    api("com.mapbox.navigation:android:2.0.0-rc.4")
+    api("com.mapbox.search:mapbox-search-android:1.0.0-beta.19")
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.car.app:app:1.0.0")
 }
@@ -30,7 +30,7 @@ dependencies {
 dependencies {
     testImplementation("org.robolectric:robolectric:4.3.1")
     testImplementation("androidx.test.ext:junit:1.1.3")
-    testImplementation("io.mockk:mockk:1.10.0")
+    testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
 }
 

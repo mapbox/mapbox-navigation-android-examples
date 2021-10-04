@@ -1,30 +1,29 @@
 package com.mapbox.androidauto
 
+import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.Style
-import com.mapbox.navigation.base.options.NavigationOptions
-import com.mapbox.navigation.core.MapboxNavigation
 import java.util.Locale
 
 /**
  * The top level options for using Mapbox maps and navigation with Android Auto.
  *
- * @param navigationOptions Used to create an instance of [MapboxNavigation]
+ * @param mapInitOptions Used to initialize more advanced map style configurations
  * @param mapDayStyle Assigns a day style for the car map
  * @param mapNightStyle Assigns a day style for the car map, when null [mapDayStyle] is used
  * @param directionsLanguage The language used for audio guidance
  */
 class MapboxCarOptions private constructor(
-    val navigationOptions: NavigationOptions,
+    val mapInitOptions: MapInitOptions,
     val mapDayStyle: String,
     val mapNightStyle: String?,
-    val directionsLanguage: String
+    val directionsLanguage: String,
+    val replayEnabled: Boolean
 ) {
 
     /**
      * Get a builder to customize a subset of current options.
      */
-    fun toBuilder(): Builder = Builder(navigationOptions).apply {
-        navigationOptions(navigationOptions)
+    fun toBuilder(): Builder = Builder(mapInitOptions).apply {
         mapDayStyle(mapDayStyle)
         mapNightStyle(mapNightStyle)
         directionsLanguage(directionsLanguage)
@@ -39,7 +38,7 @@ class MapboxCarOptions private constructor(
 
         other as MapboxCarOptions
 
-        if (navigationOptions != other.navigationOptions) return false
+        if (mapInitOptions != other.mapInitOptions) return false
         if (mapDayStyle != other.mapDayStyle) return false
         if (mapNightStyle != other.mapNightStyle) return false
         if (directionsLanguage != other.directionsLanguage) return false
@@ -51,7 +50,7 @@ class MapboxCarOptions private constructor(
      * Regenerate whenever a change is made
      */
     override fun hashCode(): Int {
-        var result = navigationOptions.hashCode()
+        var result = mapInitOptions.hashCode()
         result = 31 * result + mapDayStyle.hashCode()
         result = 31 * result + (mapNightStyle?.hashCode() ?: 0)
         result = 31 * result + directionsLanguage.hashCode()
@@ -62,7 +61,7 @@ class MapboxCarOptions private constructor(
      * Regenerate whenever a change is made
      */
     override fun toString(): String {
-        return "MapboxCarOptions(navigationOptions=$navigationOptions," +
+        return "MapboxCarOptions(mapInitOptions='$mapInitOptions'," +
                 " mapDayStyle='$mapDayStyle'," +
                 " mapNightStyle=$mapNightStyle," +
                 " directionsLanguage='$directionsLanguage'" +
@@ -73,18 +72,18 @@ class MapboxCarOptions private constructor(
      * Build a new [MapboxCarOptions]
      */
     class Builder(
-        private var navigationOptions: NavigationOptions
+        private var mapInitOptions: MapInitOptions
     ) {
         private var mapDayStyle: String = Style.TRAFFIC_DAY
         private var mapNightStyle: String? = null
         private var directionsLanguage: String = Locale.getDefault().language
+        private var replayEnabled: Boolean = false
 
         /**
-         * Allows you to override the navigation options at runtime.
-         * Warning: doing this will not work for all values.
+         * Allows you to override the MapInitOptions at runtime.
          */
-        fun navigationOptions(navigationOptions: NavigationOptions): Builder = apply {
-            this.navigationOptions = navigationOptions
+        fun mapInitOptions(mapInitOptions: MapInitOptions): Builder = apply {
+            this.mapInitOptions = mapInitOptions
         }
 
         /**
@@ -111,14 +110,24 @@ class MapboxCarOptions private constructor(
         }
 
         /**
+         * Enables replay mode.
+         * This is temporary but required at the moment.
+         * https://github.com/mapbox/mapbox-navigation-android/issues/4935
+         */
+        fun replayEnabled(replayEnabled: Boolean): Builder = apply {
+            this.replayEnabled = replayEnabled
+        }
+
+        /**
          * Build the [MapboxCarOptions]
          */
         fun build(): MapboxCarOptions {
             return MapboxCarOptions(
-                navigationOptions = navigationOptions,
+                mapInitOptions = mapInitOptions,
                 mapDayStyle = mapDayStyle,
                 mapNightStyle = mapNightStyle,
-                directionsLanguage = directionsLanguage
+                directionsLanguage = directionsLanguage,
+                replayEnabled = replayEnabled,
             )
         }
     }

@@ -11,7 +11,6 @@ import com.mapbox.androidauto.MapboxAndroidAuto
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
-import com.mapbox.maps.ResourceOptionsManager
 import com.mapbox.maps.extension.androidauto.CompassWidget
 import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 import com.mapbox.maps.extension.androidauto.LogoWidget
@@ -32,7 +31,7 @@ import com.mapbox.maps.plugin.delegates.listeners.eventdata.MapLoadErrorType
 internal class CarMapSurfaceLifecycle internal constructor(
     private val carContext: CarContext,
     private val carMapSurfaceSession: CarMapSurfaceSession,
-    private val accessToken: String,
+    private val mapInitOptions: MapInitOptions
 ) : DefaultLifecycleObserver, SurfaceCallback {
 
     private var mapStyleUri: String
@@ -70,12 +69,6 @@ internal class CarMapSurfaceLifecycle internal constructor(
     override fun onSurfaceAvailable(surfaceContainer: SurfaceContainer) {
         logAndroidAuto("CarMapSurfaceLifecycle Surface available $surfaceContainer")
         surfaceContainer.surface?.let {
-            val resourceOptions = ResourceOptionsManager.getDefault(carContext, accessToken)
-                .resourceOptions
-            val mapInitOptions = MapInitOptions(
-                context = carContext,
-                resourceOptions = resourceOptions
-            )
             val mapSurface = MapSurface(carContext, it, mapInitOptions)
             mapSurface.onStart()
             mapSurface.surfaceCreated()

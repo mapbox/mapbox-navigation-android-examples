@@ -1,12 +1,13 @@
-package com.mapbox.examples.androidauto.car.customlayers.textview
+package com.mapbox.androidauto.surfacelayer.textview
 
 import android.graphics.Rect
 import android.opengl.Matrix
 import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.examples.androidauto.car.customlayers.GLUtils
+import com.mapbox.androidauto.surfacelayer.CarSurfaceLayer
+import com.mapbox.androidauto.surfacelayer.GLUtils
 import com.mapbox.maps.EdgeInsets
 
-class CarScene2d : CarSurfaceListener() {
+class CarScene2d : CarSurfaceLayer() {
 
     val mvpMatrix = FloatArray(GLUtils.MATRIX_SIZE)
     val camera = CarCamera2d()

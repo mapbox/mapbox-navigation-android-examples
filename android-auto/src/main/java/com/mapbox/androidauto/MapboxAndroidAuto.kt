@@ -1,5 +1,6 @@
 package com.mapbox.androidauto
 
+import android.app.Application
 import androidx.car.app.CarContext
 import androidx.car.app.Session
 import androidx.lifecycle.Lifecycle
@@ -10,11 +11,8 @@ import com.mapbox.androidauto.car.map.MapboxCarMap
  */
 object MapboxAndroidAuto {
 
-    /**
-     * When the Android Auto Session is created, Mapbox will request
-     * the options from your Application
-     */
-    lateinit var initializer: MapboxCarInitializer
+    private lateinit var initializer: MapboxCarInitializer
+    private val carAppLifecycleOwner = CarAppLifecycleOwner()
 
     /**
      * After createCarMap is called from an Android Auto [Session],
@@ -30,11 +28,29 @@ object MapboxAndroidAuto {
         internal set
 
     /**
+     * Top level lifecycle that watches both the app and car lifecycles.
+     */
+    val appLifecycle: Lifecycle = carAppLifecycleOwner.lifecycle
+
+    /**
+     * Setup android auto from your [Application.onCreate]
+     *
+     * @param application used to detect when activities are foregrounded
+     * @param initializer used to initialize the Android Auto car
+     */
+    fun setup(application: Application, initializer: MapboxCarInitializer) {
+        this.initializer = initializer
+        application.registerActivityLifecycleCallbacks(
+            carAppLifecycleOwner.activityLifecycleCallbacks
+        )
+    }
+
+    /**
      * Create the [MapboxCarMap] that renders the Mapbox map
      * to the Android Auto head unit.
      */
     fun createCarMap(
-        lifecycle: Lifecycle,
+        session: Session,
         carContext: CarContext
     ): MapboxCarMap {
         check(this::initializer.isInitialized) {
@@ -44,11 +60,13 @@ object MapboxAndroidAuto {
                 MapboxCarInitializer to MapboxAndroidAuto.initializer
             """.trimIndent()
         }
-        options = initializer.create(lifecycle, carContext)
+        val carLifecycle = session.lifecycle
+        carLifecycle.addObserver(carAppLifecycleOwner.carLifecycleObserver)
+        options = initializer.create(carLifecycle, carContext)
         mapboxCarMap = MapboxCarMap(
             mapboxCarOptions = options,
             carContext = carContext,
-            lifecycle = lifecycle
+            lifecycle = carLifecycle
         )
         return mapboxCarMap
     }

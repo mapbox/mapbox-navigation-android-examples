@@ -1,13 +1,13 @@
-package com.mapbox.examples.androidauto.car.customlayers.textview
+package com.mapbox.androidauto.surfacelayer.textview
 
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.opengl.GLES20
 import android.opengl.GLUtils
-import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.maps.CustomLayerHost
 import com.mapbox.maps.CustomLayerRenderParameters
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class CarTextLayerHost : CustomLayerHost() {
     private var program = 0
@@ -23,20 +23,20 @@ class CarTextLayerHost : CustomLayerHost() {
 
     val mapScene = CarScene2d()
 
-    var bitmap: Bitmap? = null
-        set(value) {
-            if (field != value) {
-                mapScene.model.render(value)
-                field = value
-            }
-        }
+    private val bitmapQueue = ConcurrentLinkedQueue<Bitmap>()
 
-    init {
-        logAndroidAuto("CarTextLayerHost init")
+    /**
+     * Thread-safe function to refresh the texture bitmap.
+     * One of the upcoming render calls will load the bitmap to the GPU.
+     *
+     * @param bitmap used to render text, `null` will clear the text
+     */
+    fun offerBitmap(bitmap: Bitmap?) {
+        mapScene.model.updateModelMatrix(bitmap)
+        bitmapQueue.offer(bitmap ?: emptyBitmap)
     }
 
     override fun initialize() {
-        logAndroidAuto("CarTextLayerHost initialize")
         val maxAttrib = IntArray(1)
         GLES20.glGetIntegerv(GLES20.GL_MAX_VERTEX_ATTRIBS, maxAttrib, 0)
 
@@ -64,7 +64,6 @@ class CarTextLayerHost : CustomLayerHost() {
 
     override fun render(parameters: CustomLayerRenderParameters) {
         if (program == 0) return
-        bitmap ?: return
 
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(program)
@@ -90,15 +89,14 @@ class CarTextLayerHost : CustomLayerHost() {
 
         // Apply the projection transformation
         GLES20.glUniformMatrix4fv(
-            modelMatrixHandle, 1, false, mapScene.model.modelM, 0
+            modelMatrixHandle, 1, false, mapScene.model.modelMatrix, 0
         )
 
+        // Activate the texture and use the latest bitmap
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0])
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
-        val bitmapTexture = bitmap.takeUnless { it != null && it.isRecycled } ?: emptyBitmap
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmapTexture, 0)
+        GLES20.glUniform1i(textureHandle, 0)
+        updateGlTextImage()
 
         GLES20.glEnableVertexAttribArray(texCoordHandle)
         GLES20.glVertexAttribPointer(
@@ -111,18 +109,37 @@ class CarTextLayerHost : CustomLayerHost() {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, mapScene.model.length)
     }
 
+    private fun updateGlTextImage() {
+        bitmapQueue.poll()?.let {
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_NEAREST
+            )
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR
+            )
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, it, 0)
+            if (it != emptyBitmap) {
+                it.recycle()
+            }
+        }
+    }
+
     override fun contextLost() {
         logAndroidAutoFailure("contextLost")
         program = 0
     }
 
     override fun deinitialize() {
-        logAndroidAuto("deinitialize")
         if (program != 0) {
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(positionHandle)
             GLES20.glDetachShader(program, vertexShader)
             GLES20.glDetachShader(program, fragmentShader)
+            GLES20.glDeleteTextures(1, textures, 0)
             GLES20.glDeleteShader(vertexShader)
             GLES20.glDeleteShader(fragmentShader)
             GLES20.glDeleteProgram(program)

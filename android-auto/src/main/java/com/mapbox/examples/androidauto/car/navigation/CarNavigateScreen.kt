@@ -9,7 +9,7 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.mapbox.examples.androidauto.car.customlayers.CarRoadLabelLayer
+import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.androidauto.car.navigation.voice.CarNavigationVoiceAction
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
@@ -32,7 +32,7 @@ class CarNavigateScreen(
         carNavigationCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
     )
-    private val carMapViewLayer = CarRoadLabelLayer(
+    private val carMapViewLayer = RoadLabelSurfaceLayer(
         carNavigationCarContext.carContext,
         carNavigationCarContext.mapboxNavigation
     )

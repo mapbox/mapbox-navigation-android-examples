@@ -53,6 +53,8 @@ internal class CarMapSurfaceSession {
 
     fun carMapSurfaceAvailable(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarMapSurfaceSession carMapSurfaceAvailable")
+        val oldCarMapSurface = this.mapboxCarMapSurface
+        mapSurfaceLifecycleListeners.forEach { it.detached(oldCarMapSurface) }
         this.mapboxCarMapSurface = mapboxCarMapSurface
         mapSurfaceLifecycleListeners.forEach { it.loaded(mapboxCarMapSurface) }
         notifyVisibleAreaChanged()

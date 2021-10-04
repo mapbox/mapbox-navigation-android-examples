@@ -28,25 +28,26 @@ class CarSpeedLimitRenderer(
 
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarLocationRenderer carMapSurface loaded")
-        mainCarContext.mapboxNavigation.registerLocationObserver(locationMatcherObserver)
+        mainCarContext.mapboxNavigation.registerLocationObserver(locationObserver)
     }
 
     override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
         logAndroidAuto("CarLocationRenderer carMapSurface detached")
-        mainCarContext.mapboxNavigation.registerLocationObserver(locationMatcherObserver)
+        mainCarContext.mapboxNavigation.unregisterLocationObserver(locationObserver)
     }
 
     override fun onSpeedLimitWidgetAvailable(speedLimitWidget: SpeedLimitWidget) {
         this.speedLimitWidget = speedLimitWidget
     }
 
-    private val locationMatcherObserver = object : LocationObserver {
-
-        override fun onNewRawLocation(rawLocation: Location) {}
-
+    private val locationObserver = object : LocationObserver {
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
             val value = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
             speedLimitWidget?.update(value)
+        }
+
+        override fun onNewRawLocation(rawLocation: Location) {
+            // no op
         }
     }
 }

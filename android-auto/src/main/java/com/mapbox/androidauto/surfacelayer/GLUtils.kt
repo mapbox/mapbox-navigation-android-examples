@@ -1,6 +1,6 @@
-package com.mapbox.examples.androidauto.car.customlayers
+package com.mapbox.androidauto.surfacelayer
 
-import com.mapbox.examples.androidauto.car.customlayers.GLUtils.BYTES_PER_FLOAT
+import com.mapbox.androidauto.surfacelayer.GLUtils.BYTES_PER_FLOAT
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer

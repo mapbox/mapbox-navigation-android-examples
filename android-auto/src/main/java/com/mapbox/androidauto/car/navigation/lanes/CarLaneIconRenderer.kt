@@ -39,8 +39,8 @@ internal class CarLaneIconRenderer(
     ): CarIcon {
         carLaneBitmap.eraseColor(background)
 
-        val canvas = Canvas(carLaneBitmap)
         carLaneIcons.forEachIndexed { index, laneIcon ->
+            val canvas = Canvas(carLaneBitmap)
             val vectorDrawable = VectorDrawableCompat.create(
                 context.resources,
                 laneIcon.laneIcon.drawableResId,
@@ -48,6 +48,10 @@ internal class CarLaneIconRenderer(
             )!!
             val iconBounds = calculateBounds(index, carLaneIcons.size)
             vectorDrawable.bounds = iconBounds
+            if (laneIcon.laneIcon.shouldFlip) {
+                val pivotX = iconBounds.centerX().toFloat()
+                canvas.scale(-1f, 1f, pivotX, 0f)
+            }
             vectorDrawable.draw(canvas)
         }
 

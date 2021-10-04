@@ -104,8 +104,8 @@ class CarNavigationCamera(
                     )
                     CameraMode.OVERVIEW -> navigationCamera
                         .requestNavigationCameraToOverview(
-                        stateTransitionOptions = instantTransition
-                    )
+                            stateTransitionOptions = instantTransition
+                        )
                 }
             }
         }
