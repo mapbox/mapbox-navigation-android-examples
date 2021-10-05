@@ -1,11 +1,16 @@
 package com.mapbox.navigation.examples.androidauto
 
 import android.app.Application
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.mapbox.androidauto.MapboxAndroidAuto
-import com.mapbox.androidauto.MapboxCarInitializer
-import com.mapbox.androidauto.MapboxCarOptions
-import com.mapbox.maps.Style
+import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.search.MapboxSearchSdk
 
 class ExampleApplication : Application() {
@@ -16,10 +21,8 @@ class ExampleApplication : Application() {
         val searchLocationProvider = SearchLocationProvider(applicationContext)
         initializeSearchSDK(searchLocationProvider)
 
-        MapboxAndroidAuto.initializer = MapboxCarInitializer { lifecycle, _ ->
-            lifecycle.addObserver(searchLocationProvider)
-            createMapboxCarOptions()
-        }
+        MapboxAndroidAuto.setup(this, ExampleCarInitializer())
+        MapboxAndroidAuto.appLifecycle.addObserver(mapboxNavigationLifecycle)
     }
 
     private fun initializeSearchSDK(searchLocationProvider: SearchLocationProvider) {
@@ -30,13 +33,29 @@ class ExampleApplication : Application() {
         )
     }
 
-    private fun createMapboxCarOptions(): MapboxCarOptions {
-        val navigationOptions = NavigationOptions.Builder(applicationContext)
-            .accessToken(getString(R.string.mapbox_access_token))
-            .build()
-        return MapboxCarOptions.Builder(navigationOptions)
-            .mapDayStyle(Style.TRAFFIC_DAY)
-            .mapNightStyle(Style.TRAFFIC_NIGHT)
-            .build()
+    private val mapboxNavigationLifecycle = object : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        fun onStart() {
+            logAndroidAuto("OneTapApplication onStart")
+            val navigationOptions = NavigationOptions.Builder(applicationContext)
+                .accessToken(getString(R.string.mapbox_access_token))
+                .build()
+            MapboxNavigationProvider.create(navigationOptions)
+                .withDebugSimulatorEnabled()
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        fun onStop() {
+            logAndroidAuto("OneTapApplication onStop")
+            MapboxNavigationProvider.destroy()
+        }
+    }
+
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
+    private fun MapboxNavigation.withDebugSimulatorEnabled() = apply {
+        if (ExampleCarInitializer.ENABLE_REPLAY) {
+            registerRouteProgressObserver(ReplayProgressObserver(mapboxReplayer))
+            registerRoutesObserver(ReplayRoutesObserver(mapboxReplayer, applicationContext))
+        }
     }
 }
