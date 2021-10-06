@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".app.search.SearchFragment">
+
+    <com.mapbox.search.ui.view.SearchBottomSheetView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:elevation="8dp"
+        />
+
+    <com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView
+        android:id="@+id/search_place_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:elevation="8dp"
+        />
+
+    <com.mapbox.search.ui.view.category.SearchCategoriesBottomSheetView
+        android:id="@+id/search_categories_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:elevation="8dp"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

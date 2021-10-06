@@ -1,14 +1,14 @@
 package com.mapbox.examples.androidauto.car.location
 
-import androidx.car.app.CarContext
+import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.examples.androidauto.R
 
 object CarLocationPuck {
 
-    fun navigationPuck2D(carContext: CarContext) = LocationPuck2D(
-        bearingImage = ContextCompat.getDrawable(carContext, R.drawable.mapbox_navigation_puck_icon)
+    fun navigationPuck2D(context: Context) = LocationPuck2D(
+        bearingImage = ContextCompat.getDrawable(context, R.drawable.mapbox_navigation_puck_icon)
     )
 
     // Example 2d compass puck

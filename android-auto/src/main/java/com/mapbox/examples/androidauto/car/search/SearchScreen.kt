@@ -97,7 +97,7 @@ class SearchScreen(
             onErrorItemList(R.string.car_search_unknown_current_location)
         }
 
-        override fun onSearchResultLocationUnknown() {
+        override fun onDestinationLocationUnknown() {
             onErrorItemList(R.string.car_search_unknown_search_location)
         }
 

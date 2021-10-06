@@ -1,28 +1,27 @@
 package com.mapbox.examples.androidauto.car
 
-import androidx.car.app.Screen
 import androidx.car.app.ScreenManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
+import com.mapbox.examples.androidauto.R
+import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceRecordMapper
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
+import com.mapbox.examples.androidauto.car.search.FavoritesApi
 import com.mapbox.examples.androidauto.car.search.SearchCarContext
 import com.mapbox.examples.androidauto.car.search.SearchScreen
 import com.mapbox.examples.androidauto.car.settings.CarSettingsScreen
 import com.mapbox.examples.androidauto.car.settings.SettingsCarContext
-import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceRecordMapper
-import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
-import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
-import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
-import com.mapbox.examples.androidauto.car.search.FavoritesApi
 import com.mapbox.search.MapboxSearchSdk
 
 class MainActionStrip(
-    private val mainCarContext: MainCarContext,
-    private val screen: Screen
+    private val mainCarContext: MainCarContext
 ) {
     private val carContext = mainCarContext.carContext
+    private val screenManager = carContext.getCarService(ScreenManager::class.java)
 
     /**
      * Build the action strip
@@ -63,37 +62,26 @@ class MainActionStrip(
                 )
             ).build()
         )
-        .setOnClickListener { openSearch() }
+        .setOnClickListener { screenManager.push(SearchScreen(SearchCarContext(mainCarContext))) }
         .build()
 
     private fun buildFavoritesAction() = Action.Builder()
         .setTitle(carContext.resources.getString(R.string.car_action_search_favorites))
-        .setOnClickListener {
-            openPlacesListScreen()
-        }
+        .setOnClickListener { screenManager.push(favoritesScreen()) }
         .build()
 
-    private fun openSearch() {
-        val searchCarContext = SearchCarContext(mainCarContext)
-        screen.screenManager.push(SearchScreen(searchCarContext))
-    }
-
-    private fun openPlacesListScreen() {
-        screen.screenManager.push(
-            PlacesListOnMapScreen(
-                mainCarContext,
-                FavoritesApi(MapboxSearchSdk.serviceProvider.favoritesDataProvider()),
-                PlacesListOnMapLayerUtil(),
-                PlaceRecordMapper(
-                    CarManeuverIconFactory(mainCarContext.carContext),
-                    mainCarContext
-                        .mapboxNavigation
-                        .navigationOptions
-                        .distanceFormatterOptions
-                        .unitType
-                ),
-                SearchCarContext(mainCarContext)
-            )
-        )
-    }
+    private fun favoritesScreen() = PlacesListOnMapScreen(
+        mainCarContext,
+        FavoritesApi(MapboxSearchSdk.serviceProvider.favoritesDataProvider()),
+        PlacesListOnMapLayerUtil(),
+        PlaceRecordMapper(
+            CarManeuverIconFactory(mainCarContext.carContext),
+            mainCarContext
+                .mapboxNavigation
+                .navigationOptions
+                .distanceFormatterOptions
+                .unitType
+        ),
+        SearchCarContext(mainCarContext)
+    )
 }

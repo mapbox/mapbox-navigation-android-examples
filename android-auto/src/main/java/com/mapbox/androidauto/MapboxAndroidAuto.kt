@@ -4,7 +4,10 @@ import android.app.Application
 import androidx.car.app.CarContext
 import androidx.car.app.Session
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.mapbox.androidauto.car.map.MapboxCarMap
+import com.mapbox.androidauto.car.navigation.voice.CarAppVoiceApi
 
 /**
  * The entry point for your Mapbox Android Auto app.
@@ -13,6 +16,7 @@ object MapboxAndroidAuto {
 
     private lateinit var initializer: MapboxCarInitializer
     private val carAppLifecycleOwner = CarAppLifecycleOwner()
+    private val carAppStateLiveData = MutableLiveData<CarAppState>(FreeDriveState)
 
     /**
      * After createCarMap is called from an Android Auto [Session],
@@ -33,6 +37,18 @@ object MapboxAndroidAuto {
     val appLifecycle: Lifecycle = carAppLifecycleOwner.lifecycle
 
     /**
+     * Attach observers to the CarAppState to determine which view to show.
+     */
+    fun carAppState(): LiveData<CarAppState> = carAppStateLiveData
+
+    /**
+     * Keep your car and app in sync with CarAppState.
+     */
+    fun updateCarAppState(carAppState: CarAppState) {
+        carAppStateLiveData.postValue(carAppState)
+    }
+
+    /**
      * Setup android auto from your [Application.onCreate]
      *
      * @param application used to detect when activities are foregrounded
@@ -43,6 +59,9 @@ object MapboxAndroidAuto {
         application.registerActivityLifecycleCallbacks(
             carAppLifecycleOwner.activityLifecycleCallbacks
         )
+        appLifecycle.addObserver(CarAppLocationObserver())
+        application.registerComponentCallbacks(CarAppVoiceApi.componentCallbacks)
+        appLifecycle.addObserver(CarAppVoiceApi.appLifecycleObserver)
     }
 
     /**

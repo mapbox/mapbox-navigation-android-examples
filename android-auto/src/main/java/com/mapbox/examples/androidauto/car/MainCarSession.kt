@@ -8,46 +8,51 @@ import android.content.res.Configuration
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxAndroidAuto
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.core.trip.session.TripSessionState
 
 class MainCarSession : Session() {
-    lateinit var mainCarContext: MainCarContext
 
     override fun onCreateScreen(intent: Intent): Screen {
         logAndroidAuto("MainCarSession onCreateScreen")
         MapboxAndroidAuto.createCarMap(this, carContext)
-        mainCarContext = MainCarContext(carContext)
+        val mainCarContext = MainCarContext(carContext)
+        val mainScreenManager = MainScreenManager(mainCarContext)
 
         return when (hasLocationPermission()) {
             false -> NeedsLocationPermissionsScreen(carContext)
             true -> {
-                startTripSession()
-                MainCarScreen(mainCarContext)
+                startTripSession(mainCarContext)
+                lifecycle.addObserver(mainScreenManager)
+                mainScreenManager.currentScreen()
             }
         }
     }
 
     @SuppressLint("MissingPermission")
     @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-    private fun startTripSession() {
-        if (MapboxAndroidAuto.options.replayEnabled) {
-            val mapboxReplayer = mainCarContext.mapboxNavigation.mapboxReplayer
-            mapboxReplayer.pushRealLocation(carContext, 0.0)
-            mainCarContext.mapboxNavigation.startReplayTripSession()
-            mapboxReplayer.play()
-        } else {
-            mainCarContext.mapboxNavigation.startTripSession()
+    private fun startTripSession(mainCarContext: MainCarContext) {
+        mainCarContext.apply {
+            if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
+                if (MapboxAndroidAuto.options.replayEnabled) {
+                    val mapboxReplayer = mapboxNavigation.mapboxReplayer
+                    mapboxReplayer.pushRealLocation(carContext, 0.0)
+                    mapboxNavigation.startReplayTripSession()
+                    mapboxReplayer.play()
+                } else {
+                    mapboxNavigation.startTripSession()
+                }
+            }
         }
     }
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
-        logAndroidAuto("onCarConfigurationChanged ${mainCarContext.carContext.isDarkMode}")
+        logAndroidAuto("onCarConfigurationChanged ${carContext.isDarkMode}")
         MapboxAndroidAuto.mapboxCarMap.updateMapStyle(mapStyleUri)
     }
 
@@ -73,40 +78,34 @@ class MainCarSession : Session() {
 
     private fun isPermissionGranted(permission: String): Boolean =
         ActivityCompat.checkSelfPermission(
-            mainCarContext.carContext.applicationContext,
+            carContext.applicationContext,
             permission
         ) == PackageManager.PERMISSION_GRANTED
 
     init {
         logAndroidAuto("MainCarSession constructor")
-        lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onCreate")
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+            override fun onStart(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onStart")
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            fun onResume() {
+            override fun onResume(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onResume")
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            fun onPause() {
+            override fun onPause(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onPause")
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onStop")
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+            override fun onDestroy(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onDestroy")
             }
         })

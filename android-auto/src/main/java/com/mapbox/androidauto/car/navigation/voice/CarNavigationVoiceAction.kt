@@ -21,15 +21,15 @@ class CarNavigationVoiceAction(
      * Android auto action for enabling and disabling the car navigation.
      * Attach this to the screen while navigating.
      */
-    fun buildOnOffAction(carNavigationVoice: CarNavigationVoice): Action {
-        return if (carNavigationVoice.isEnabled) {
+    fun buildOnOffAction(): Action {
+        return if (CarAppVoiceApi.isEnabled()) {
             buildIconAction(R.drawable.mapbox_car_ic_volume_on) {
-                carNavigationVoice.disable()
+                CarAppVoiceApi.mute()
                 screen.invalidate()
             }
         } else {
             buildIconAction(R.drawable.mapbox_car_ic_volume_off) {
-                carNavigationVoice.enable()
+                CarAppVoiceApi.unmute()
                 screen.invalidate()
             }
         }

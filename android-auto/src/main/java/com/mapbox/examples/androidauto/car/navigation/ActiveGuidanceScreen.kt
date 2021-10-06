@@ -9,6 +9,8 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.mapbox.androidauto.FreeDriveState
+import com.mapbox.androidauto.MapboxAndroidAuto
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.androidauto.car.navigation.voice.CarNavigationVoiceAction
 import com.mapbox.androidauto.logAndroidAuto
@@ -16,28 +18,29 @@ import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
+import com.mapbox.navigation.core.MapboxNavigationProvider
 
 /**
  * After a route has been selected. This view gives turn-by-turn instructions
  * for completing the route.
  */
-class CarNavigateScreen(
-    private val carNavigationCarContext: CarNavigationCarContext
-) : Screen(carNavigationCarContext.carContext) {
+class ActiveGuidanceScreen(
+    private val carActiveGuidanceContext: CarActiveGuidanceCarContext
+) : Screen(carActiveGuidanceContext.carContext) {
 
-    val carRouteLine = CarRouteLine(carNavigationCarContext.mainCarContext, lifecycle)
-    val carLocationRenderer = CarLocationRenderer(carNavigationCarContext.mainCarContext)
-    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carNavigationCarContext.mainCarContext)
+    val carRouteLine = CarRouteLine(carActiveGuidanceContext.mainCarContext, lifecycle)
+    val carLocationRenderer = CarLocationRenderer(carActiveGuidanceContext.mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carActiveGuidanceContext.mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
-        carNavigationCarContext.mapboxNavigation,
+        carActiveGuidanceContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
     )
     private val carMapViewLayer = RoadLabelSurfaceLayer(
-        carNavigationCarContext.carContext,
-        carNavigationCarContext.mapboxNavigation
+        carActiveGuidanceContext.carContext,
+        carActiveGuidanceContext.mapboxNavigation
     )
 
-    private val carRouteProgressObserver = CarNavigationInfoObserver(carNavigationCarContext)
+    private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
 
     override fun onGetTemplate(): Template {
         logAndroidAuto("CarNavigateScreen onGetTemplate")
@@ -48,12 +51,14 @@ class CarNavigateScreen(
                     .addAction(
                         Action.Builder()
                             .setTitle(carContext.getString(R.string.car_action_navigation_stop_button))
-                            .setOnClickListener { stopNavigation() }
+                            .setOnClickListener {
+                                stopNavigation()
+                            }
                             .build()
                     )
                     .addAction(
                         CarNavigationVoiceAction(this)
-                            .buildOnOffAction(carNavigationCarContext.carNavigationVoice)
+                            .buildOnOffAction()
                     )
                     .build()
             )
@@ -71,7 +76,8 @@ class CarNavigateScreen(
 
     private fun stopNavigation() {
         logAndroidAuto("CarNavigateScreen stopNavigation")
-        finish()
+        MapboxNavigationProvider.retrieve().setRoutes(emptyList())
+        MapboxAndroidAuto.updateCarAppState(FreeDriveState)
     }
 
     init {
@@ -81,23 +87,21 @@ class CarNavigateScreen(
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 logAndroidAuto("CarNavigateScreen onCreate")
-                carNavigationCarContext.carNavigationVoice.enable()
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             fun onDestroy() {
                 logAndroidAuto("CarNavigateScreen onDestroy")
-                carNavigationCarContext.carNavigationVoice.disable()
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
                 logAndroidAuto("CarNavigateScreen onStart")
-                carNavigationCarContext.mapboxCarMap.registerListener(carLocationRenderer)
-                carNavigationCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
-                carNavigationCarContext.mapboxCarMap.registerListener(carNavigationCamera)
-                carNavigationCarContext.mapboxCarMap.registerListener(carRouteLine)
-                carNavigationCarContext.mapboxCarMap.registerListener(carMapViewLayer)
+                carActiveGuidanceContext.mapboxCarMap.registerListener(carLocationRenderer)
+                carActiveGuidanceContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
+                carActiveGuidanceContext.mapboxCarMap.registerListener(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.registerListener(carRouteLine)
+                carActiveGuidanceContext.mapboxCarMap.registerListener(carMapViewLayer)
                 carRouteProgressObserver.start {
                     invalidate()
                 }
@@ -106,11 +110,11 @@ class CarNavigateScreen(
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
                 logAndroidAuto("CarNavigateScreen onStop")
-                carNavigationCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
-                carNavigationCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
-                carNavigationCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
-                carNavigationCarContext.mapboxCarMap.unregisterListener(carRouteLine)
-                carNavigationCarContext.mapboxCarMap.unregisterListener(carMapViewLayer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterListener(carLocationRenderer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterListener(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.unregisterListener(carRouteLine)
+                carActiveGuidanceContext.mapboxCarMap.unregisterListener(carMapViewLayer)
                 carRouteProgressObserver.stop()
             }
         })

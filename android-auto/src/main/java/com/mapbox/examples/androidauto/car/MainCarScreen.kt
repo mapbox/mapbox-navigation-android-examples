@@ -37,7 +37,7 @@ class MainCarScreen(
         return NavigationTemplate.Builder()
             .setBackgroundColor(CarColor.PRIMARY)
             .setActionStrip(
-                MainActionStrip(mainCarContext, this).builder()
+                MainActionStrip(mainCarContext).builder()
                     .build()
             )
             .build()

@@ -1,13 +1,11 @@
 package com.mapbox.examples.androidauto.car.location
 
-import android.location.Location
+import com.mapbox.androidauto.CarAppLocationObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.navigation.core.trip.session.LocationMatcherResult
+import com.mapbox.maps.plugin.locationcomponent.location
 
 /**
  * Create a simple 3d location puck. This class is demonstrating how to
@@ -23,27 +21,7 @@ class CarLocationRenderer(
             locationPuck = CarLocationPuck.navigationPuck2D(mainCarContext.carContext)
             enabled = true
             pulsingEnabled = true
-            setLocationProvider(mainCarContext.navigationLocationProvider)
-        }
-        mainCarContext.mapboxNavigation.registerLocationObserver(locationObserver)
-    }
-
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
-        logAndroidAuto("CarLocationRenderer carMapSurface detached")
-        mainCarContext.mapboxNavigation.unregisterLocationObserver(locationObserver)
-    }
-
-    private val locationObserver = object : LocationObserver {
-
-        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            mainCarContext.navigationLocationProvider.changePosition(
-                locationMatcherResult.enhancedLocation,
-                locationMatcherResult.keyPoints,
-            )
-        }
-
-        override fun onNewRawLocation(rawLocation: Location) {
-            // no op
+            setLocationProvider(CarAppLocationObserver.navigationLocationProvider)
         }
     }
 }

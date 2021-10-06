@@ -1,12 +1,10 @@
 package com.mapbox.examples.androidauto.car.navigation
 
-import com.mapbox.androidauto.MapboxAndroidAuto
 import com.mapbox.androidauto.car.navigation.lanes.CarLanesImageRenderer
-import com.mapbox.androidauto.car.navigation.voice.CarNavigationVoice
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
 
-class CarNavigationCarContext(
+class CarActiveGuidanceCarContext(
     val mainCarContext: MainCarContext
 ) {
     /** MapCarContext **/
@@ -30,9 +28,5 @@ class CarNavigationCarContext(
     val maneuverApi: MapboxManeuverApi by lazy {
         MapboxManeuverApi(distanceFormatter)
     }
-    val carNavigationVoice = CarNavigationVoice(
-        mapboxNavigation,
-        MapboxAndroidAuto.options.directionsLanguage
-    )
     val tripProgressMapper = CarNavigationEtaMapper(carDistanceFormatter)
 }
