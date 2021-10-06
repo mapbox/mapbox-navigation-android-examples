@@ -16,9 +16,9 @@ import com.mapbox.navigation.ui.voice.model.SpeechValue
  * @param mapboxNavigation reference to the mapbox navigation which creates the voice instructions.
  * @param language language (ISO 639)
  */
-class CarNavigationVoice(
+internal class CarNavigationVoice(
     private val mapboxNavigation: MapboxNavigation,
-    language: String
+    val language: String
 ) {
     private val speechAPI = MapboxSpeechApi(
         mapboxNavigation.navigationOptions.applicationContext,
@@ -68,7 +68,7 @@ class CarNavigationVoice(
     /**
      * Enables the audio guidance.
      */
-    fun enable() = apply {
+    fun unmute() = apply {
         if (!isEnabled) {
             isEnabled = true
             mapboxNavigation.registerVoiceInstructionsObserver(voiceInstructionsObserver)
@@ -78,7 +78,7 @@ class CarNavigationVoice(
     /**
      * Disables the audio guidance.
      */
-    fun disable() = apply {
+    fun mute() = apply {
         isEnabled = false
         speechAPI.cancel()
         voiceInstructionsPlayer.shutdown()

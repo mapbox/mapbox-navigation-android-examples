@@ -21,8 +21,8 @@ class ExampleApplication : Application() {
         val searchLocationProvider = SearchLocationProvider(applicationContext)
         initializeSearchSDK(searchLocationProvider)
 
-        MapboxAndroidAuto.setup(this, ExampleCarInitializer())
         MapboxAndroidAuto.appLifecycle.addObserver(mapboxNavigationLifecycle)
+        MapboxAndroidAuto.setup(this, ExampleCarInitializer())
     }
 
     private fun initializeSearchSDK(searchLocationProvider: SearchLocationProvider) {

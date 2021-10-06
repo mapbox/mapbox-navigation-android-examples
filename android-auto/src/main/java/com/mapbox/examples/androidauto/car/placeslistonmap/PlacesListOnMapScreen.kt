@@ -10,6 +10,7 @@ import androidx.car.app.navigation.model.PlaceListNavigationTemplate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.mapbox.androidauto.CarAppLocationObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
@@ -79,7 +80,7 @@ class PlacesListOnMapScreen(
 
     override fun onGetTemplate(): Template {
         addPlaceIconsToMap(placeRecords)
-        val placesItemList = mainCarContext.navigationLocationProvider.lastLocation?.run {
+        val placesItemList = CarAppLocationObserver.navigationLocationProvider.lastLocation?.run {
             placeRecordMapper.mapToItemList(this, placeRecords, placeClickListener)
         } ?: ItemList.Builder().build()
         return PlaceListNavigationTemplate.Builder()
@@ -153,7 +154,7 @@ class PlacesListOnMapScreen(
             onErrorItemList(R.string.car_search_unknown_current_location)
         }
 
-        override fun onSearchResultLocationUnknown() {
+        override fun onDestinationLocationUnknown() {
             onErrorItemList(R.string.car_search_unknown_search_location)
         }
 

@@ -5,14 +5,15 @@ import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
+import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 
 /**
  * This is a view interface. Each callback function represents a view that will be
@@ -21,7 +22,7 @@ import com.mapbox.examples.androidauto.car.model.PlaceRecord
 interface CarRouteRequestCallback {
     fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>)
     fun onUnknownCurrentLocation()
-    fun onSearchResultLocationUnknown()
+    fun onDestinationLocationUnknown()
     fun onNoRoutesFound()
 }
 
@@ -29,7 +30,8 @@ interface CarRouteRequestCallback {
  * Service class that requests routes for the preview screen.
  */
 class CarRouteRequest(
-    val mainCarContext: MainCarContext
+    val mapboxNavigation: MapboxNavigation,
+    val navigationLocationProvider: NavigationLocationProvider
 ) {
     internal var currentRequestId: Long? = null
 
@@ -39,9 +41,9 @@ class CarRouteRequest(
      * @param searchResults potential destinations for directions
      */
     fun request(placeRecord: PlaceRecord, callback: CarRouteRequestCallback) {
-        currentRequestId?.let { mainCarContext.mapboxNavigation.cancelRouteRequest(it) }
+        currentRequestId?.let { mapboxNavigation.cancelRouteRequest(it) }
 
-        val location = mainCarContext.navigationLocationProvider.lastLocation
+        val location = navigationLocationProvider.lastLocation
         if (location == null) {
             logAndroidAutoFailure("CarRouteRequest.onUnknownCurrentLocation")
             callback.onUnknownCurrentLocation()
@@ -52,10 +54,10 @@ class CarRouteRequest(
         when (placeRecord.coordinate) {
             null -> {
                 logAndroidAutoFailure("CarRouteRequest.onSearchResultLocationUnknown")
-                callback.onSearchResultLocationUnknown()
+                callback.onDestinationLocationUnknown()
             }
             else -> {
-                currentRequestId = mainCarContext.mapboxNavigation.requestRoutes(
+                currentRequestId = mapboxNavigation.requestRoutes(
                     carRouteOptions(origin, placeRecord.coordinate),
                     carCallbackTransformer(placeRecord, callback)
                 )
@@ -67,12 +69,12 @@ class CarRouteRequest(
      * Default [RouteOptions] for the car.
      */
     private fun carRouteOptions(origin: Point, destination: Point) = RouteOptions.builder()
-            .applyDefaultNavigationOptions()
-            .applyLanguageAndVoiceUnitOptions(mainCarContext.carContext)
-            .alternatives(true)
-            .profile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
-            .coordinatesList(listOf(origin, destination))
-            .build()
+        .applyDefaultNavigationOptions()
+        .applyLanguageAndVoiceUnitOptions(mapboxNavigation.navigationOptions.applicationContext)
+        .alternatives(true)
+        .profile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
+        .coordinatesList(listOf(origin, destination))
+        .build()
 
     /**
      * This creates a callback that transforms
@@ -87,7 +89,7 @@ class CarRouteRequest(
                 currentRequestId = null
 
                 logAndroidAuto("onRoutesReady ${routes.size}")
-                mainCarContext.mapboxNavigation.setRoutes(routes)
+                mapboxNavigation.setRoutes(routes)
                 callback.onRoutesReady(searchResult, routes)
             }
 

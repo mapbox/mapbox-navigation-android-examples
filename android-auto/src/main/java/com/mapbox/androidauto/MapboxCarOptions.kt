@@ -10,13 +10,11 @@ import java.util.Locale
  * @param mapInitOptions Used to initialize more advanced map style configurations
  * @param mapDayStyle Assigns a day style for the car map
  * @param mapNightStyle Assigns a day style for the car map, when null [mapDayStyle] is used
- * @param directionsLanguage The language used for audio guidance
  */
 class MapboxCarOptions private constructor(
     val mapInitOptions: MapInitOptions,
     val mapDayStyle: String,
     val mapNightStyle: String?,
-    val directionsLanguage: String,
     val replayEnabled: Boolean
 ) {
 
@@ -26,7 +24,6 @@ class MapboxCarOptions private constructor(
     fun toBuilder(): Builder = Builder(mapInitOptions).apply {
         mapDayStyle(mapDayStyle)
         mapNightStyle(mapNightStyle)
-        directionsLanguage(directionsLanguage)
     }
 
     /**
@@ -41,7 +38,6 @@ class MapboxCarOptions private constructor(
         if (mapInitOptions != other.mapInitOptions) return false
         if (mapDayStyle != other.mapDayStyle) return false
         if (mapNightStyle != other.mapNightStyle) return false
-        if (directionsLanguage != other.directionsLanguage) return false
 
         return true
     }
@@ -53,7 +49,6 @@ class MapboxCarOptions private constructor(
         var result = mapInitOptions.hashCode()
         result = 31 * result + mapDayStyle.hashCode()
         result = 31 * result + (mapNightStyle?.hashCode() ?: 0)
-        result = 31 * result + directionsLanguage.hashCode()
         return result
     }
 
@@ -64,7 +59,6 @@ class MapboxCarOptions private constructor(
         return "MapboxCarOptions(mapInitOptions='$mapInitOptions'," +
                 " mapDayStyle='$mapDayStyle'," +
                 " mapNightStyle=$mapNightStyle," +
-                " directionsLanguage='$directionsLanguage'" +
                 ")"
     }
 
@@ -126,7 +120,6 @@ class MapboxCarOptions private constructor(
                 mapInitOptions = mapInitOptions,
                 mapDayStyle = mapDayStyle,
                 mapNightStyle = mapNightStyle,
-                directionsLanguage = directionsLanguage,
                 replayEnabled = replayEnabled,
             )
         }

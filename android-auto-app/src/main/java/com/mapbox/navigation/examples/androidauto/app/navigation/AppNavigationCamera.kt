@@ -1,14 +1,17 @@
-package com.mapbox.examples.androidauto.car.navigation
+package com.mapbox.navigation.examples.androidauto.app.navigation
 
 import android.graphics.Rect
 import android.location.Location
+import android.view.ViewTreeObserver
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
@@ -22,43 +25,65 @@ private const val DEFAULT_INITIAL_ZOOM = 15.0
 /**
  * Integrates the Android Auto [MapboxCarMapSurface] with the [NavigationCamera].
  */
-class CarNavigationCamera(
-    val mapboxNavigation: MapboxNavigation,
+class AppNavigationCamera(
+    val mapView: MapView,
     val cameraMode: CameraMode,
     private val initialCameraOptions: CameraOptions? = CameraOptions.Builder()
         .zoom(DEFAULT_INITIAL_ZOOM)
         .build()
-) : MapboxCarMapSurfaceListener {
-    private var mapboxCarMapSurface: MapboxCarMapSurface? = null
+) : DefaultLifecycleObserver {
     private lateinit var navigationCamera: NavigationCamera
     private lateinit var viewportDataSource: MapboxNavigationViewportDataSource
 
     private var isLocationInitialized = false
+    private val edgeInsets = EdgeInsets(0.0, 0.0, 0.0, 0.0)
 
-    override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
-        super.loaded(mapboxCarMapSurface)
-        this.mapboxCarMapSurface = mapboxCarMapSurface
-        logAndroidAuto("CarNavigationCamera loaded $mapboxCarMapSurface")
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        val visibleArea = Rect()
+        val isVisible = mapView.getGlobalVisibleRect(visibleArea)
+        check(isVisible) { "Make sure the map is visible" }
+        visibleAreaChanged(visibleArea, edgeInsets)
+    }
 
-        val mapboxMap = mapboxCarMapSurface.mapSurface.getMapboxMap()
-        initialCameraOptions?.let { mapboxMap.setCamera(it) }
+    override fun onCreate(owner: LifecycleOwner) {
+        initialCameraOptions?.let { mapView.getMapboxMap().setCamera(it) }
+
         viewportDataSource = MapboxNavigationViewportDataSource(
-            mapboxCarMapSurface.mapSurface.getMapboxMap()
+            mapView.getMapboxMap()
         )
         navigationCamera = NavigationCamera(
-            mapboxMap,
-            mapboxCarMapSurface.mapSurface.camera,
+            mapView.getMapboxMap(),
+            mapView.camera,
             viewportDataSource
         )
 
-        mapboxNavigation.registerLocationObserver(locationObserver)
-        mapboxNavigation.registerRoutesObserver(routeObserver)
-        mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+        check(mapView.viewTreeObserver.isAlive) { "Make sure the map is alive" }
+        mapView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
     }
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
-        logAndroidAuto("CarNavigationCamera visibleAreaChanged $visibleArea $edgeInsets")
+    override fun onDestroy(owner: LifecycleOwner) {
+        mapView.viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        MapboxNavigationProvider.retrieve().apply {
+            registerLocationObserver(locationObserver)
+            registerRoutesObserver(routeObserver)
+            registerRouteProgressObserver(routeProgressObserver)
+        }
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        MapboxNavigationProvider.retrieve().apply {
+            unregisterLocationObserver(locationObserver)
+            unregisterRoutesObserver(routeObserver)
+            unregisterRouteProgressObserver(routeProgressObserver)
+        }
+        isLocationInitialized = false
+    }
+
+    private fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        logAndroidAuto("AppNavigationCamera visibleAreaChanged $visibleArea $edgeInsets")
 
         viewportDataSource.overviewPadding = EdgeInsets(
             edgeInsets.top + OVERVIEW_PADDING,
@@ -77,17 +102,6 @@ class CarNavigationCamera(
         )
 
         viewportDataSource.evaluate()
-    }
-
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
-        super.detached(mapboxCarMapSurface)
-        logAndroidAuto("CarNavigationCamera detached $mapboxCarMapSurface")
-
-        mapboxNavigation.unregisterRoutesObserver(routeObserver)
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
-        mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
-        this.mapboxCarMapSurface = null
-        isLocationInitialized = false
     }
 
     private val locationObserver = object : LocationObserver {
@@ -110,10 +124,9 @@ class CarNavigationCamera(
                     CameraMode.FOLLOWING -> navigationCamera.requestNavigationCameraToFollowing(
                         stateTransitionOptions = instantTransition
                     )
-                    CameraMode.OVERVIEW -> navigationCamera
-                        .requestNavigationCameraToOverview(
-                            stateTransitionOptions = instantTransition
-                        )
+                    CameraMode.OVERVIEW -> navigationCamera.requestNavigationCameraToOverview(
+                        stateTransitionOptions = instantTransition
+                    )
                 }
             }
         }

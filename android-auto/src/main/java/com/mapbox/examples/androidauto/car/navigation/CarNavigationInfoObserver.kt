@@ -15,7 +15,7 @@ import com.mapbox.navigation.ui.maneuver.model.ManeuverError
  * Attach the [start] [stop] functions to start observing navigation info.
  */
 class CarNavigationInfoObserver(
-    private val carNavigationCarContext: CarNavigationCarContext
+    private val carActiveGuidanceCarContext: CarActiveGuidanceCarContext
 ) {
     private var onNavigationInfoChanged: (() -> Unit)? = null
     var navigationInfo: NavigationTemplate.NavigationInfo? = null
@@ -33,28 +33,28 @@ class CarNavigationInfoObserver(
 
     private val routeProgressObserver = RouteProgressObserver { routeProgress ->
         this.routeProgress = routeProgress
-        expectedManeuvers = carNavigationCarContext.maneuverApi.getManeuvers(routeProgress)
+        expectedManeuvers = carActiveGuidanceCarContext.maneuverApi.getManeuvers(routeProgress)
         updateNavigationInfo()
     }
 
     private fun updateNavigationInfo() {
-        this.navigationInfo = carNavigationCarContext.navigationInfoMapper
+        this.navigationInfo = carActiveGuidanceCarContext.navigationInfoMapper
             .mapNavigationInfo(expectedManeuvers, routeProgress)
 
-        this.travelEstimateInfo = carNavigationCarContext.tripProgressMapper.from(routeProgress)
+        this.travelEstimateInfo = carActiveGuidanceCarContext.tripProgressMapper.from(routeProgress)
     }
 
     fun start(onNavigationInfoChanged: () -> Unit) {
         this.onNavigationInfoChanged = onNavigationInfoChanged
         logAndroidAuto("CarRouteProgressObserver onStart")
-        val mapboxNavigation = carNavigationCarContext.mapboxNavigation
+        val mapboxNavigation = carActiveGuidanceCarContext.mapboxNavigation
         mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
     }
 
     fun stop() {
         logAndroidAuto("CarRouteProgressObserver onStop")
         onNavigationInfoChanged = null
-        val mapboxNavigation = carNavigationCarContext.mapboxNavigation
+        val mapboxNavigation = carActiveGuidanceCarContext.mapboxNavigation
         mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
     }
 }
