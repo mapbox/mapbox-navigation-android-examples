@@ -9,6 +9,10 @@ import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
+import com.mapbox.navigation.utils.internal.JobControl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class MainCarContext internal constructor(
     val carContext: CarContext
@@ -25,5 +29,11 @@ class MainCarContext internal constructor(
         MapboxDistanceFormatter(
             mapboxNavigation.navigationOptions.distanceFormatterOptions
         )
+    }
+
+    fun getJobControl(): JobControl {
+        val supervisorJob = SupervisorJob()
+        val scope = CoroutineScope(supervisorJob + Dispatchers.Main)
+        return JobControl(supervisorJob, scope)
     }
 }

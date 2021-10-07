@@ -12,14 +12,14 @@ import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.search.result.SearchResult
+import com.mapbox.examples.androidauto.car.model.PlaceRecord
 
 /**
  * This is a view interface. Each callback function represents a view that will be
  * shown for the situations.
  */
 interface CarRouteRequestCallback {
-    fun onRoutesReady(searchResult: SearchResult, routes: List<DirectionsRoute>)
+    fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>)
     fun onUnknownCurrentLocation()
     fun onSearchResultLocationUnknown()
     fun onNoRoutesFound()
@@ -38,7 +38,7 @@ class CarRouteRequest(
      *
      * @param searchResults potential destinations for directions
      */
-    fun request(searchResults: List<SearchResult>, callback: CarRouteRequestCallback) {
+    fun request(placeRecord: PlaceRecord, callback: CarRouteRequestCallback) {
         currentRequestId?.let { mainCarContext.mapboxNavigation.cancelRouteRequest(it) }
 
         val location = mainCarContext.navigationLocationProvider.lastLocation
@@ -49,18 +49,18 @@ class CarRouteRequest(
         }
         val origin = Point.fromLngLat(location.longitude, location.latitude)
 
-        val searchResult = searchResults
-            .firstOrNull { it.coordinate != null }
-        if (searchResult == null) {
-            logAndroidAutoFailure("CarRouteRequest.onSearchResultLocationUnknown")
-            callback.onSearchResultLocationUnknown()
-            return
+        when (placeRecord.coordinate) {
+            null -> {
+                logAndroidAutoFailure("CarRouteRequest.onSearchResultLocationUnknown")
+                callback.onSearchResultLocationUnknown()
+            }
+            else -> {
+                currentRequestId = mainCarContext.mapboxNavigation.requestRoutes(
+                    carRouteOptions(origin, placeRecord.coordinate),
+                    carCallbackTransformer(placeRecord, callback)
+                )
+            }
         }
-
-        currentRequestId = mainCarContext.mapboxNavigation.requestRoutes(
-            carRouteOptions(origin, searchResult.coordinate!!),
-            carCallbackTransformer(searchResult, callback)
-        )
     }
 
     /**
@@ -79,7 +79,7 @@ class CarRouteRequest(
      * [RouterCallback] into [CarRouteRequestCallback]
      */
     private fun carCallbackTransformer(
-        searchResult: SearchResult,
+        searchResult: PlaceRecord,
         callback: CarRouteRequestCallback
     ): RouterCallback {
         return object : RouterCallback {

@@ -25,6 +25,7 @@ dependencies {
     api("com.mapbox.search:mapbox-search-android:1.0.0-beta.19")
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.car.app:app:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
 }
 
 dependencies {
@@ -32,6 +33,7 @@ dependencies {
     testImplementation("androidx.test.ext:junit:1.1.3")
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3")
 }
 
 dependencies {

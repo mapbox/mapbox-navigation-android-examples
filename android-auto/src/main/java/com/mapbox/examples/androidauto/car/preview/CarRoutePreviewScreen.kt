@@ -20,7 +20,7 @@ import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigateScreen
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCarContext
-import com.mapbox.search.result.SearchResult
+import com.mapbox.examples.androidauto.car.model.PlaceRecord
 
 /**
  * After a destination has been selected. This view previews the route and lets
@@ -28,7 +28,7 @@ import com.mapbox.search.result.SearchResult
  */
 class CarRoutePreviewScreen(
     private val routePreviewCarContext: RoutePreviewCarContext,
-    private val searchResult: SearchResult,
+    private val placeRecord: PlaceRecord,
     private val directionsRoutes: List<DirectionsRoute>
 ) : Screen(routePreviewCarContext.carContext) {
 
@@ -44,7 +44,7 @@ class CarRoutePreviewScreen(
     override fun onGetTemplate(): Template {
         val listBuilder = ItemList.Builder()
         directionsRoutes.forEach { route ->
-            val title = route.legs()?.first()?.summary() ?: searchResult.name
+            val title = route.legs()?.first()?.summary() ?: placeRecord.name
             val routeSpannableString = SpannableString(title)
             routeSpannableString.setSpan(
                 DurationSpan.create(route.duration().toLong()),
