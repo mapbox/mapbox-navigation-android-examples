@@ -49,11 +49,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
 
@@ -69,11 +65,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
 
@@ -90,11 +82,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         }
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns null
-                }
-            ),
+            mockk { every { coordinate } returns null },
             callback
         )
 
@@ -112,11 +100,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
 
@@ -136,11 +120,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
 
@@ -160,19 +140,11 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val callback: CarRouteRequestCallback = mockk(relaxUnitFun = true)
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
         carRouteRequest.request(
-            listOf(
-                mockk {
-                    every { coordinate } returns searchCoordinate
-                }
-            ),
+            mockk { every { coordinate } returns searchCoordinate },
             callback
         )
 

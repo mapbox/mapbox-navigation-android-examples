@@ -11,6 +11,12 @@ import com.mapbox.examples.androidauto.car.search.SearchScreen
 import com.mapbox.examples.androidauto.car.settings.CarSettingsScreen
 import com.mapbox.examples.androidauto.car.settings.SettingsCarContext
 import com.mapbox.examples.androidauto.R
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceRecordMapper
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
+import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
+import com.mapbox.examples.androidauto.car.search.FavoritesApi
+import com.mapbox.search.MapboxSearchSdk
 
 class MainActionStrip(
     private val mainCarContext: MainCarContext,
@@ -63,13 +69,31 @@ class MainActionStrip(
     private fun buildFavoritesAction() = Action.Builder()
         .setTitle(carContext.resources.getString(R.string.car_action_search_favorites))
         .setOnClickListener {
-            // TODO build favorites
-            //     https://github.com/mapbox/mapbox-navigation-android-examples/issues/28
+            openPlacesListScreen()
         }
         .build()
 
     private fun openSearch() {
         val searchCarContext = SearchCarContext(mainCarContext)
         screen.screenManager.push(SearchScreen(searchCarContext))
+    }
+
+    private fun openPlacesListScreen() {
+        screen.screenManager.push(
+            PlacesListOnMapScreen(
+                mainCarContext,
+                FavoritesApi(MapboxSearchSdk.serviceProvider.favoritesDataProvider()),
+                PlacesListOnMapLayerUtil(),
+                PlaceRecordMapper(
+                    CarManeuverIconFactory(mainCarContext.carContext),
+                    mainCarContext
+                        .mapboxNavigation
+                        .navigationOptions
+                        .distanceFormatterOptions
+                        .unitType
+                ),
+                SearchCarContext(mainCarContext)
+            )
+        )
     }
 }

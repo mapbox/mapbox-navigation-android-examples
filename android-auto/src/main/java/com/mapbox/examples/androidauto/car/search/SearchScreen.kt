@@ -15,7 +15,7 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
-import com.mapbox.search.result.SearchResult
+import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.search.result.SearchSuggestion
 
 /**
@@ -75,16 +75,21 @@ class SearchScreen(
         logAndroidAuto("onClickSearch $searchSuggestion")
         searchCarContext.carSearchEngine.select(searchSuggestion) { searchResults ->
             logAndroidAuto("onClickSearch select ${searchResults.joinToString()}")
-            searchCarContext.carRouteRequest.request(searchResults, carRouteRequestCallback)
+            if (searchResults.isNotEmpty()) {
+                searchCarContext.carRouteRequest.request(
+                    PlaceRecord(searchResults.first()),
+                    carRouteRequestCallback
+                )
+            }
         }
     }
 
-    val carRouteRequestCallback = object : CarRouteRequestCallback {
-        override fun onRoutesReady(searchResult: SearchResult, routes: List<DirectionsRoute>) {
+    private val carRouteRequestCallback = object : CarRouteRequestCallback {
+        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
             val routePreviewCarContext = RoutePreviewCarContext(searchCarContext.mainCarContext)
 
             screenManager.push(
-                CarRoutePreviewScreen(routePreviewCarContext, searchResult, routes)
+                CarRoutePreviewScreen(routePreviewCarContext, placeRecord, routes)
             )
         }
 
