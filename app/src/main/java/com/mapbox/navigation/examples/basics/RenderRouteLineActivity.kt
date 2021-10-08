@@ -31,8 +31,8 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityRouteLineBinding
-import com.mapbox.navigation.ui.base.model.route.RouteLayerConstants.PRIMARY_ROUTE_TRAFFIC_LAYER_ID
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
+import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
 import com.mapbox.navigation.ui.maps.route.arrow.model.RouteArrowOptions
@@ -210,7 +210,7 @@ class RenderRouteLineActivity : AppCompatActivity() {
      */
     private val routeArrowOptions by lazy {
         RouteArrowOptions.Builder(this)
-            .withAboveLayerId(PRIMARY_ROUTE_TRAFFIC_LAYER_ID)
+            .withAboveLayerId(TOP_LEVEL_ROUTE_LINE_LAYER_ID)
             .build()
     }
 
@@ -227,11 +227,11 @@ class RenderRouteLineActivity : AppCompatActivity() {
      * MapboxNavigation. When this observer is called the route data is used to draw route(s)
      * on the map.
      */
-    private val routesObserver: RoutesObserver = RoutesObserver { routes ->
+    private val routesObserver: RoutesObserver = RoutesObserver { routeUpdateResult ->
         // RouteLine: wrap the DirectionRoute objects and pass them
         // to the MapboxRouteLineApi to generate the data necessary to draw the route(s)
         // on the map.
-        val routeLines = routes.map { RouteLine(it, null) }
+        val routeLines = routeUpdateResult.routes.map { RouteLine(it, null) }
 
         routeLineApi.setRoutes(
             routeLines

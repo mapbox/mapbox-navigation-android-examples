@@ -374,10 +374,10 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
      * - routes annotations get refreshed (for example, congestion annotation that indicate the live traffic along the route)
      * - driver got off route and a reroute was executed
      */
-    private val routesObserver = RoutesObserver { routes ->
-        if (routes.isNotEmpty()) {
+    private val routesObserver = RoutesObserver { routeUpdateResult ->
+        if (routeUpdateResult.routes.isNotEmpty()) {
             // generate route geometries asynchronously and render them
-            val routeLines = routes.map { RouteLine(it, null) }
+            val routeLines = routeUpdateResult.routes.map { RouteLine(it, null) }
 
             routeLineApi.setRoutes(
                 routeLines
@@ -388,7 +388,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             }
 
             // update the camera position to account for the new route
-            viewportDataSource.onRouteChanged(routes.first())
+            viewportDataSource.onRouteChanged(routeUpdateResult.routes.first())
             viewportDataSource.evaluate()
         } else {
             // remove the route line and route arrow from the map
