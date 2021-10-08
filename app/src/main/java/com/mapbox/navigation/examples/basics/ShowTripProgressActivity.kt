@@ -223,8 +223,8 @@ class ShowTripProgressActivity : AppCompatActivity() {
      * MapboxNavigation. When this observer is called the route data is used to draw route(s)
      * on the map.
      */
-    private val routesObserver: RoutesObserver = RoutesObserver { routes ->
-        val routeLines = routes.map { RouteLine(it, null) }
+    private val routesObserver: RoutesObserver = RoutesObserver { routeUpdateResult ->
+        val routeLines = routeUpdateResult.routes.map { RouteLine(it, null) }
 
         routeLineApi.setRoutes(
             routeLines
