@@ -1,4 +1,4 @@
-package com.mapbox.examples.androidauto.car
+package com.mapbox.androidauto.testing
 
 import android.os.Build
 import org.junit.Ignore

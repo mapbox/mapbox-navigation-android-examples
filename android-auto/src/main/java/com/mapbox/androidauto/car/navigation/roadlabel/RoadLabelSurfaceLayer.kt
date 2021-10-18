@@ -10,6 +10,7 @@ import com.mapbox.androidauto.surfacelayer.CarSurfaceLayer
 import com.mapbox.androidauto.surfacelayer.textview.CarTextLayerHost
 import com.mapbox.maps.LayerPosition
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentConstants
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.trip.model.eh.RoadName
 import com.mapbox.navigation.core.MapboxNavigation
 
@@ -30,6 +31,7 @@ class RoadLabelSurfaceLayer(
 
     override fun children() = listOf(carTextLayerHost.mapScene)
 
+    @ExperimentalPreviewMapboxNavigationAPI
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         super.loaded(mapboxCarMapSurface)
 
@@ -55,6 +57,7 @@ class RoadLabelSurfaceLayer(
         mapboxNavigation.registerEHorizonObserver(roadNameObserver)
     }
 
+    @ExperimentalPreviewMapboxNavigationAPI
     override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
         mapboxCarMapSurface?.style?.removeStyleLayer(CAR_NAVIGATION_VIEW_LAYER_ID)
         mapboxNavigation.unregisterEHorizonObserver(roadNameObserver)

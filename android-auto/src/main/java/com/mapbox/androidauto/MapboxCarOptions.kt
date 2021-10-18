@@ -10,6 +10,7 @@ import java.util.Locale
  * @param mapInitOptions Used to initialize more advanced map style configurations
  * @param mapDayStyle Assigns a day style for the car map
  * @param mapNightStyle Assigns a day style for the car map, when null [mapDayStyle] is used
+ * @param replayEnabled Enables a replay mode with a simulated driver
  */
 class MapboxCarOptions private constructor(
     val mapInitOptions: MapInitOptions,
@@ -24,6 +25,7 @@ class MapboxCarOptions private constructor(
     fun toBuilder(): Builder = Builder(mapInitOptions).apply {
         mapDayStyle(mapDayStyle)
         mapNightStyle(mapNightStyle)
+        replayEnabled(replayEnabled)
     }
 
     /**
@@ -38,6 +40,7 @@ class MapboxCarOptions private constructor(
         if (mapInitOptions != other.mapInitOptions) return false
         if (mapDayStyle != other.mapDayStyle) return false
         if (mapNightStyle != other.mapNightStyle) return false
+        if (replayEnabled != other.replayEnabled) return false
 
         return true
     }
@@ -49,6 +52,7 @@ class MapboxCarOptions private constructor(
         var result = mapInitOptions.hashCode()
         result = 31 * result + mapDayStyle.hashCode()
         result = 31 * result + (mapNightStyle?.hashCode() ?: 0)
+        result = 31 * result + replayEnabled.hashCode()
         return result
     }
 
@@ -59,6 +63,7 @@ class MapboxCarOptions private constructor(
         return "MapboxCarOptions(mapInitOptions='$mapInitOptions'," +
                 " mapDayStyle='$mapDayStyle'," +
                 " mapNightStyle=$mapNightStyle," +
+                " replayEnabled=$replayEnabled" +
                 ")"
     }
 

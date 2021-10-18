@@ -9,7 +9,7 @@ import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.ArrivalState
 import com.mapbox.androidauto.CarAppState
 import com.mapbox.androidauto.FreeDriveState
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.navigation.ActiveGuidanceScreen
@@ -18,7 +18,7 @@ import com.mapbox.examples.androidauto.car.navigation.CarActiveGuidanceCarContex
 class MainScreenManager(
     val mainCarContext: MainCarContext
 ) : DefaultLifecycleObserver {
-    fun currentScreen(): Screen = currentScreen(MapboxAndroidAuto.carAppState().value!!)
+    fun currentScreen(): Screen = currentScreen(MapboxCarApp.carAppState.value!!)
 
     fun currentScreen(carAppState: CarAppState): Screen {
         return when (carAppState) {
@@ -39,11 +39,11 @@ class MainScreenManager(
 
     override fun onResume(owner: LifecycleOwner) {
         logAndroidAuto("MainCarSession onResume")
-        MapboxAndroidAuto.carAppState().observe(owner, carAppStateObserver)
+        MapboxCarApp.carAppState.observe(owner, carAppStateObserver)
     }
 
     override fun onPause(owner: LifecycleOwner) {
         logAndroidAuto("MainCarSession onPause")
-        MapboxAndroidAuto.carAppState().removeObserver(carAppStateObserver)
+        MapboxCarApp.carAppState.removeObserver(carAppStateObserver)
     }
 }

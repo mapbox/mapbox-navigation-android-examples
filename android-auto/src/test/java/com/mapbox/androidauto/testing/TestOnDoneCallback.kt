@@ -1,4 +1,4 @@
-package com.mapbox.examples.androidauto.car
+package com.mapbox.androidauto.testing
 
 import androidx.car.app.OnDoneCallback
 import androidx.car.app.serialization.Bundleable

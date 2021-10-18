@@ -4,11 +4,10 @@ import androidx.car.app.Screen
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.NavigationTemplate
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import com.mapbox.androidauto.logAndroidAuto
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
+import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
@@ -45,9 +44,8 @@ class MainCarScreen(
 
     init {
         logAndroidAuto("MainCarScreen constructor")
-        lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarScreen onStart")
                 mainCarContext.mapboxCarMap.registerListener(carRouteLine)
                 mainCarContext.mapboxCarMap.registerListener(carLocationRenderer)
@@ -56,8 +54,7 @@ class MainCarScreen(
                 mainCarContext.mapboxCarMap.registerListener(carMapViewLayer)
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarScreen onStop")
                 mainCarContext.mapboxCarMap.unregisterListener(carRouteLine)
                 mainCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)

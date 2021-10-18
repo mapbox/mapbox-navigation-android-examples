@@ -21,4 +21,6 @@
     <string name="car_settings_preload_failure_message">Try opening the app again.</string>
     <string name="car_message_location_permissions">Please open the application and enable location permission.</string>
     <string name="car_message_location_permissions_title">Needs location permission</string>
+
+    <string name="car_preference_audio_guidance_enabled_description">Enables the audio guidance</string>
 </resources>

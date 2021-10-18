@@ -9,8 +9,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.mapbox.androidauto.ActiveGuidanceState
-import com.mapbox.androidauto.CarAppLocationObserver
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.car.model.PlaceRecord
@@ -27,7 +26,7 @@ class SearchFragment : Fragment() {
     private lateinit var mapboxSearchBottomSheet: AppSearchBottomSheet
     private val carRouteRequest = CarRouteRequest(
         MapboxNavigationProvider.retrieve(),
-        CarAppLocationObserver.navigationLocationProvider
+        MapboxCarApp.carAppServices.location().navigationLocationProvider
     )
 
     override fun onCreateView(
@@ -49,11 +48,11 @@ class SearchFragment : Fragment() {
             savedInstanceState,
         ).placeClickListener { searchPlace ->
             requestRoute(searchPlace) {
-                MapboxAndroidAuto.updateCarAppState(RoutePreviewState)
+                MapboxCarApp.updateCarAppState(RoutePreviewState)
             }
         }.navigateClickListener { searchPlace ->
             requestRoute(searchPlace) {
-                MapboxAndroidAuto.updateCarAppState(ActiveGuidanceState)
+                MapboxCarApp.updateCarAppState(ActiveGuidanceState)
             }
         }
     }

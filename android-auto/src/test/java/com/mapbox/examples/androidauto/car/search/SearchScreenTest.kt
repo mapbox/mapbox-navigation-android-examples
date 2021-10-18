@@ -3,7 +3,7 @@ package com.mapbox.examples.androidauto.car.search
 import android.text.SpannableString
 import androidx.car.app.model.Row
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.MapboxRobolectricTestRunner
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.search.result.SearchSuggestion
 import io.mockk.CapturingSlot
 import io.mockk.Runs

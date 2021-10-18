@@ -4,7 +4,7 @@ package com.mapbox.examples.androidauto.car.preview
 
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
-import com.mapbox.examples.androidauto.car.MapboxRobolectricTestRunner
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.core.MapboxNavigation

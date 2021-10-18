@@ -1,22 +1,18 @@
-package com.mapbox.androidauto
+package com.mapbox.androidauto.navigation.location.impl
 
 import android.location.Location
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.navigation.location.CarAppLocation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 
-class CarAppLocationObserver : DefaultLifecycleObserver {
+internal class CarAppLocationImpl : CarAppLocation {
 
-    override fun onStart(owner: LifecycleOwner) {
-        MapboxNavigationProvider.retrieve().registerLocationObserver(locationObserver)
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
-    }
+    override val navigationLocationProvider = NavigationLocationProvider()
 
     private val locationObserver = object : LocationObserver {
 
@@ -32,7 +28,15 @@ class CarAppLocationObserver : DefaultLifecycleObserver {
         }
     }
 
-    companion object {
-        val navigationLocationProvider = NavigationLocationProvider()
+    init {
+        MapboxCarApp.carAppLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                MapboxNavigationProvider.retrieve().registerLocationObserver(locationObserver)
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
+            }
+        })
     }
 }

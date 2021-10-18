@@ -2,7 +2,7 @@
 
 package com.mapbox.examples.androidauto.car.search
 
-import com.mapbox.car.util.MainCoroutineRule
+import com.mapbox.androidauto.testing.MainCoroutineRule
 import com.mapbox.geojson.Point
 import com.mapbox.search.AsyncOperationTask
 import com.mapbox.search.CompletionCallback

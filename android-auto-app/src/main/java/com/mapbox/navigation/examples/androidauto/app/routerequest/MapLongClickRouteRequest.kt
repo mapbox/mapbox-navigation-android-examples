@@ -3,8 +3,7 @@ package com.mapbox.navigation.examples.androidauto.app.routerequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.CarAppLocationObserver
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.car.model.PlaceRecord
@@ -20,7 +19,7 @@ import java.util.UUID
 class MapLongClickRouteRequest {
     private val carRouteRequest = CarRouteRequest(
         MapboxNavigationProvider.retrieve(),
-        CarAppLocationObserver.navigationLocationProvider
+        MapboxCarApp.carAppServices.location().navigationLocationProvider
     )
 
     fun observeClicks(mapView: MapView, lifecycle: Lifecycle) {
@@ -53,7 +52,7 @@ class MapLongClickRouteRequest {
                     routes: List<DirectionsRoute>
                 ) {
                     MapboxNavigationProvider.retrieve().setRoutes(routes)
-                    MapboxAndroidAuto.updateCarAppState(RoutePreviewState)
+                    MapboxCarApp.updateCarAppState(RoutePreviewState)
                 }
 
                 override fun onUnknownCurrentLocation() {

@@ -7,10 +7,9 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import com.mapbox.androidauto.CarAppLocationObserver
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
@@ -23,12 +22,11 @@ import com.mapbox.examples.androidauto.car.preview.CarRoutePreviewScreen
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
 import com.mapbox.examples.androidauto.car.preview.RoutePreviewCarContext
 import com.mapbox.examples.androidauto.car.search.SearchCarContext
-
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
@@ -52,10 +50,8 @@ class PlacesListOnMapScreen(
     )
 
     init {
-        lifecycle.addObserver(object : LifecycleObserver {
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
                 logAndroidAuto("PlacesListOnMapScreen onStart")
                 mainCarContext.mapboxCarMap.mapboxCarMapSurface?.style?.let { style ->
                     placesLayerUtil.initializePlacesListOnMapLayer(style, mainCarContext.carContext.resources)
@@ -64,8 +60,7 @@ class PlacesListOnMapScreen(
                 mainCarContext.mapboxCarMap.registerListener(carNavigationCamera)
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("PlacesListOnMapScreen onStop")
                 placesProvider.cancel()
                 jobControl.job.cancelChildren()
@@ -80,7 +75,8 @@ class PlacesListOnMapScreen(
 
     override fun onGetTemplate(): Template {
         addPlaceIconsToMap(placeRecords)
-        val placesItemList = CarAppLocationObserver.navigationLocationProvider.lastLocation?.run {
+        val locationProvider = MapboxCarApp.carAppServices.location().navigationLocationProvider
+        val placesItemList = locationProvider.lastLocation?.run {
             placeRecordMapper.mapToItemList(this, placeRecords, placeClickListener)
         } ?: ItemList.Builder().build()
         return PlaceListNavigationTemplate.Builder()
