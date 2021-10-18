@@ -1,6 +1,6 @@
 package com.mapbox.examples.androidauto.car.location
 
-import com.mapbox.androidauto.CarAppLocationObserver
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
 import com.mapbox.androidauto.logAndroidAuto
@@ -21,7 +21,7 @@ class CarLocationRenderer(
             locationPuck = CarLocationPuck.navigationPuck2D(mainCarContext.carContext)
             enabled = true
             pulsingEnabled = true
-            setLocationProvider(CarAppLocationObserver.navigationLocationProvider)
+            setLocationProvider(MapboxCarApp.carAppServices.location().navigationLocationProvider)
         }
     }
 }

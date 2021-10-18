@@ -1,18 +1,14 @@
 @file:Suppress("NoMockkVerifyImport")
 
-package com.mapbox.androidauto
+package com.mapbox.androidauto.lifecycle
 
 import android.app.Activity
 import androidx.lifecycle.DefaultLifecycleObserver
-import com.mapbox.examples.androidauto.car.MapboxRobolectricTestRunner
-import com.mapbox.navigation.utils.internal.LoggerProvider
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -23,15 +19,8 @@ class CarAppLifecycleOwnerTest : MapboxRobolectricTestRunner() {
 
     @Before
     fun setup() {
-        mockkObject(LoggerProvider)
-        every { LoggerProvider.logger } returns mockk(relaxUnitFun = true)
         carAppLifecycleOwner = CarAppLifecycleOwner()
         carAppLifecycleOwner.lifecycle.addObserver(testLifecycleObserver)
-    }
-
-    @After
-    fun teardown() {
-        unmockkObject(LoggerProvider)
     }
 
     @Test

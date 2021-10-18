@@ -25,7 +25,7 @@ open class ImageOverlayHost(
     private val position: WidgetPosition = WidgetPosition.BOTTOM_LEFT,
     private val margins: Margin = Margin(),
     var shouldRender: Boolean = true
-) : CustomLayerHost() {
+) : CustomLayerHost {
     private var width = 0
     private var height = 0
 

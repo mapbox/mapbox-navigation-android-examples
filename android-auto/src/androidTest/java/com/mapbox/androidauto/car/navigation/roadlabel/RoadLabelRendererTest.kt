@@ -1,9 +1,11 @@
 package com.mapbox.androidauto.car.navigation.roadlabel
 
+import android.Manifest
 import android.graphics.Color
 import androidx.test.filters.SmallTest
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.mapbox.androidauto.car.navigation.BitmapTestUtil
+import androidx.test.rule.GrantPermissionRule
+import com.mapbox.androidauto.testing.BitmapTestUtil
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -16,6 +18,12 @@ class RoadLabelRendererTest {
     @Rule
     @JvmField
     var testName = TestName()
+
+    @get:Rule
+    val permissionsRule: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     private val bitmapTestUtils = BitmapTestUtil(
         "expected_road_label_images",
@@ -33,7 +41,7 @@ class RoadLabelRendererTest {
                 .build()
         )
 
-        bitmapTestUtils.assertBitmapsEqual(testName, bitmap!!)
+        bitmapTestUtils.assertBitmapsSimilar(testName, bitmap!!)
     }
 
     @Test
@@ -45,7 +53,7 @@ class RoadLabelRendererTest {
                 .build()
         )
 
-        bitmapTestUtils.assertBitmapsEqual(testName, bitmap!!)
+        bitmapTestUtils.assertBitmapsSimilar(testName, bitmap!!)
     }
 
     @Test
@@ -57,7 +65,7 @@ class RoadLabelRendererTest {
                 .build()
         )
 
-        bitmapTestUtils.assertBitmapsEqual(testName, bitmap!!)
+        bitmapTestUtils.assertBitmapsSimilar(testName, bitmap!!)
     }
 
     @Test
@@ -71,6 +79,6 @@ class RoadLabelRendererTest {
                 .build()
         )
 
-        bitmapTestUtils.assertBitmapsEqual(testName, bitmap!!)
+        bitmapTestUtils.assertBitmapsSimilar(testName, bitmap!!)
     }
 }

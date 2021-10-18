@@ -6,13 +6,12 @@ import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.NavigationTemplate
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.FreeDriveState
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.navigation.audioguidance.CarAudioGuidanceUi
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
-import com.mapbox.androidauto.car.navigation.voice.CarNavigationVoiceAction
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
@@ -40,6 +39,7 @@ class ActiveGuidanceScreen(
         carActiveGuidanceContext.mapboxNavigation
     )
 
+    private val carAudioGuidanceUi = CarAudioGuidanceUi(this)
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
 
     override fun onGetTemplate(): Template {
@@ -57,8 +57,7 @@ class ActiveGuidanceScreen(
                             .build()
                     )
                     .addAction(
-                        CarNavigationVoiceAction(this)
-                            .buildOnOffAction()
+                        carAudioGuidanceUi.buildSoundButtonAction()
                     )
                     .build()
             )
@@ -77,25 +76,14 @@ class ActiveGuidanceScreen(
     private fun stopNavigation() {
         logAndroidAuto("CarNavigateScreen stopNavigation")
         MapboxNavigationProvider.retrieve().setRoutes(emptyList())
-        MapboxAndroidAuto.updateCarAppState(FreeDriveState)
+        MapboxCarApp.updateCarAppState(FreeDriveState)
     }
 
     init {
         logAndroidAuto("CarNavigateScreen constructor")
-        lifecycle.addObserver(object : LifecycleObserver {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
-                logAndroidAuto("CarNavigateScreen onCreate")
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
-                logAndroidAuto("CarNavigateScreen onDestroy")
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+            override fun onStart(owner: LifecycleOwner) {
                 logAndroidAuto("CarNavigateScreen onStart")
                 carActiveGuidanceContext.mapboxCarMap.registerListener(carLocationRenderer)
                 carActiveGuidanceContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
@@ -107,8 +95,7 @@ class ActiveGuidanceScreen(
                 }
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("CarNavigateScreen onStop")
                 carActiveGuidanceContext.mapboxCarMap.unregisterListener(carLocationRenderer)
                 carActiveGuidanceContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)

@@ -7,8 +7,8 @@ import androidx.car.app.model.ListTemplate
 import androidx.car.app.model.Row
 import androidx.test.core.app.ApplicationProvider
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.MapboxRobolectricTestRunner
-import com.mapbox.examples.androidauto.car.TestOnDoneCallback
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
+import com.mapbox.androidauto.testing.TestOnDoneCallback
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

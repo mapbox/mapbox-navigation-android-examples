@@ -8,11 +8,10 @@ import androidx.car.app.model.ItemList
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.ActiveGuidanceState
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
@@ -88,7 +87,7 @@ class CarRoutePreviewScreen(
                 Action.Builder()
                     .setTitle(carContext.getString(R.string.car_action_preview_navigate_button))
                     .setOnClickListener {
-                        MapboxAndroidAuto.updateCarAppState(ActiveGuidanceState)
+                        MapboxCarApp.updateCarAppState(ActiveGuidanceState)
                     }
                     .build())
             .build()
@@ -96,9 +95,8 @@ class CarRoutePreviewScreen(
 
     init {
         logAndroidAuto("CarRoutePreviewScreen constructor")
-        lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
                 logAndroidAuto("CarRoutePreviewScreen onStart")
                 routePreviewCarContext.mapboxCarMap.registerListener(carLocationRenderer)
                 routePreviewCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
@@ -106,8 +104,7 @@ class CarRoutePreviewScreen(
                 routePreviewCarContext.mapboxCarMap.registerListener(carRouteLine)
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("CarRoutePreviewScreen onStop")
                 routePreviewCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
                 routePreviewCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)

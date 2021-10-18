@@ -1,6 +1,6 @@
 package com.mapbox.examples.androidauto.car.search
 
-import com.mapbox.androidauto.CarAppLocationObserver
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequest
 import com.mapbox.search.MapboxSearchSdk
@@ -18,10 +18,10 @@ class SearchCarContext(
     /** SearchCarContext **/
     val carSearchEngine = CarSearchEngine(
         MapboxSearchSdk.createSearchEngine(),
-        CarAppLocationObserver.navigationLocationProvider
+        MapboxCarApp.carAppServices.location().navigationLocationProvider
     )
     val carRouteRequest = CarRouteRequest(
         mainCarContext.mapboxNavigation,
-        CarAppLocationObserver.navigationLocationProvider
+        MapboxCarApp.carAppServices.location().navigationLocationProvider
     )
 }

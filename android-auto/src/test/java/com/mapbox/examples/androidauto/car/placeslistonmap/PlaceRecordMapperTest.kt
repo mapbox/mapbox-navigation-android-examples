@@ -3,7 +3,7 @@ package com.mapbox.examples.androidauto.car.placeslistonmap
 import android.location.Location
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
-import com.mapbox.examples.androidauto.car.MapboxRobolectricTestRunner
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
 import com.mapbox.geojson.Point

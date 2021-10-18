@@ -1,14 +1,17 @@
-package com.mapbox.androidauto
+package com.mapbox.androidauto.lifecycle
 
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import com.mapbox.androidauto.logAndroidAuto
 
-internal class CarAppLifecycleOwner : LifecycleOwner {
+class CarAppLifecycleOwner internal constructor() : LifecycleOwner {
 
     // Keeps track of the activities created and foregrounded
     private var activitiesCreated = 0
@@ -23,15 +26,20 @@ internal class CarAppLifecycleOwner : LifecycleOwner {
     private var foregroundedChangingConfiguration = 0
 
     private val lifecycleRegistry = LifecycleRegistry(this)
-
-    init {
-        logAndroidAuto("CarAppLifecycleOwner init")
-        lifecycleRegistry.currentState = Lifecycle.State.INITIALIZED
-    }
+        .apply { currentState = Lifecycle.State.INITIALIZED }
 
     override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
-    val carLifecycleObserver = object : DefaultLifecycleObserver {
+    internal fun setup(application: Application) {
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+    }
+
+    internal fun setupCar(session: Session) {
+        session.lifecycle.addObserver(carLifecycleObserver)
+    }
+
+    @VisibleForTesting
+    internal val carLifecycleObserver = object : DefaultLifecycleObserver {
         override fun onCreate(owner: LifecycleOwner) {
             carCreated++
             logAndroidAuto("CarAppLifecycleOwner car onCreate")
@@ -77,7 +85,8 @@ internal class CarAppLifecycleOwner : LifecycleOwner {
         }
     }
 
-    val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
+    @VisibleForTesting
+    internal val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
             if (createdChangingConfiguration > 0) {
                 createdChangingConfiguration--

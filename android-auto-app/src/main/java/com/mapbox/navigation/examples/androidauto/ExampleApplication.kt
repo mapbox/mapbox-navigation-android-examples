@@ -1,10 +1,9 @@
 package com.mapbox.navigation.examples.androidauto
 
 import android.app.Application
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import com.mapbox.androidauto.MapboxAndroidAuto
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.options.NavigationOptions
@@ -21,8 +20,8 @@ class ExampleApplication : Application() {
         val searchLocationProvider = SearchLocationProvider(applicationContext)
         initializeSearchSDK(searchLocationProvider)
 
-        MapboxAndroidAuto.appLifecycle.addObserver(mapboxNavigationLifecycle)
-        MapboxAndroidAuto.setup(this, ExampleCarInitializer())
+        MapboxCarApp.carAppLifecycleOwner.lifecycle.addObserver(mapboxNavigationLifecycle)
+        MapboxCarApp.setup(this, ExampleCarInitializer())
     }
 
     private fun initializeSearchSDK(searchLocationProvider: SearchLocationProvider) {
@@ -33,9 +32,9 @@ class ExampleApplication : Application() {
         )
     }
 
-    private val mapboxNavigationLifecycle = object : LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_START)
-        fun onStart() {
+    private val mapboxNavigationLifecycle = object : DefaultLifecycleObserver {
+
+        override fun onStart(owner: LifecycleOwner) {
             logAndroidAuto("OneTapApplication onStart")
             val navigationOptions = NavigationOptions.Builder(applicationContext)
                 .accessToken(getString(R.string.mapbox_access_token))
@@ -44,8 +43,7 @@ class ExampleApplication : Application() {
                 .withDebugSimulatorEnabled()
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-        fun onStop() {
+        override fun onStop(owner: LifecycleOwner) {
             logAndroidAuto("OneTapApplication onStop")
             MapboxNavigationProvider.destroy()
         }

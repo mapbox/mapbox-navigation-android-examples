@@ -132,11 +132,11 @@ class AppNavigationCamera(
         }
     }
 
-    private val routeObserver = RoutesObserver { directionRoutes ->
-        if (directionRoutes.isEmpty()) {
+    private val routeObserver = RoutesObserver { result ->
+        if (result.routes.isEmpty()) {
             viewportDataSource.clearRouteData()
         } else {
-            viewportDataSource.onRouteChanged(directionRoutes.first())
+            viewportDataSource.onRouteChanged(result.routes.first())
         }
         viewportDataSource.evaluate()
     }

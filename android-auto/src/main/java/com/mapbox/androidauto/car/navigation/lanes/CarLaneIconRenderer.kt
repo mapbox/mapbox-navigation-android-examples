@@ -18,12 +18,8 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 internal class CarLaneIconRenderer(
     private val context: Context
 ) {
-    private val widthPx by lazy {
-        (LANE_IMAGE_WIDTH * context.resources.displayMetrics.density).toInt()
-    }
-    private val heightPx by lazy {
-        (LANE_IMAGE_HEIGHT * context.resources.displayMetrics.density).toInt()
-    }
+    private val widthPx by lazy { context.dpToPx(LANE_IMAGE_WIDTH) }
+    private val heightPx by lazy { context.dpToPx(LANE_IMAGE_HEIGHT) }
     private val carLaneBitmap by lazy {
         Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
     }
@@ -81,5 +77,9 @@ internal class CarLaneIconRenderer(
         private const val LANE_IMAGE_WIDTH = 294
         private const val LANE_IMAGE_HEIGHT = 44
         internal const val MAX_LANES = 6
+
+        private const val ANDROID_BASELINE_DPI = 160.0
+        private fun Context.dpToPx(dp: Int): Int =
+            (dp * resources.configuration.densityDpi / ANDROID_BASELINE_DPI).toInt()
     }
 }

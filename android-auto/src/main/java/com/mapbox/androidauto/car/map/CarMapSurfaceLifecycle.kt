@@ -7,18 +7,18 @@ import androidx.car.app.SurfaceCallback
 import androidx.car.app.SurfaceContainer
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
 import com.mapbox.maps.extension.androidauto.CompassWidget
-import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 import com.mapbox.maps.extension.androidauto.LogoWidget
+import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 import com.mapbox.maps.extension.androidauto.addCompassWidget
 import com.mapbox.maps.extension.androidauto.addLogoWidget
 import com.mapbox.maps.extension.androidauto.addSpeedLimitWidget
+import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
-import com.mapbox.maps.plugin.delegates.listeners.eventdata.MapLoadErrorType
 
 /**
  * @see MapboxCarMap to create new map experiences.
@@ -38,9 +38,9 @@ internal class CarMapSurfaceLifecycle internal constructor(
 
     init {
         mapStyleUri = if (carContext.isDarkMode) {
-            MapboxAndroidAuto.options.mapNightStyle ?: MapboxAndroidAuto.options.mapDayStyle
+            MapboxCarApp.options.mapNightStyle ?: MapboxCarApp.options.mapDayStyle
         } else {
-            MapboxAndroidAuto.options.mapDayStyle
+            MapboxCarApp.options.mapDayStyle
         }
     }
 
@@ -79,9 +79,11 @@ internal class CarMapSurfaceLifecycle internal constructor(
                 carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
                 setupWidgets(mapSurface)
             }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
-                override fun onMapLoadError(mapLoadErrorType: MapLoadErrorType, message: String) {
-                    logAndroidAuto("CarMapSurfaceLifecycle onMapLoadError " +
-                            "$mapLoadErrorType $message")
+                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                    logAndroidAuto(
+                        "CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
+                                "${eventData.type} ${eventData.message}"
+                    )
                 }
             })
         }
@@ -128,9 +130,11 @@ internal class CarMapSurfaceLifecycle internal constructor(
             )
             carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
         }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
-            override fun onMapLoadError(mapLoadErrorType: MapLoadErrorType, message: String) {
-                logAndroidAuto("CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
-                        "$mapLoadErrorType $message")
+            override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                logAndroidAuto(
+                    "CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
+                            "${eventData.type} ${eventData.message}"
+                )
             }
         })
     }

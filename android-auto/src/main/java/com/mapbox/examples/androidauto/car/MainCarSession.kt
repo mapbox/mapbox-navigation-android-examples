@@ -10,7 +10,7 @@ import androidx.car.app.Session
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -20,7 +20,7 @@ class MainCarSession : Session() {
 
     override fun onCreateScreen(intent: Intent): Screen {
         logAndroidAuto("MainCarSession onCreateScreen")
-        MapboxAndroidAuto.createCarMap(this, carContext)
+        MapboxCarApp.setupCar(this, carContext)
         val mainCarContext = MainCarContext(carContext)
         val mainScreenManager = MainScreenManager(mainCarContext)
 
@@ -39,7 +39,7 @@ class MainCarSession : Session() {
     private fun startTripSession(mainCarContext: MainCarContext) {
         mainCarContext.apply {
             if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-                if (MapboxAndroidAuto.options.replayEnabled) {
+                if (MapboxCarApp.options.replayEnabled) {
                     val mapboxReplayer = mapboxNavigation.mapboxReplayer
                     mapboxReplayer.pushRealLocation(carContext, 0.0)
                     mapboxNavigation.startReplayTripSession()
@@ -53,7 +53,7 @@ class MainCarSession : Session() {
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
         logAndroidAuto("onCarConfigurationChanged ${carContext.isDarkMode}")
-        MapboxAndroidAuto.mapboxCarMap.updateMapStyle(mapStyleUri)
+        MapboxCarApp.mapboxCarMap.updateMapStyle(mapStyleUri)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -63,7 +63,7 @@ class MainCarSession : Session() {
     }
 
     private val mapStyleUri: String
-        get() = MapboxAndroidAuto.options.run {
+        get() = MapboxCarApp.options.run {
             if (carContext.isDarkMode) {
                 mapNightStyle ?: mapDayStyle
             } else {

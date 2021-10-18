@@ -1,11 +1,11 @@
 package com.mapbox.androidauto.car.navigation.lanes
 
-import android.content.Context
+import android.Manifest
 import android.graphics.Color
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.mapbox.androidauto.car.navigation.BitmapTestUtil
+import androidx.test.rule.GrantPermissionRule
+import com.mapbox.androidauto.testing.BitmapTestUtil
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertNotNull
@@ -22,14 +22,19 @@ class CarLanesImageRendererTest {
     @JvmField
     var testName = TestName()
 
+    @get:Rule
+    val permissionsRule: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
     private val bitmapTestUtils = BitmapTestUtil(
         "expected_lanes_images",
         "test_lanes_images"
     )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val carLanesImageGenerator = CarLanesImageRenderer(
-        context = context,
+        context = bitmapTestUtils.carDisplayContext(),
         background = Color.RED
     )
 
@@ -49,7 +54,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test
@@ -74,7 +79,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test
@@ -105,7 +110,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test
@@ -142,7 +147,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test
@@ -185,7 +190,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test
@@ -234,7 +239,7 @@ class CarLanesImageRendererTest {
         )
 
         val actual = carLanesImage!!.carIcon.icon!!.bitmap!!
-        bitmapTestUtils.assertBitmapsEqual(testName, actual)
+        bitmapTestUtils.assertBitmapsSimilar(testName, actual)
     }
 
     @Test

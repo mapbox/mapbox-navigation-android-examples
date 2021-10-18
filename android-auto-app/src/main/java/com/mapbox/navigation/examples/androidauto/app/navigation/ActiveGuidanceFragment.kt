@@ -10,9 +10,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.FreeDriveState
-import com.mapbox.androidauto.MapboxAndroidAuto
-import com.mapbox.androidauto.car.navigation.voice.CarAppVoiceApi
-import com.mapbox.androidauto.car.navigation.voice.CarAppVoiceStateListener
+import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.navigation.audioguidance.attachAudioGuidance
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.androidauto.MainViewModel
@@ -37,44 +36,22 @@ class ActiveGuidanceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycle.addObserver(lifecycleObserver)
-        setupAudioControl()
         binding.stop.setOnClickListener {
             MapboxNavigationProvider.retrieve().setRoutes(listOf())
-            MapboxAndroidAuto.updateCarAppState(FreeDriveState)
+            MapboxCarApp.updateCarAppState(FreeDriveState)
         }
-    }
-
-    private fun setupAudioControl() {
-        binding.soundButton.setOnClickListener {
-            if (CarAppVoiceApi.isEnabled()) {
-                CarAppVoiceApi.mute()
-                binding.soundButton.mute()
-            } else {
-                CarAppVoiceApi.unmute()
-                binding.soundButton.unmute()
-            }
-        }
+        attachAudioGuidance(binding.soundButton)
     }
 
     private val lifecycleObserver = object : DefaultLifecycleObserver {
         override fun onStart(owner: LifecycleOwner) {
             MapboxNavigationProvider.retrieve()
                 .registerRouteProgressObserver(routeProgressObserver)
-            CarAppVoiceApi.registerListener(carAppVoiceStateListener)
         }
 
         override fun onStop(owner: LifecycleOwner) {
             MapboxNavigationProvider.retrieve()
                 .unregisterRouteProgressObserver(routeProgressObserver)
-            CarAppVoiceApi.unregisterListener(carAppVoiceStateListener)
-        }
-    }
-
-    private val carAppVoiceStateListener = CarAppVoiceStateListener { isEnabled, _ ->
-        if (isEnabled) {
-            binding.soundButton.unmute()
-        } else {
-            binding.soundButton.mute()
         }
     }
 

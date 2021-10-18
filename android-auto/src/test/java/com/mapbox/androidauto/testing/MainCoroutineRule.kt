@@ -1,4 +1,4 @@
-package com.mapbox.car.util
+package com.mapbox.androidauto.testing
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,7 +13,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import kotlin.jvm.Throws
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class MainCoroutineRule : TestRule {
     val testDispatcher = TestCoroutineDispatcher()
     val coroutineScope = TestCoroutineScope(testDispatcher + SupervisorJob())

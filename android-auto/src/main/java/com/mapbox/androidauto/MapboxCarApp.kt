@@ -3,19 +3,20 @@ package com.mapbox.androidauto
 import android.app.Application
 import androidx.car.app.CarContext
 import androidx.car.app.Session
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mapbox.androidauto.car.map.MapboxCarMap
-import com.mapbox.androidauto.car.navigation.voice.CarAppVoiceApi
+import com.mapbox.androidauto.configuration.CarAppConfigOwner
+import com.mapbox.androidauto.datastore.CarAppDataStoreOwner
+import com.mapbox.androidauto.lifecycle.CarAppLifecycleOwner
 
 /**
  * The entry point for your Mapbox Android Auto app.
  */
-object MapboxAndroidAuto {
+object MapboxCarApp {
 
     private lateinit var initializer: MapboxCarInitializer
-    private val carAppLifecycleOwner = CarAppLifecycleOwner()
+    private lateinit var servicesProvider: CarAppServicesProvider
     private val carAppStateLiveData = MutableLiveData<CarAppState>(FreeDriveState)
 
     /**
@@ -34,12 +35,27 @@ object MapboxAndroidAuto {
     /**
      * Top level lifecycle that watches both the app and car lifecycles.
      */
-    val appLifecycle: Lifecycle = carAppLifecycleOwner.lifecycle
+    val carAppLifecycleOwner: CarAppLifecycleOwner by lazy { CarAppLifecycleOwner() }
 
     /**
      * Attach observers to the CarAppState to determine which view to show.
      */
-    fun carAppState(): LiveData<CarAppState> = carAppStateLiveData
+    val carAppState: LiveData<CarAppState> = carAppStateLiveData
+
+    /**
+     * Stores preferences that can be remembered across app launches.
+     */
+    val carAppDataStore by lazy { CarAppDataStoreOwner() }
+
+    /**
+     * Attach observers to monitor the configuration of the app and car.
+     */
+    val carAppConfig: CarAppConfigOwner by lazy { CarAppConfigOwner() }
+
+    /**
+     * Singleton services available to the car and app.
+     */
+    val carAppServices: CarAppServicesProvider by lazy { servicesProvider }
 
     /**
      * Keep your car and app in sync with CarAppState.
@@ -54,21 +70,23 @@ object MapboxAndroidAuto {
      * @param application used to detect when activities are foregrounded
      * @param initializer used to initialize the Android Auto car
      */
-    fun setup(application: Application, initializer: MapboxCarInitializer) {
+    fun setup(
+        application: Application,
+        initializer: MapboxCarInitializer,
+        servicesProvider: CarAppServicesProvider = CarAppServicesProviderImpl()
+    ) {
         this.initializer = initializer
-        application.registerActivityLifecycleCallbacks(
-            carAppLifecycleOwner.activityLifecycleCallbacks
-        )
-        appLifecycle.addObserver(CarAppLocationObserver())
-        application.registerComponentCallbacks(CarAppVoiceApi.componentCallbacks)
-        appLifecycle.addObserver(CarAppVoiceApi.appLifecycleObserver)
+        this.servicesProvider = servicesProvider
+        carAppLifecycleOwner.setup(application)
+        carAppDataStore.setup(application)
+        carAppConfig.setup(application)
     }
 
     /**
      * Create the [MapboxCarMap] that renders the Mapbox map
      * to the Android Auto head unit.
      */
-    fun createCarMap(
+    fun setupCar(
         session: Session,
         carContext: CarContext
     ): MapboxCarMap {
@@ -80,7 +98,7 @@ object MapboxAndroidAuto {
             """.trimIndent()
         }
         val carLifecycle = session.lifecycle
-        carLifecycle.addObserver(carAppLifecycleOwner.carLifecycleObserver)
+        carAppLifecycleOwner.setupCar(session)
         options = initializer.create(carLifecycle, carContext)
         mapboxCarMap = MapboxCarMap(
             mapboxCarOptions = options,

@@ -9,7 +9,7 @@ import com.mapbox.maps.CustomLayerHost
 import com.mapbox.maps.CustomLayerRenderParameters
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class CarTextLayerHost : CustomLayerHost() {
+class CarTextLayerHost : CustomLayerHost {
     private var program = 0
     private var positionHandle = 0
     private var colorHandle = 0

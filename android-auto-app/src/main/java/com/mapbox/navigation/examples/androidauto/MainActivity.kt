@@ -10,10 +10,9 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.ArrivalState
-import com.mapbox.androidauto.CarAppLocationObserver
 import com.mapbox.androidauto.CarAppState
 import com.mapbox.androidauto.FreeDriveState
-import com.mapbox.androidauto.MapboxAndroidAuto
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.examples.androidauto.car.location.CarLocationPuck
 import com.mapbox.maps.plugin.locationcomponent.location
@@ -32,8 +31,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         if (!PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -63,10 +63,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             locationPuck = CarLocationPuck.navigationPuck2D(this@MainActivity)
             enabled = true
             pulsingEnabled = true
-            setLocationProvider(CarAppLocationObserver.navigationLocationProvider)
+            setLocationProvider(MapboxCarApp.carAppServices.location().navigationLocationProvider)
         }
 
-        MapboxAndroidAuto.carAppState().observe(this) { carAppState ->
+        MapboxCarApp.carAppState.observe(this) { carAppState ->
             onCarAppStateChanged(carAppState)
         }
     }

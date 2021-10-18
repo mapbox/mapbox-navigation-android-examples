@@ -74,6 +74,7 @@ class CarRouteRequest(
         .alternatives(true)
         .profile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
         .coordinatesList(listOf(origin, destination))
+        .metadata(true)
         .build()
 
     /**

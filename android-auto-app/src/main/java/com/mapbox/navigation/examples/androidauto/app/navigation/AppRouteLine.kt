@@ -11,7 +11,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
-import com.mapbox.navigation.ui.base.model.route.RouteLayerConstants.PRIMARY_ROUTE_TRAFFIC_LAYER_ID
+import com.mapbox.navigation.ui.maps.route.RouteLayerConstants
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
 import com.mapbox.navigation.ui.maps.route.arrow.model.RouteArrowOptions
@@ -67,7 +67,7 @@ class AppRouteLine(
 
     private val routeArrowOptions by lazy {
         RouteArrowOptions.Builder(context)
-            .withAboveLayerId(PRIMARY_ROUTE_TRAFFIC_LAYER_ID)
+            .withAboveLayerId(RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID)
             .build()
     }
 
@@ -80,10 +80,10 @@ class AppRouteLine(
         routeLineView.renderRouteLineUpdate(style, result)
     }
 
-    private val routesObserver = RoutesObserver { routes ->
-        logAndroidAuto("CarRouteLine onRoutesChanged ${routes.size}")
-        if (routes.isNotEmpty()) {
-            val routeLines = routes.map { RouteLine(it, null) }
+    private val routesObserver = RoutesObserver { result ->
+        logAndroidAuto("CarRouteLine onRoutesChanged ${result.routes.size}")
+        if (result.routes.isNotEmpty()) {
+            val routeLines = result.routes.map { RouteLine(it, null) }
             routeLineApi.setRoutes(routeLines) { value ->
                 routeLineView.renderRouteDrawData(style, value)
             }
