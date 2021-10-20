@@ -38,7 +38,6 @@ import com.mapbox.navigation.ui.maps.building.api.MapboxBuildingsApi
 import com.mapbox.navigation.ui.maps.building.model.BuildingError
 import com.mapbox.navigation.ui.maps.building.model.BuildingValue
 import com.mapbox.navigation.ui.maps.building.view.MapboxBuildingView
-import com.mapbox.navigation.ui.maps.internal.route.line.MapboxRouteLineApiExtensions.setRoutes
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
