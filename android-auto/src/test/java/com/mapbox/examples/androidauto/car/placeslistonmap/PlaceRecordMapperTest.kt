@@ -5,7 +5,6 @@ import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.examples.androidauto.car.model.PlaceRecord
-import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
 import io.mockk.every
@@ -15,8 +14,8 @@ import org.junit.Test
 
 class PlaceRecordMapperTest : MapboxRobolectricTestRunner() {
 
-    private val carManeuverIconFactory: CarManeuverIconFactory = mockk {
-        every { carIcon(any()) } returns mockk {
+    private val placeMarkerRenderer: PlaceMarkerRenderer = mockk {
+        every { renderMarker() } returns mockk {
             every { type } returns CarIcon.TYPE_CUSTOM
             every { icon } returns mockk {
                 every { type } returns IconCompat.TYPE_BITMAP
@@ -24,7 +23,7 @@ class PlaceRecordMapperTest : MapboxRobolectricTestRunner() {
         }
     }
 
-    private val mapper = PlaceRecordMapper(carManeuverIconFactory, UnitType.METRIC)
+    private val mapper = PlaceRecordMapper(placeMarkerRenderer, UnitType.METRIC)
 
     @Test
     fun mapToItemList() {

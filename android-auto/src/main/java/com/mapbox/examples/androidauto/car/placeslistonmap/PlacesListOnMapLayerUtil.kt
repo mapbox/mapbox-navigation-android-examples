@@ -2,7 +2,6 @@ package com.mapbox.examples.androidauto.car.placeslistonmap
 
 import android.content.res.Resources
 import android.graphics.BitmapFactory
-import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.maps.Style
@@ -16,11 +15,6 @@ import com.mapbox.maps.extension.style.sources.getSource
 class PlacesListOnMapLayerUtil {
 
     fun initializePlacesListOnMapLayer(style: Style, resources: Resources) {
-        if (!style.isStyleLoaded) {
-            logAndroidAuto("PlacesListOnMapLayerUtil style is not fully loaded. Cannot initialize")
-            return
-        }
-
         if (style.getStyleImage(GENERIC_LOCATION_ICON) == null) {
             style.addImage(
                 GENERIC_LOCATION_ICON,
@@ -48,18 +42,14 @@ class PlacesListOnMapLayerUtil {
     }
 
     fun removePlacesListOnMapLayer(style: Style) {
-        if (style.isStyleLoaded) {
-            style.removeStyleLayer(PLACES_LAYER_ID)
-            style.removeStyleSource(PLACES_LAYER_SOURCE_ID)
-            style.removeStyleImage(GENERIC_LOCATION_ICON)
-        }
+        style.removeStyleLayer(PLACES_LAYER_ID)
+        style.removeStyleSource(PLACES_LAYER_SOURCE_ID)
+        style.removeStyleImage(GENERIC_LOCATION_ICON)
     }
 
     fun updatePlacesListOnMapLayer(style: Style, featureCollection: FeatureCollection) {
-        if (style.isStyleLoaded) {
-            style.getSource(PLACES_LAYER_SOURCE_ID)?.apply {
-                (this as GeoJsonSource).featureCollection(featureCollection)
-            }
+        style.getSource(PLACES_LAYER_SOURCE_ID)?.apply {
+            (this as GeoJsonSource).featureCollection(featureCollection)
         }
     }
 

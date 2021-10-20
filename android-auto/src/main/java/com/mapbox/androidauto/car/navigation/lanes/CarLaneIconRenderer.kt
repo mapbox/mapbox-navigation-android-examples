@@ -9,6 +9,7 @@ import androidx.car.app.model.CarIcon
 import androidx.car.app.navigation.model.Step
 import androidx.core.graphics.drawable.IconCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import com.mapbox.androidauto.car.RendererUtils.dpToPx
 
 /**
  * This class will take multiple [CarLaneIcon] objects which were created from
@@ -77,9 +78,5 @@ internal class CarLaneIconRenderer(
         private const val LANE_IMAGE_WIDTH = 294
         private const val LANE_IMAGE_HEIGHT = 44
         internal const val MAX_LANES = 6
-
-        private const val ANDROID_BASELINE_DPI = 160.0
-        private fun Context.dpToPx(dp: Int): Int =
-            (dp * resources.configuration.densityDpi / ANDROID_BASELINE_DPI).toInt()
     }
 }

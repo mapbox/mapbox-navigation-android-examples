@@ -1,6 +1,9 @@
 package com.mapbox.examples.androidauto.car.navigation
 
 import com.mapbox.androidauto.car.navigation.lanes.CarLanesImageRenderer
+import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverIconOptions
+import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverIconRenderer
+import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverMapper
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
 
@@ -17,11 +20,10 @@ class CarActiveGuidanceCarContext(
     val carDistanceFormatter = CarDistanceFormatter(
         mapboxNavigation.navigationOptions.distanceFormatterOptions.unitType
     )
-    val carIconFactory = CarManeuverIconFactory(carContext)
-    val maneuverMapper = CarManeuverMapper(carIconFactory)
     val carLaneImageGenerator = CarLanesImageRenderer(carContext)
     val navigationInfoMapper = CarNavigationInfoMapper(
-        maneuverMapper,
+        CarManeuverMapper(),
+        CarManeuverIconRenderer(CarManeuverIconOptions.Builder(carContext).build()),
         carLaneImageGenerator,
         carDistanceFormatter
     )
