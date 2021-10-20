@@ -13,10 +13,10 @@ import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
-import com.mapbox.maps.plugin.delegates.listeners.eventdata.MapLoadErrorType
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.options.NavigationOptions
@@ -316,10 +316,10 @@ class RenderRouteLineActivity : AppCompatActivity() {
                 viewBinding.startNavigation.visibility = View.VISIBLE
             },
             object : OnMapLoadErrorListener {
-                override fun onMapLoadError(mapLoadErrorType: MapLoadErrorType, message: String) {
+                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
                     Log.e(
                         RenderRouteLineActivity::class.java.simpleName,
-                        "Error loading map: " + mapLoadErrorType.name
+                        "Error loading map: " + eventData.message
                     )
                 }
             }

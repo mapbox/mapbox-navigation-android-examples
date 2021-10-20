@@ -21,14 +21,14 @@ android {
 }
 
 dependencies {
-    api("com.mapbox.navigation:android:2.0.0-rc.8")
+    api("com.mapbox.navigation:android:2.0.0")
     api("com.mapbox.search:mapbox-search-android:1.0.0-beta.20")
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("androidx.car.app:app:1.0.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-rc01")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0-rc01")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
 
