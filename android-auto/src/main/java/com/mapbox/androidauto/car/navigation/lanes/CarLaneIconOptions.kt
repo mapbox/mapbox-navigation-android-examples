@@ -5,7 +5,6 @@ import android.content.res.Resources
 import androidx.annotation.StyleRes
 import androidx.appcompat.view.ContextThemeWrapper
 import com.mapbox.examples.androidauto.R
-import com.mapbox.navigation.base.options.EHorizonOptions
 
 /**
  * Modify the look and feel of the car lanes.
@@ -24,7 +23,7 @@ class CarLaneIconOptions private constructor(
     }
 
     /**
-     * Build a new [EHorizonOptions]
+     * Build a new [CarLaneIconOptions]
      */
     class Builder {
         private var activeTheme: Resources.Theme? = null

@@ -32,7 +32,7 @@ class MapboxAudioGuidanceVoice(
             speechFlow(voiceInstructions)
         } else {
             mapboxSpeechApi.cancel()
-            mapboxVoiceInstructionsPlayer.shutdown()
+            mapboxVoiceInstructionsPlayer.clear()
             flowOf(null)
         }
     }
@@ -52,7 +52,7 @@ class MapboxAudioGuidanceVoice(
         mapboxSpeechApi.generate(voiceInstructions, speechCallback)
         awaitClose {
             mapboxSpeechApi.cancel()
-            mapboxVoiceInstructionsPlayer.shutdown()
+            mapboxVoiceInstructionsPlayer.clear()
         }
     }
 }

@@ -14,16 +14,14 @@ import androidx.car.app.model.Metadata
 import androidx.car.app.model.Place
 import androidx.car.app.model.PlaceMarker
 import androidx.car.app.model.Row
-import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.model.PlaceRecord
-import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 
 class PlaceRecordMapper(
-    private val carManeuverIconFactory: CarManeuverIconFactory,
+    private val placeMarkerRenderer: PlaceMarkerRenderer,
     private val unitType: UnitType
 ) {
 
@@ -91,7 +89,7 @@ class PlaceRecordMapper(
 
     private fun getCarIcon(): CarIcon {
         // fixme this is using a hardcoded icon and is taking for granted it won't be null
-        return carManeuverIconFactory.carIcon(R.drawable.ic_baseline_location)
+        return placeMarkerRenderer.renderMarker()
     }
 
     private fun getDistanceUnits(unitType: UnitType): Pair<Int, String> {

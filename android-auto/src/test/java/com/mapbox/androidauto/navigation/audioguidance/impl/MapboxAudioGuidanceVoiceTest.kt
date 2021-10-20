@@ -55,7 +55,7 @@ class MapboxAudioGuidanceVoiceTest {
         carAppAudioGuidanceVoice.speak(null).collect()
 
         verify { speechApi.cancel() }
-        verify { voiceInstructionsPlayer.shutdown() }
+        verify { voiceInstructionsPlayer.clear() }
     }
 
     @Test

@@ -70,15 +70,20 @@ class BitmapTestUtil(
     fun assertBitmapsSimilar(testName: TestName, actual: Bitmap) {
         val filename = testName.methodName + ".png"
         val expectedBitmapFile = expectedAssetsDirectoryName + File.separator + filename
-        val inputStream = context.assets.open(expectedBitmapFile)
-        val expected = BitmapFactory.decodeStream(inputStream)
-        val difference = calculateDifference(expected, actual)
-
-        // If the images are different, write them to a file so they can be uploaded for debugging.
-        if (difference.similarity > 0.01) {
+        try {
+            context.assets.open(expectedBitmapFile).use {
+                val expected = BitmapFactory.decodeStream(it)
+                val difference = calculateDifference(expected, actual)
+                // If the images are different, write them to a file so they can be uploaded for debugging.
+                if (difference.similarity > 0.01) {
+                    writeBitmapFile(testName, actual)
+                    writeBitmapFile("${testName.methodName}-diff", difference.difference)
+                    fail("The ${testName.methodName} image failed with similarity: ${difference.similarity}")
+                }
+            }
+        } catch (t: Throwable) {
             writeBitmapFile(testName, actual)
-            writeBitmapFile("${testName.methodName}-diff", difference.difference)
-            fail("The ${testName.methodName} image failed with similarity: ${difference.similarity}")
+            throw t
         }
     }
 

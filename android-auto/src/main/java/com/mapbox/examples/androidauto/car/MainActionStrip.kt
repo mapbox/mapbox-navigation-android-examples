@@ -6,7 +6,7 @@ import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.navigation.CarManeuverIconFactory
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceMarkerRenderer
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceRecordMapper
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
@@ -75,7 +75,7 @@ class MainActionStrip(
         FavoritesApi(MapboxSearchSdk.serviceProvider.favoritesDataProvider()),
         PlacesListOnMapLayerUtil(),
         PlaceRecordMapper(
-            CarManeuverIconFactory(mainCarContext.carContext),
+            PlaceMarkerRenderer(mainCarContext.carContext),
             mainCarContext
                 .mapboxNavigation
                 .navigationOptions

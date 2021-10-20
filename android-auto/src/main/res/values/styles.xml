@@ -1,13 +1,14 @@
 <resources>
     <!-- Base application theme. -->
     <style name="CarAppTheme">
-        <item name="maneuverTurnIconColor">@android:color/white</item>
-        <item name="maneuverTurnIconShadowColor">#7F000000</item>
-
         <item name="carColorPrimary">#56a8fb</item>
         <item name="carColorPrimaryDark">#0077c2</item>
         <item name="carColorSecondary">#ef5350</item>
         <item name="carColorSecondaryDark">#b61827</item>
+    </style>
+
+    <style name="CarManeuverTheme" parent="CarAppTheme">
+        <item name="maneuverTurnIconColor">@android:color/white</item>
     </style>
 
     <style name="CarLaneActiveTheme" parent="CarAppTheme">

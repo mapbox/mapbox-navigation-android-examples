@@ -26,9 +26,7 @@ class PlacesListOnMapLayerUtilTest : MapboxRobolectricTestRunner() {
 
     @Test
     fun removeFavoritesLayer() {
-        val style = mockk<Style>(relaxed = true) {
-            every { isStyleLoaded } returns true
-        }
+        val style = mockk<Style>(relaxed = true)
 
         PlacesListOnMapLayerUtil().removePlacesListOnMapLayer(style)
 
@@ -42,7 +40,6 @@ class PlacesListOnMapLayerUtilTest : MapboxRobolectricTestRunner() {
         mockkStatic("com.mapbox.maps.extension.style.sources.SourceUtils")
         val source = mockk<GeoJsonSource>(relaxed = true)
         val style = mockk<Style>(relaxed = true) {
-            every { isStyleLoaded } returns true
             every { getSource("MapboxCarPlacesListLayerIdSource") } returns source
         }
         val featureCollection = FeatureCollection.fromFeatures(listOf())
@@ -57,7 +54,6 @@ class PlacesListOnMapLayerUtilTest : MapboxRobolectricTestRunner() {
     fun initializeFavoritesLayer() {
         mockkStatic("com.mapbox.maps.extension.style.layers.LayerUtils")
         val style = mockk<Style>(relaxed = true) {
-            every { isStyleLoaded } returns true
             every { getStyleImage("MapboxGenericLocationIcon") } returns null
             every { styleSourceExists("MapboxCarPlacesListLayerIdSource") } returns false
             every {
