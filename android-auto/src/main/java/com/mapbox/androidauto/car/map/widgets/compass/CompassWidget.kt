@@ -1,11 +1,11 @@
-package com.mapbox.maps.extension.androidauto
+package com.mapbox.androidauto.car.map.widgets.compass
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import com.mapbox.androidauto.car.map.widgets.WidgetPosition
 import com.mapbox.examples.androidauto.R
-import com.mapbox.maps.LayerPosition
-import com.mapbox.maps.MapControllable
-import com.mapbox.maps.extension.androidauto.CompassWidget.Companion.COMPASS_WIDGET_LAYER_ID
+import com.mapbox.maps.extension.androidauto.ImageOverlayHost
+import com.mapbox.maps.extension.androidauto.Margin
 
 /**
  * A widget to show the compass on the map.
@@ -55,32 +55,5 @@ class CompassWidget(
          * The layer ID of the compass widget layer.
          */
         const val COMPASS_WIDGET_LAYER_ID = "COMPASS_WIDGET_LAYER"
-    }
-}
-
-/**
- * Add the compass widget layer to the map.
- */
-fun MapControllable.addCompassWidget(
-    /**
-     * The CompassWidget to be added.
-     */
-    compassWidget: CompassWidget,
-    /**
-     * The layer position that the widget should be placed on the map.
-     */
-    layerPosition: LayerPosition? = null,
-) {
-    getMapboxMap().apply {
-        this.addOnCameraChangeListener {
-            compassWidget.updateBearing(this.cameraState.bearing.toFloat())
-        }
-        this.getStyle {
-            it.addPersistentStyleCustomLayer(
-                COMPASS_WIDGET_LAYER_ID,
-                compassWidget.host,
-                layerPosition
-            )
-        }
     }
 }

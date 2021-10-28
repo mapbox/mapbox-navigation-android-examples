@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.util.Log
+import com.mapbox.androidauto.car.map.widgets.WidgetPosition
 import com.mapbox.common.Logger
 import com.mapbox.maps.BuildConfig
 import com.mapbox.maps.CustomLayerHost

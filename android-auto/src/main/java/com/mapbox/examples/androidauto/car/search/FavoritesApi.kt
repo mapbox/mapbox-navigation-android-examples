@@ -2,7 +2,6 @@ package com.mapbox.examples.androidauto.car.search
 
 import com.mapbox.bindgen.Expected
 import com.mapbox.bindgen.ExpectedFactory
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapProvider
 import com.mapbox.search.AsyncOperationTask
 import com.mapbox.search.CompletionCallback
@@ -20,7 +19,7 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
     override suspend fun getPlaces(): Expected<GetPlacesError, List<PlaceRecord>> {
         return getFavorites().mapValue { favorites ->
             favorites.map {
-                PlaceRecord(it)
+                PlaceRecordMapper.fromFavoriteRecord(it)
             }
         }
     }

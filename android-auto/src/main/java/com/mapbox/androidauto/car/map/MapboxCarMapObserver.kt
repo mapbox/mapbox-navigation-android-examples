@@ -2,13 +2,12 @@ package com.mapbox.androidauto.car.map
 
 import android.graphics.Rect
 import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 
 /**
  * Many downstream services will not work until the surface has been created.
  * This class allows us to extend the map surface without changing the internal implementation.
  */
-interface MapboxCarMapSurfaceListener {
+interface MapboxCarMapObserver {
 
     /**
      * Called when a [MapboxCarMapSurface] has been loaded.
@@ -31,10 +30,6 @@ interface MapboxCarMapSurfaceListener {
      * This is null when the map surface did not complete finish loading.
      */
     fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
-        // No op by default
-    }
-
-    fun onSpeedLimitWidgetAvailable(speedLimitWidget: SpeedLimitWidget) {
         // No op by default
     }
 }

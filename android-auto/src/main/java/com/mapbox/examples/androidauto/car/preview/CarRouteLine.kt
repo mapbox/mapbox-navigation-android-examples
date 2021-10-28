@@ -1,8 +1,7 @@
 package com.mapbox.examples.androidauto.car.preview
 
-import androidx.lifecycle.Lifecycle
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
@@ -27,9 +26,8 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
  * Anything for rendering the car's route line, is handled here at this point.
  */
 class CarRouteLine(
-    val mainCarContext: MainCarContext,
-    val lifecycle: Lifecycle
-) : MapboxCarMapSurfaceListener {
+    val mainCarContext: MainCarContext
+) : MapboxCarMapObserver {
 
     private val routeLineColorResources by lazy {
         RouteLineColorResources.Builder().build()

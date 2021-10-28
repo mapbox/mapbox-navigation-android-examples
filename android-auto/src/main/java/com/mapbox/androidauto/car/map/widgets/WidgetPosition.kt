@@ -1,4 +1,4 @@
-package com.mapbox.maps.extension.androidauto
+package com.mapbox.androidauto.car.map.widgets
 
 /**
  * Gravity that the widget is aligned to the map.

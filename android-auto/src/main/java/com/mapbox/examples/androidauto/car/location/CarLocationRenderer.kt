@@ -2,7 +2,7 @@ package com.mapbox.examples.androidauto.car.location
 
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.plugin.locationcomponent.location
@@ -13,7 +13,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
  */
 class CarLocationRenderer(
     private val mainCarContext: MainCarContext
-) : MapboxCarMapSurfaceListener {
+) : MapboxCarMapObserver {
 
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarLocationRenderer carMapSurface loaded")

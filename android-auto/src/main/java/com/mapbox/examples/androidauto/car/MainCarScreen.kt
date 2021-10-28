@@ -9,7 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
+import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 
@@ -20,14 +20,14 @@ class MainCarScreen(
     private val mainCarContext: MainCarContext
 ) : Screen(mainCarContext.carContext) {
 
-    val carRouteLine = CarRouteLine(mainCarContext, lifecycle)
+    val carRouteLine = CarRouteLine(mainCarContext)
     val carLocationRenderer = CarLocationRenderer(mainCarContext)
-    val carSpeedLimitRenderer = CarSpeedLimitRenderer(mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
     val carNavigationCamera = CarNavigationCamera(
         mainCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.FOLLOWING
     )
-    private val carMapViewLayer = RoadLabelSurfaceLayer(
+    private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         mainCarContext.carContext,
         mainCarContext.mapboxNavigation
     )
@@ -45,22 +45,22 @@ class MainCarScreen(
     init {
         logAndroidAuto("MainCarScreen constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                logAndroidAuto("MainCarScreen onStart")
-                mainCarContext.mapboxCarMap.registerListener(carRouteLine)
-                mainCarContext.mapboxCarMap.registerListener(carLocationRenderer)
-                mainCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
-                mainCarContext.mapboxCarMap.registerListener(carNavigationCamera)
-                mainCarContext.mapboxCarMap.registerListener(carMapViewLayer)
+            override fun onResume(owner: LifecycleOwner) {
+                logAndroidAuto("MainCarScreen onResume")
+                mainCarContext.mapboxCarMap.registerObserver(carRouteLine)
+                mainCarContext.mapboxCarMap.registerObserver(carLocationRenderer)
+                mainCarContext.mapboxCarMap.registerObserver(roadLabelSurfaceLayer)
+                mainCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
+                mainCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
             }
 
-            override fun onStop(owner: LifecycleOwner) {
-                logAndroidAuto("MainCarScreen onStop")
-                mainCarContext.mapboxCarMap.unregisterListener(carRouteLine)
-                mainCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
-                mainCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
-                mainCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
-                mainCarContext.mapboxCarMap.unregisterListener(carMapViewLayer)
+            override fun onPause(owner: LifecycleOwner) {
+                logAndroidAuto("MainCarScreen onPause")
+                mainCarContext.mapboxCarMap.unregisterObserver(carRouteLine)
+                mainCarContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
+                mainCarContext.mapboxCarMap.unregisterObserver(roadLabelSurfaceLayer)
+                mainCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
+                mainCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
             }
         })
     }

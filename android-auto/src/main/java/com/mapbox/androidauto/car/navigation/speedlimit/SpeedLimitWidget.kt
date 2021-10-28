@@ -1,17 +1,18 @@
-package com.mapbox.maps.extension.androidauto
+package com.mapbox.androidauto.car.navigation.speedlimit
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
+import com.mapbox.androidauto.car.map.widgets.WidgetPosition
+import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.bindgen.Expected
 import com.mapbox.common.Logger
-import com.mapbox.maps.LayerPosition
-import com.mapbox.maps.MapControllable
-import com.mapbox.maps.extension.androidauto.SpeedLimitWidget.Companion.SPEED_LIMIT_WIDGET_LAYER_ID
+import com.mapbox.maps.extension.androidauto.ImageOverlayHost
+import com.mapbox.maps.extension.androidauto.Margin
 import com.mapbox.navigation.base.speed.model.SpeedLimitSign
 import com.mapbox.navigation.ui.speedlimit.model.UpdateSpeedLimitError
 import com.mapbox.navigation.ui.speedlimit.model.UpdateSpeedLimitValue
@@ -61,6 +62,7 @@ class SpeedLimitWidget(
     )
 
     fun update(expected: Expected<UpdateSpeedLimitError, UpdateSpeedLimitValue>) {
+        logAndroidAuto("SpeedLimitWidget update ${expected.isValue}")
         expected.value?.let {
             Logger.d(TAG, "${it.speedKPH}")
             Logger.d(TAG, it.speedLimitFormatter.format(it))
@@ -96,7 +98,7 @@ class SpeedLimitWidget(
         textSize: Float = 18f,
         text: String
     ): Bitmap {
-        Logger.d(TAG, "drawRoundSpeedLimitSign: $text")
+        logAndroidAuto("SpeedLimitWidget drawRoundSpeedLimitSign: $text")
         val canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(canvasBitmap)
         textPaint.color = Color.BLACK
@@ -135,7 +137,7 @@ class SpeedLimitWidget(
         textSize: Float = 16f,
         text: String
     ): Bitmap {
-        Logger.d(TAG, "drawRectSpeedLimitSign: $text")
+        logAndroidAuto("SpeedLimitWidget drawRectSpeedLimitSign: $text")
         val canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(canvasBitmap)
         textPaint.color = Color.BLACK
@@ -181,33 +183,18 @@ class SpeedLimitWidget(
         return canvasBitmap
     }
 
+    /**
+     * Resetting this will force a new call to viewWidgetHost.updateBitmap
+     */
+    fun clear() {
+        lastSpeedLimitValue = null
+    }
+
     companion object {
         private const val TAG = "SpeedLimitWidget"
         private const val SPEED_SIGN_BORDER_RATIO_MUTCD = 0.05f
         private const val SPEED_SIGN_PADDING_BORDER_RATIO_MUTCD = 2f
         private const val SPEED_SIGN_BORDER_RATIO_VIENNA = 0.2f
         const val SPEED_LIMIT_WIDGET_LAYER_ID = "SPEED_LIMIT_WIDGET_LAYER_ID"
-    }
-}
-
-/**
- * Add the speed limit widget to the map.
- */
-fun MapControllable.addSpeedLimitWidget(
-    /**
-     * The SpeedLimitWidget to be added.
-     */
-    speedLimitWidget: SpeedLimitWidget,
-    /**
-     * The layer position that the logo widget should be placed on the map.
-     */
-    layerPosition: LayerPosition? = null,
-) {
-    getMapboxMap().getStyle {
-        it.addPersistentStyleCustomLayer(
-            SPEED_LIMIT_WIDGET_LAYER_ID,
-            speedLimitWidget.viewWidgetHost,
-            layerPosition
-        )
     }
 }

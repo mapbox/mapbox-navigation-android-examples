@@ -290,6 +290,7 @@ abstract class BuilderTest<Implementation : Any, Builder> {
                             "Constructor param name is \"${constructorParam.name}\".")
                 )
             }
+            @SuppressWarnings("SpreadOperator")
             val newBuilderInstance =
                 builderClass.constructors.first().call(*sortedRequiredFieldValues.toTypedArray())
             field.isAccessible = true

@@ -17,7 +17,7 @@ fun Fragment.attachAudioGuidance(
             }
             when (state.isPlayable) {
                 true -> mapboxSoundButton.visibility = View.VISIBLE
-                else -> mapboxSoundButton.visibility = View.INVISIBLE
+                else -> mapboxSoundButton.visibility = View.GONE
             }
         }
     mapboxSoundButton.setOnClickListener {

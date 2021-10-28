@@ -17,8 +17,8 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainActionStrip
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.examples.androidauto.car.location.CarSpeedLimitRenderer
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
+import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
+import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 
 /**
@@ -32,25 +32,26 @@ class CarRoutePreviewScreen(
 ) : Screen(routePreviewCarContext.carContext) {
 
     var selectedIndex = 0
-    val carRouteLine = CarRouteLine(routePreviewCarContext.mainCarContext, lifecycle)
+    val carRouteLine = CarRouteLine(routePreviewCarContext.mainCarContext)
     val carLocationRenderer = CarLocationRenderer(routePreviewCarContext.mainCarContext)
-    val carSpeedLimitRenderer = CarSpeedLimitRenderer(routePreviewCarContext.mainCarContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
     val carNavigationCamera = CarNavigationCamera(
         routePreviewCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.OVERVIEW
     )
+    private var routeSelected = false
 
     override fun onGetTemplate(): Template {
         val listBuilder = ItemList.Builder()
         directionsRoutes.forEach { route ->
             val title = route.legs()?.first()?.summary() ?: placeRecord.name
-            val routeSpannableString = SpannableString(title)
+            val duration = routePreviewCarContext.distanceFormatter.formatDistance(route.duration())
+            val routeSpannableString = SpannableString("$duration $title")
             routeSpannableString.setSpan(
                 DurationSpan.create(route.duration().toLong()),
-                0, 1, 0
+                0, duration.length, 0
             )
 
-            val duration = routePreviewCarContext.distanceFormatter.formatDistance(route.duration())
             listBuilder.addItem(
                 Row.Builder()
                     .setTitle(routeSpannableString)
@@ -87,6 +88,7 @@ class CarRoutePreviewScreen(
                 Action.Builder()
                     .setTitle(carContext.getString(R.string.car_action_preview_navigate_button))
                     .setOnClickListener {
+                        routeSelected = true
                         MapboxCarApp.updateCarAppState(ActiveGuidanceState)
                     }
                     .build())
@@ -96,20 +98,28 @@ class CarRoutePreviewScreen(
     init {
         logAndroidAuto("CarRoutePreviewScreen constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                logAndroidAuto("CarRoutePreviewScreen onStart")
-                routePreviewCarContext.mapboxCarMap.registerListener(carLocationRenderer)
-                routePreviewCarContext.mapboxCarMap.registerListener(carSpeedLimitRenderer)
-                routePreviewCarContext.mapboxCarMap.registerListener(carNavigationCamera)
-                routePreviewCarContext.mapboxCarMap.registerListener(carRouteLine)
+            override fun onResume(owner: LifecycleOwner) {
+                logAndroidAuto("CarRoutePreviewScreen onResume")
+                routePreviewCarContext.mapboxCarMap.registerObserver(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carRouteLine)
             }
 
-            override fun onStop(owner: LifecycleOwner) {
-                logAndroidAuto("CarRoutePreviewScreen onStop")
-                routePreviewCarContext.mapboxCarMap.unregisterListener(carLocationRenderer)
-                routePreviewCarContext.mapboxCarMap.unregisterListener(carSpeedLimitRenderer)
-                routePreviewCarContext.mapboxCarMap.unregisterListener(carNavigationCamera)
-                routePreviewCarContext.mapboxCarMap.unregisterListener(carRouteLine)
+            override fun onPause(owner: LifecycleOwner) {
+                logAndroidAuto("CarRoutePreviewScreen onPause")
+                // todo a better approach would be to listen for the header action but
+                // there doesn't appear to be a way to do this. A feature request was
+                // submitted to the Google Android Auto issue tracker:
+                // https://issuetracker.google.com/u/0/issues/204353351
+                if (!routeSelected) {
+                    routePreviewCarContext.mapboxNavigation.setRoutes(listOf())
+                }
+
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carRouteLine)
             }
         })
     }

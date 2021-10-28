@@ -1,10 +1,11 @@
-package com.mapbox.maps.extension.androidauto
+package com.mapbox.androidauto.car.map.widgets.logo
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import com.mapbox.androidauto.car.map.widgets.WidgetPosition
 import com.mapbox.examples.androidauto.R
-import com.mapbox.maps.LayerPosition
-import com.mapbox.maps.MapControllable
+import com.mapbox.maps.extension.androidauto.ImageOverlayHost
+import com.mapbox.maps.extension.androidauto.Margin
 
 /**
  * Logo widget displays the Mapbox logo on the map.
@@ -49,27 +50,5 @@ class LogoWidget(
          * The layer ID of the logo widget layer.
          */
         const val LOGO_WIDGET_LAYER_ID = "LOGO_WIDGET_LAYER"
-    }
-}
-
-/**
- * Add the logo widget layer to the map.
- */
-fun MapControllable.addLogoWidget(
-    /**
-     * The Logo widget to be added.
-     */
-    logoWidget: LogoWidget,
-    /**
-     * The layer position that the logo widget should be placed on the map.
-     */
-    layerPosition: LayerPosition? = null
-) {
-    getMapboxMap().getStyle {
-        it.addPersistentStyleCustomLayer(
-            LogoWidget.LOGO_WIDGET_LAYER_ID,
-            logoWidget.host,
-            layerPosition
-        )
     }
 }

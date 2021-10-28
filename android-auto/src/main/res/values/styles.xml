@@ -9,6 +9,7 @@
 
     <style name="CarManeuverTheme" parent="CarAppTheme">
         <item name="maneuverTurnIconColor">@android:color/white</item>
+        <item name="maneuverTurnIconShadowColor">#FF9E9E9E</item>
     </style>
 
     <style name="CarLaneActiveTheme" parent="CarAppTheme">

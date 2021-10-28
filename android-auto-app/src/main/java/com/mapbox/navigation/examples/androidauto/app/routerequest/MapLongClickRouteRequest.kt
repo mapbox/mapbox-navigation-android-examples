@@ -6,9 +6,9 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequest
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
+import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener

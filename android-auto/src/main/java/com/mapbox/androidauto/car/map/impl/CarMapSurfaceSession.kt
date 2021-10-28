@@ -1,9 +1,11 @@
-package com.mapbox.androidauto.car.map
+package com.mapbox.androidauto.car.map.impl
 
 import android.graphics.Rect
+import com.mapbox.androidauto.car.map.MapboxCarMap
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
 import com.mapbox.navigation.utils.internal.ifNonNull
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -20,50 +22,39 @@ internal class CarMapSurfaceSession {
         private set
     internal var edgeInsets: EdgeInsets? = null
         private set
-    internal var speedLimitWidget: SpeedLimitWidget? = null
-        private set
 
-    private val mapSurfaceLifecycleListeners = CopyOnWriteArraySet<MapboxCarMapSurfaceListener>()
+    private val carMapObservers = CopyOnWriteArraySet<MapboxCarMapObserver>()
 
-    fun registerLifecycleListener(mapboxCarMapSurfaceListener: MapboxCarMapSurfaceListener) {
-        mapSurfaceLifecycleListeners.add(mapboxCarMapSurfaceListener)
-        logAndroidAuto("CarMapSurfaceSession registerLifecycleListener + 1 = ${mapSurfaceLifecycleListeners.size}")
+    fun registerObserver(mapboxCarMapObserver: MapboxCarMapObserver) {
+        carMapObservers.add(mapboxCarMapObserver)
+        logAndroidAuto("CarMapSurfaceSession registerLifecycleListener + 1 = ${carMapObservers.size}")
 
         mapboxCarMapSurface?.let { carMapSurface ->
-            mapboxCarMapSurfaceListener.loaded(carMapSurface)
-        }
-        speedLimitWidget?.let { widget ->
-            mapboxCarMapSurfaceListener.onSpeedLimitWidgetAvailable(widget)
+            mapboxCarMapObserver.loaded(carMapSurface)
         }
         ifNonNull(mapboxCarMapSurface, visibleArea, edgeInsets) { _, area, edge ->
             logAndroidAuto("CarMapSurfaceSession registerLifecycleListener visibleAreaChanged")
-            mapboxCarMapSurfaceListener.visibleAreaChanged(area, edge)
+            mapboxCarMapObserver.visibleAreaChanged(area, edge)
         }
     }
 
-    fun unregisterLifecycleListener(mapboxCarMapSurfaceListener: MapboxCarMapSurfaceListener) {
-        mapSurfaceLifecycleListeners.remove(mapboxCarMapSurfaceListener)
-        mapboxCarMapSurfaceListener.detached(mapboxCarMapSurface)
-        logAndroidAuto("CarMapSurfaceSession unregisterLifecycleListener - 1 = ${mapSurfaceLifecycleListeners.size}")
+    fun unregisterObserver(mapboxCarMapObserver: MapboxCarMapObserver) {
+        carMapObservers.remove(mapboxCarMapObserver)
+        mapboxCarMapObserver.detached(mapboxCarMapSurface)
+        logAndroidAuto("CarMapSurfaceSession unregisterLifecycleListener - 1 = ${carMapObservers.size}")
     }
 
-    fun clearLifecycleListeners() {
-        mapSurfaceLifecycleListeners.clear()
+    fun clearObservers() {
+        carMapObservers.clear()
     }
 
     fun carMapSurfaceAvailable(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarMapSurfaceSession carMapSurfaceAvailable")
         val oldCarMapSurface = this.mapboxCarMapSurface
-        mapSurfaceLifecycleListeners.forEach { it.detached(oldCarMapSurface) }
+        carMapObservers.forEach { it.detached(oldCarMapSurface) }
         this.mapboxCarMapSurface = mapboxCarMapSurface
-        mapSurfaceLifecycleListeners.forEach { it.loaded(mapboxCarMapSurface) }
+        carMapObservers.forEach { it.loaded(mapboxCarMapSurface) }
         notifyVisibleAreaChanged()
-    }
-
-    fun carSpeedLimitWidgetAvailable(speedLimitWidget: SpeedLimitWidget) {
-        logAndroidAuto("CarMapSurfaceSession carSpeedLimitWidgetAvailable")
-        this.speedLimitWidget = speedLimitWidget
-        mapSurfaceLifecycleListeners.forEach { it.onSpeedLimitWidgetAvailable(speedLimitWidget) }
     }
 
     fun carMapSurfaceDestroyed() {
@@ -72,7 +63,7 @@ internal class CarMapSurfaceSession {
         detachSurface?.mapSurface?.surfaceDestroyed()
         detachSurface?.mapSurface?.onDestroy()
         this.mapboxCarMapSurface = null
-        detachSurface?.let { mapSurfaceLifecycleListeners.forEach { it.detached(detachSurface) } }
+        detachSurface?.let { carMapObservers.forEach { it.detached(detachSurface) } }
     }
 
     fun surfaceVisibleAreaChanged(visibleArea: Rect) {
@@ -85,7 +76,7 @@ internal class CarMapSurfaceSession {
         this.edgeInsets = visibleArea?.edgeInsets()
         ifNonNull(mapboxCarMapSurface, visibleArea, edgeInsets) { _, area, edge ->
             logAndroidAuto("CarMapSurfaceSession surfaceVisibleAreaChanged visibleAreaChanged")
-            mapSurfaceLifecycleListeners.forEach {
+            carMapObservers.forEach {
                 it.visibleAreaChanged(area, edge)
             }
         }
