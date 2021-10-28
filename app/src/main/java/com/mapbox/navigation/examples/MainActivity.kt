@@ -13,6 +13,7 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
 import com.mapbox.navigation.examples.basics.FetchARouteActivity
+import com.mapbox.navigation.examples.basics.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.basics.PlayVoiceInstructionsActivity
 import com.mapbox.navigation.examples.basics.RenderRouteLineActivity
 import com.mapbox.navigation.examples.basics.ShowBuildingExtrusionsActivity
@@ -168,7 +169,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 getString(R.string.title_turn_by_turn),
                 getString(R.string.description_turn_by_turn),
                 TurnByTurnExperienceActivity::class.java
-            )
+            ),
+            MapboxExample(
+                ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),
+                getString(R.string.title_multiple_way_points),
+                getString(R.string.description_multiple_way_points),
+                MultipleWaypointsActivity::class.java
+            ),
         )
     }
 }
