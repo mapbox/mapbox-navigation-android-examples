@@ -2,8 +2,6 @@ package com.mapbox.navigation.examples.androidauto
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import com.mapbox.maps.Style
 import com.mapbox.navigation.base.TimeFormat
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
@@ -16,9 +14,8 @@ import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    val mapStyleLiveData: MutableLiveData<Style> = MutableLiveData()
 
-    val distanceFormatterOptions = MapboxNavigationProvider.retrieve()
+    private val distanceFormatterOptions = MapboxNavigationProvider.retrieve()
         .navigationOptions.distanceFormatterOptions
     val maneuverApi: MapboxManeuverApi = MapboxManeuverApi(
         MapboxDistanceFormatter(distanceFormatterOptions)
@@ -32,4 +29,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         .estimatedTimeToArrivalFormatter(EstimatedTimeToArrivalFormatter(getApplication(), TimeFormat.NONE_SPECIFIED))
         .build()
     val tripProgressApi = MapboxTripProgressApi(tripProgressUpdateFormatter)
+
+    override fun onCleared() {
+        maneuverApi.cancel()
+    }
 }

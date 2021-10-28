@@ -359,6 +359,10 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
             // make sure to unregister the route progress observer you have registered.
             unregisterRouteProgressObserver(replayProgressObserver)
         }
+        mapboxReplayer.finish()
+        buildingApi.cancel()
+        routeLineView.cancel()
+        routeLineApi.cancel()
         MapboxNavigationProvider.destroy()
     }
 }
