@@ -1,7 +1,6 @@
 package com.mapbox.androidauto
 
 import android.app.Application
-import androidx.car.app.CarContext
 import androidx.car.app.Session
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -83,12 +82,12 @@ object MapboxCarApp {
     }
 
     /**
-     * Create the [MapboxCarMap] that renders the Mapbox map
-     * to the Android Auto head unit.
+     * Setup android auto from your [Session.onCreateScreen].
+     *
+     * @param session the android auto car session, lifecycle, and carContext
      */
     fun setupCar(
-        session: Session,
-        carContext: CarContext
+        session: Session
     ): MapboxCarMap {
         check(this::initializer.isInitialized) {
             """
@@ -99,10 +98,10 @@ object MapboxCarApp {
         }
         val carLifecycle = session.lifecycle
         carAppLifecycleOwner.setupCar(session)
-        options = initializer.create(carLifecycle, carContext)
+        options = initializer.create(carLifecycle, session.carContext)
         mapboxCarMap = MapboxCarMap(
             mapboxCarOptions = options,
-            carContext = carContext,
+            carContext = session.carContext,
             lifecycle = carLifecycle
         )
         return mapboxCarMap

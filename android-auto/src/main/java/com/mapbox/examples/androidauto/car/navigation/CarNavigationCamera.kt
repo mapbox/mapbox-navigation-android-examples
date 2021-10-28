@@ -3,7 +3,7 @@ package com.mapbox.examples.androidauto.car.navigation
 import android.graphics.Rect
 import android.location.Location
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -28,7 +28,7 @@ class CarNavigationCamera(
     private val initialCameraOptions: CameraOptions? = CameraOptions.Builder()
         .zoom(DEFAULT_INITIAL_ZOOM)
         .build()
-) : MapboxCarMapSurfaceListener {
+) : MapboxCarMapObserver {
     private var mapboxCarMapSurface: MapboxCarMapSurface? = null
     private lateinit var navigationCamera: NavigationCamera
     private lateinit var viewportDataSource: MapboxNavigationViewportDataSource

@@ -11,6 +11,9 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.MapboxCarApp.mapboxCarMap
+import com.mapbox.androidauto.car.map.widgets.compass.CarCompassSurfaceRenderer
+import com.mapbox.androidauto.car.map.widgets.logo.CarLogoSurfaceRenderer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -20,7 +23,7 @@ class MainCarSession : Session() {
 
     override fun onCreateScreen(intent: Intent): Screen {
         logAndroidAuto("MainCarSession onCreateScreen")
-        MapboxCarApp.setupCar(this, carContext)
+        MapboxCarApp.setupCar(this)
         val mainCarContext = MainCarContext(carContext)
         val mainScreenManager = MainScreenManager(mainCarContext)
 
@@ -53,7 +56,7 @@ class MainCarSession : Session() {
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
         logAndroidAuto("onCarConfigurationChanged ${carContext.isDarkMode}")
-        MapboxCarApp.mapboxCarMap.updateMapStyle(mapStyleUri)
+        mapboxCarMap.updateMapStyle(mapStyleUri)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -83,6 +86,8 @@ class MainCarSession : Session() {
         ) == PackageManager.PERMISSION_GRANTED
 
     init {
+        val logoSurfaceRenderer = CarLogoSurfaceRenderer()
+        val compassSurfaceRenderer = CarCompassSurfaceRenderer()
         logAndroidAuto("MainCarSession constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
@@ -95,10 +100,14 @@ class MainCarSession : Session() {
 
             override fun onResume(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onResume")
+                mapboxCarMap.registerObserver(logoSurfaceRenderer)
+                mapboxCarMap.registerObserver(compassSurfaceRenderer)
             }
 
             override fun onPause(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onPause")
+                mapboxCarMap.unregisterObserver(logoSurfaceRenderer)
+                mapboxCarMap.unregisterObserver(compassSurfaceRenderer)
             }
 
             override fun onStop(owner: LifecycleOwner) {

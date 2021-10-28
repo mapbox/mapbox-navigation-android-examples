@@ -1,4 +1,4 @@
-package com.mapbox.androidauto.car.map
+package com.mapbox.androidauto.car.map.impl
 
 import android.graphics.Rect
 import androidx.car.app.AppManager
@@ -8,15 +8,12 @@ import androidx.car.app.SurfaceContainer
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.car.map.MapboxCarMap
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
-import com.mapbox.maps.extension.androidauto.CompassWidget
-import com.mapbox.maps.extension.androidauto.LogoWidget
-import com.mapbox.maps.extension.androidauto.SpeedLimitWidget
-import com.mapbox.maps.extension.androidauto.addCompassWidget
-import com.mapbox.maps.extension.androidauto.addLogoWidget
-import com.mapbox.maps.extension.androidauto.addSpeedLimitWidget
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 
@@ -26,9 +23,9 @@ import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
  * This class combines Android Auto screen lifecycle events
  * with SurfaceCallback lifecycle events. It then
  * sets the [CarMapSurfaceSession] which allows us to register onto
- * our own [MapboxCarMapSurfaceListener]
+ * our own [MapboxCarMapObserver]
  */
-internal class CarMapSurfaceLifecycle internal constructor(
+internal class CarMapLifecycleObserver internal constructor(
     private val carContext: CarContext,
     private val carMapSurfaceSession: CarMapSurfaceSession,
     private val mapInitOptions: MapInitOptions
@@ -75,9 +72,8 @@ internal class CarMapSurfaceLifecycle internal constructor(
             mapSurface.getMapboxMap().loadStyleUri(mapStyleUri, onStyleLoaded = { style ->
                 logAndroidAuto("CarMapSurfaceLifecycle styleAvailable")
                 mapSurface.surfaceChanged(surfaceContainer.width, surfaceContainer.height)
-                val carMapSurface = MapboxCarMapSurface(mapSurface, surfaceContainer, style)
+                val carMapSurface = MapboxCarMapSurface(carContext, mapSurface, surfaceContainer, style)
                 carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
-                setupWidgets(mapSurface)
             }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
                 override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
                     logAndroidAuto(
@@ -87,14 +83,6 @@ internal class CarMapSurfaceLifecycle internal constructor(
                 }
             })
         }
-    }
-
-    private fun setupWidgets(mapSurface: MapSurface) {
-        val speedLimitWidget = SpeedLimitWidget()
-        mapSurface.addLogoWidget(LogoWidget(carContext))
-        mapSurface.addCompassWidget(CompassWidget(carContext))
-        mapSurface.addSpeedLimitWidget(speedLimitWidget)
-        carMapSurfaceSession.carSpeedLimitWidgetAvailable(speedLimitWidget)
     }
 
     override fun onVisibleAreaChanged(visibleArea: Rect) {
@@ -124,6 +112,7 @@ internal class CarMapSurfaceLifecycle internal constructor(
         mapSurface?.getMapboxMap()?.loadStyleUri(mapStyle, onStyleLoaded = { style ->
             logAndroidAuto("CarMapSurfaceLifecycle updateMapStyle styleAvailable")
             val carMapSurface = MapboxCarMapSurface(
+                carContext,
                 mapSurface,
                 previousCarMapSurface.surfaceContainer,
                 style

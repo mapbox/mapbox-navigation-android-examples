@@ -14,13 +14,13 @@ import androidx.car.app.model.Metadata
 import androidx.car.app.model.Place
 import androidx.car.app.model.PlaceMarker
 import androidx.car.app.model.Row
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
+import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 
-class PlaceRecordMapper(
+class PlacesListItemMapper(
     private val placeMarkerRenderer: PlaceMarkerRenderer,
     private val unitType: UnitType
 ) {

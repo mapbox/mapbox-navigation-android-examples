@@ -3,16 +3,16 @@ package com.mapbox.androidauto.surfacelayer
 import android.graphics.Rect
 import androidx.annotation.CallSuper
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapSurfaceListener
+import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.maps.EdgeInsets
 
 /**
- * Simplify the classes that need to extend the [MapboxCarMapSurfaceListener]
+ * Simplify the classes that need to extend the [MapboxCarMapObserver]
  *
  * This class is meant to have [children] so you don't
  * have to forward the calls and store surface state.
  */
-open class CarSurfaceLayer : MapboxCarMapSurfaceListener {
+open class CarSurfaceLayer : MapboxCarMapObserver {
     protected var mapboxCarMapSurface: MapboxCarMapSurface? = null
         private set
     var visibleArea: Rect? = null
@@ -26,7 +26,7 @@ open class CarSurfaceLayer : MapboxCarMapSurfaceListener {
      * This allows you to create children listeners.
      * Children are notified after the parent.
      */
-    open fun children(): List<MapboxCarMapSurfaceListener> = emptyList()
+    open fun children(): List<MapboxCarMapObserver> = emptyList()
 
     @CallSuper
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
@@ -50,7 +50,7 @@ open class CarSurfaceLayer : MapboxCarMapSurfaceListener {
     }
 
     private fun notifyChildren(
-        method: MapboxCarMapSurfaceListener.() -> Unit
+        method: MapboxCarMapObserver.() -> Unit
     ) {
         children().forEach { childListener ->
             when (childListener) {
@@ -62,7 +62,7 @@ open class CarSurfaceLayer : MapboxCarMapSurfaceListener {
 
     private fun notifyListenerAndChildren(
         layer: CarSurfaceLayer,
-        method: MapboxCarMapSurfaceListener.() -> Unit
+        method: MapboxCarMapObserver.() -> Unit
     ) {
         layer.method()
         layer.children().forEach { childListener ->

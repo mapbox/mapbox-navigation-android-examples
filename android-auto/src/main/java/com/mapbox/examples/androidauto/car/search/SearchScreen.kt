@@ -15,7 +15,6 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
 import com.mapbox.search.result.SearchSuggestion
 
 /**
@@ -77,7 +76,7 @@ class SearchScreen(
             logAndroidAuto("onClickSearch select ${searchResults.joinToString()}")
             if (searchResults.isNotEmpty()) {
                 searchCarContext.carRouteRequest.request(
-                    PlaceRecord(searchResults.first()),
+                    PlaceRecordMapper.fromSearchResult(searchResults.first()),
                     carRouteRequestCallback
                 )
             }

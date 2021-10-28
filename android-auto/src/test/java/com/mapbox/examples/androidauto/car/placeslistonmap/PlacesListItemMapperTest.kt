@@ -4,7 +4,7 @@ import android.location.Location
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
-import com.mapbox.examples.androidauto.car.model.PlaceRecord
+import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
 import io.mockk.every
@@ -12,7 +12,7 @@ import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class PlaceRecordMapperTest : MapboxRobolectricTestRunner() {
+class PlacesListItemMapperTest : MapboxRobolectricTestRunner() {
 
     private val placeMarkerRenderer: PlaceMarkerRenderer = mockk {
         every { renderMarker() } returns mockk {
@@ -23,7 +23,7 @@ class PlaceRecordMapperTest : MapboxRobolectricTestRunner() {
         }
     }
 
-    private val mapper = PlaceRecordMapper(placeMarkerRenderer, UnitType.METRIC)
+    private val mapper = PlacesListItemMapper(placeMarkerRenderer, UnitType.METRIC)
 
     @Test
     fun mapToItemList() {
