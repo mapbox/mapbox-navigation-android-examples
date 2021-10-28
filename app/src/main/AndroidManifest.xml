@@ -67,6 +67,11 @@
     <activity android:name=".basics.TurnByTurnExperienceActivity"
         android:exported="false"
         />
+
+    <activity android:name=".basics.MultipleWaypointsActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
   </application>
 
 </manifest>

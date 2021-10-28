@@ -43,4 +43,12 @@
   <!-- Turn by Turn -->
   <string name="title_turn_by_turn">Add a complete turn-by-turn experience</string>
   <string name="description_turn_by_turn">Render a complete turn-by-turn experience using all relevant Navigation SDK APIs and pre-built UI components.</string>
+
+  <!-- Multiple way points -->
+  <string name="title_multiple_way_points">Build a multiple waypoints route</string>
+  <string name="description_multiple_way_points">Build a route using different types of waypoints: regular, silent, and named.</string>
+  <string name="reset_route_button">Reset the route</string>
+  <string name="waypoint_type_regular">Regular</string>
+  <string name="waypoint_type_named">Named</string>
+  <string name="waypoint_type_silent">Silent</string>
 </resources>
