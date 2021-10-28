@@ -347,6 +347,9 @@ class ShowTripProgressActivity : AppCompatActivity() {
             // make sure to unregister the route progress observer you have registered.
             unregisterRouteProgressObserver(replayProgressObserver)
         }
+        mapboxReplayer.finish()
+        routeLineView.cancel()
+        routeLineApi.cancel()
         MapboxNavigationProvider.destroy()
     }
 }

@@ -602,6 +602,10 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         MapboxNavigationProvider.destroy()
+        mapboxReplayer.finish()
+        maneuverApi.cancel()
+        routeLineApi.cancel()
+        routeLineView.cancel()
         speechApi.cancel()
         voiceInstructionsPlayer.shutdown()
     }

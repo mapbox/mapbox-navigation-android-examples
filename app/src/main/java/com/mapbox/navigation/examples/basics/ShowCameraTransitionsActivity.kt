@@ -370,6 +370,9 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        mapboxReplayer.finish()
+        routeLineApi.cancel()
+        routeLineView.cancel()
         MapboxNavigationProvider.destroy()
     }
 

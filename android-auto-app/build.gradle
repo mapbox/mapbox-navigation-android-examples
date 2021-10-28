@@ -67,5 +67,5 @@ dependencies {
     implementation(project(":android-auto"))
     implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
 
-    implementation("com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.19")
+    implementation("com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.21")
 }

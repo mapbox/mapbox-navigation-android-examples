@@ -396,7 +396,10 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
             // make sure to unregister the voice instruction observer you have registered.
             unregisterVoiceInstructionsObserver(voiceInstructionsObserver)
         }
+        mapboxReplayer.finish()
         speechApi.cancel()
+        routeLineView.cancel()
+        routeLineApi.cancel()
         voiceInstructionsPlayer.shutdown()
         MapboxNavigationProvider.destroy()
     }
