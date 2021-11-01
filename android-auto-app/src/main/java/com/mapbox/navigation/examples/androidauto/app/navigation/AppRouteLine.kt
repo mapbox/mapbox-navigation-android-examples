@@ -120,9 +120,6 @@ class AppRouteLine(
             unregisterRouteProgressObserver(routeProgressObserver)
             unregisterRoutesObserver(routesObserver)
         }
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
         routeLineView.cancel()
         routeLineApi.cancel()
     }

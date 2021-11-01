@@ -29,8 +29,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         .estimatedTimeToArrivalFormatter(EstimatedTimeToArrivalFormatter(getApplication(), TimeFormat.NONE_SPECIFIED))
         .build()
     val tripProgressApi = MapboxTripProgressApi(tripProgressUpdateFormatter)
-
-    override fun onCleared() {
-        maneuverApi.cancel()
-    }
 }

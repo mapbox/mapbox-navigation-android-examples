@@ -52,6 +52,7 @@ class ActiveGuidanceFragment : Fragment() {
         override fun onStop(owner: LifecycleOwner) {
             MapboxNavigationProvider.retrieve()
                 .unregisterRouteProgressObserver(routeProgressObserver)
+            mainViewModel.maneuverApi.cancel()
         }
     }
 
