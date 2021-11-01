@@ -56,5 +56,6 @@ class CarNavigationInfoObserver(
         onNavigationInfoChanged = null
         val mapboxNavigation = carActiveGuidanceCarContext.mapboxNavigation
         mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+        carActiveGuidanceCarContext.maneuverApi.cancel()
     }
 }

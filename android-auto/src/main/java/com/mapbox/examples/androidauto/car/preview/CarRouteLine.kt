@@ -1,7 +1,7 @@
 package com.mapbox.examples.androidauto.car.preview
 
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
@@ -93,7 +93,7 @@ class CarRouteLine(
         }
     }
 
-    val routeProgressObserver = RouteProgressObserver { routeProgress ->
+    private val routeProgressObserver = RouteProgressObserver { routeProgress ->
         mainCarContext.mapboxCarMap.mapboxCarMapSurface?.let { carMapSurface ->
             routeLineApi.updateWithRouteProgress(routeProgress) { result ->
                 routeLineView.renderRouteLineUpdate(carMapSurface.style, result)
@@ -128,5 +128,8 @@ class CarRouteLine(
         mainCarContext.mapboxNavigation.historyRecorder.stopRecording {
             logAndroidAuto("CarRouteLine saved history $it")
         }
+
+        routeLineApi.cancel()
+        routeLineView.cancel()
     }
 }
