@@ -2,9 +2,9 @@
 
 package com.mapbox.examples.androidauto.car.preview
 
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
-import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.core.MapboxNavigation
@@ -15,8 +15,11 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
+
+private const val zLevel = 42
 
 class CarRouteRequestTest : MapboxRobolectricTestRunner() {
 
@@ -34,6 +37,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         every { navigationOptions } returns mockk {
             every { applicationContext } returns RuntimeEnvironment.systemContext
         }
+        every { getZLevel() } returns zLevel
     }
 
     private val carRouteRequest = CarRouteRequest(mapboxNavigation, navigationLocationProvider)
@@ -149,5 +153,18 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         )
 
         verify(exactly = 1) { mapboxNavigation.cancelRouteRequest(0) }
+    }
+
+    @Test
+    fun `z level is passed to route options`() {
+        every { navigationLocationProvider.lastLocation } returns mockk {
+            every { longitude } returns -121.4670161
+            every { latitude } returns 38.5630514
+        }
+        val callback = mockk<CarRouteRequestCallback>(relaxUnitFun = true)
+        val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
+        carRouteRequest.request(mockk { every { coordinate } returns searchCoordinate }, callback)
+
+        assertEquals(listOf(zLevel, null), routeOptionsSlot.captured.layersList())
     }
 }

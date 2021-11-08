@@ -74,6 +74,7 @@ class CarRouteRequest(
         .alternatives(true)
         .profile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
         .coordinatesList(listOf(origin, destination))
+        .layersList(listOf(mapboxNavigation.getZLevel(), null))
         .metadata(true)
         .build()
 
