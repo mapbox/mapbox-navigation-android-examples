@@ -637,6 +637,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                         null
                     )
                 )
+                .layersList(listOf(mapboxNavigation.getZLevel(), null))
                 .build(),
             object : RouterCallback {
                 override fun onRoutesReady(

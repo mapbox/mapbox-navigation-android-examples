@@ -40,6 +40,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.4.0-rc01")
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.5.21")
 }
 
 dependencies {
