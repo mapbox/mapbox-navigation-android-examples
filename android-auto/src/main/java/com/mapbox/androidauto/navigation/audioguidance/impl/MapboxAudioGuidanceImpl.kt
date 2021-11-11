@@ -13,12 +13,14 @@ import com.mapbox.api.directions.v5.models.VoiceInstructions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.updateAndGet
@@ -124,9 +126,10 @@ class MapboxAudioGuidanceImpl(
     /**
      * The same as the [silentFlow] except that it will speak announcements.
      */
+    @OptIn(FlowPreview::class)
     private fun speechFlow(audioGuidance: MapboxAudioGuidanceVoice): Flow<MapboxAudioGuidance.State> {
         return audioGuidanceServices.mapboxVoiceInstructions().voiceInstructions()
-            .flatMapLatest { voice ->
+            .flatMapConcat { voice ->
                 internalStateFlow.updateAndGet {
                     MapboxAudioGuidanceState(
                         isMuted = false,

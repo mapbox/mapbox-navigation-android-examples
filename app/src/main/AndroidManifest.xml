@@ -9,7 +9,9 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
       android:theme="@style/AppTheme">
-    <activity android:name=".MainActivity">
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -19,41 +21,52 @@
 
     <activity android:name=".basics.FetchARouteActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowCurrentLocationActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.RenderRouteLineActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowCameraTransitionsActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowTripProgressActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowManeuversActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.PlayVoiceInstructionsActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowSpeedLimitActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
     <activity android:name=".basics.ShowBuildingExtrusionsActivity"
         android:screenOrientation="portrait"
+        android:exported="false"
         />
 
-    <activity android:name=".basics.TurnByTurnExperienceActivity"/>
+    <activity android:name=".basics.TurnByTurnExperienceActivity"
+        android:exported="false"
+        />
   </application>
 
 </manifest>

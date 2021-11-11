@@ -8,8 +8,10 @@ import com.mapbox.api.directions.v5.models.VoiceInstructions
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 
 class TestMapboxAudioGuidanceServices {
 
@@ -34,7 +36,12 @@ class TestMapboxAudioGuidanceServices {
                     every { ssmlAnnouncement } returns it.ssmlAnnouncement()
                 }
             }
-            flowOf(speechAnnouncement)
+            flowOf(speechAnnouncement).onEach {
+                if (it != null) {
+                    // Simulate a real speech announcement by delaying the TestCoroutineScope
+                    delay(SPEECH_ANNOUNCEMENT_DELAY_MS)
+                }
+            }
         }
     }
 
@@ -43,5 +50,11 @@ class TestMapboxAudioGuidanceServices {
         every {
             mapboxAudioGuidanceVoice(any())
         } returns mapboxAudioGuidanceVoice
+    }
+
+    companion object {
+        // Speech announcements take time, simulate a delay.
+        // Note that delaying the TestCoroutineScope is not actual time.
+        const val SPEECH_ANNOUNCEMENT_DELAY_MS = 2000L
     }
 }

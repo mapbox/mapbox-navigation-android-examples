@@ -11,8 +11,8 @@ import com.mapbox.androidauto.car.map.widgets.WidgetPosition
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.bindgen.Expected
 import com.mapbox.common.Logger
-import com.mapbox.maps.extension.androidauto.ImageOverlayHost
-import com.mapbox.maps.extension.androidauto.Margin
+import com.mapbox.androidauto.car.map.widgets.ImageOverlayHost
+import com.mapbox.androidauto.car.map.widgets.Margin
 import com.mapbox.navigation.base.speed.model.SpeedLimitSign
 import com.mapbox.navigation.ui.speedlimit.model.UpdateSpeedLimitError
 import com.mapbox.navigation.ui.speedlimit.model.UpdateSpeedLimitValue

@@ -4,9 +4,9 @@ version: 2.1
 #---------- EXECUTORS ----------
 #-------------------------------
 executors:
-  ndk-r21-latest-executor:
+  default-executor:
     docker:
-      - image: mbgl/android-ndk-r21e:latest
+      - image: mbgl/android-ndk-r22:latest
     working_directory: ~/code
 
 #-------------------------------
@@ -82,7 +82,7 @@ commands:
 
 jobs:
   prepare-and-assemble:
-    executor: ndk-r21-latest-executor
+    executor: default-executor
     steps:
       - checkout
       - restore-gradle-cache
@@ -91,7 +91,7 @@ jobs:
       - write-workspace
 
   static-analysis:
-    executor: ndk-r21-latest-executor
+    executor: default-executor
     steps:
       - read-workspace
       - verify-codebase

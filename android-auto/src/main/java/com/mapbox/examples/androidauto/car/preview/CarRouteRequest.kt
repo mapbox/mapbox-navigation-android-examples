@@ -8,7 +8,7 @@ import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
-import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
+import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
@@ -31,7 +31,7 @@ interface CarRouteRequestCallback {
  */
 class CarRouteRequest(
     val mapboxNavigation: MapboxNavigation,
-    val navigationLocationProvider: NavigationLocationProvider
+    private val navigationLocationProvider: NavigationLocationProvider,
 ) {
     internal var currentRequestId: Long? = null
 
@@ -70,7 +70,13 @@ class CarRouteRequest(
      */
     private fun carRouteOptions(origin: Point, destination: Point) = RouteOptions.builder()
         .applyDefaultNavigationOptions()
-        .applyLanguageAndVoiceUnitOptions(mapboxNavigation.navigationOptions.applicationContext)
+        .language(mapboxNavigation.navigationOptions.distanceFormatterOptions.locale.language)
+        .voiceUnits(
+            when (mapboxNavigation.navigationOptions.distanceFormatterOptions.unitType) {
+                UnitType.IMPERIAL -> DirectionsCriteria.IMPERIAL
+                UnitType.METRIC -> DirectionsCriteria.METRIC
+            },
+        )
         .alternatives(true)
         .profile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
         .coordinatesList(listOf(origin, destination))
