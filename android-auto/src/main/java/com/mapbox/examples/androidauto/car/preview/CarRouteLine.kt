@@ -39,35 +39,10 @@ class CarRouteLine(
             .build()
     }
 
-    private val options: MapboxRouteLineOptions by lazy {
-        MapboxRouteLineOptions.Builder(mainCarContext.carContext)
-            .withRouteLineResources(routeLineResources)
-            .withRouteLineBelowLayerId("road-label")
-            .withVanishingRouteLineEnabled(true)
-            .build()
-    }
-
-    private val routeLineView by lazy {
-        MapboxRouteLineView(options)
-    }
-
-    private val routeLineApi: MapboxRouteLineApi by lazy {
-        MapboxRouteLineApi(options)
-    }
-
-    private val routeArrowApi: MapboxRouteArrowApi by lazy {
-        MapboxRouteArrowApi()
-    }
-
-    private val routeArrowOptions by lazy {
-        RouteArrowOptions.Builder(mainCarContext.carContext)
-            .withAboveLayerId(TOP_LEVEL_ROUTE_LINE_LAYER_ID)
-            .build()
-    }
-
-    private val routeArrowView: MapboxRouteArrowView by lazy {
-        MapboxRouteArrowView(routeArrowOptions)
-    }
+    private lateinit var routeLineView: MapboxRouteLineView
+    private lateinit var routeLineApi: MapboxRouteLineApi
+    private lateinit var routeArrowApi: MapboxRouteArrowApi
+    private lateinit var routeArrowView: MapboxRouteArrowView
 
     private val onPositionChangedListener = OnIndicatorPositionChangedListener { point ->
         val result = routeLineApi.updateTraveledRouteLine(point)
@@ -107,12 +82,23 @@ class CarRouteLine(
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarRouteLine carMapSurface loaded $mapboxCarMapSurface")
         val locationPlugin = mapboxCarMapSurface.mapSurface.location
-        routeLineView.initializeLayers(mapboxCarMapSurface.style)
+
+        val routeLineOptions = getMapboxRouteLineOptions(mapboxCarMapSurface)
+        routeLineView = MapboxRouteLineView(routeLineOptions)
+        routeLineApi = MapboxRouteLineApi(routeLineOptions).also {
+            routeLineView.initializeLayers(mapboxCarMapSurface.style)
+        }
+        routeArrowApi = MapboxRouteArrowApi()
+        routeArrowView = MapboxRouteArrowView(
+            RouteArrowOptions.Builder(mainCarContext.carContext)
+                .withAboveLayerId(TOP_LEVEL_ROUTE_LINE_LAYER_ID)
+                .build()
+        )
+
         locationPlugin.addOnIndicatorPositionChangedListener(onPositionChangedListener)
         mainCarContext.mapboxNavigation.apply {
             registerRouteProgressObserver(routeProgressObserver)
             registerRoutesObserver(routesObserver)
-            historyRecorder.startRecording()
         }
     }
 
@@ -124,12 +110,21 @@ class CarRouteLine(
             unregisterRouteProgressObserver(routeProgressObserver)
             unregisterRoutesObserver(routesObserver)
         }
+    }
 
-        mainCarContext.mapboxNavigation.historyRecorder.stopRecording {
-            logAndroidAuto("CarRouteLine saved history $it")
-        }
+    private fun getMapboxRouteLineOptions(
+        mapboxCarMapSurface: MapboxCarMapSurface
+    ): MapboxRouteLineOptions {
+        return MapboxRouteLineOptions.Builder(mainCarContext.carContext)
+            .withRouteLineResources(routeLineResources)
+            .withRouteLineBelowLayerId(findRoadLabelsLayerId(mapboxCarMapSurface))
+            .withVanishingRouteLineEnabled(true)
+            .build()
+    }
 
-        routeLineApi.cancel()
-        routeLineView.cancel()
+    private fun findRoadLabelsLayerId(mapboxCarMapSurface: MapboxCarMapSurface): String {
+        return mapboxCarMapSurface.style.styleLayers.firstOrNull { layer ->
+            layer.id.contains("road-label")
+        }?.id ?: "road-label-navigation"
     }
 }

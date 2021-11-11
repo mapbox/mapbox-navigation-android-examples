@@ -8,9 +8,11 @@ import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidance
 import com.mapbox.androidauto.testing.MainCoroutineRule
 import com.mapbox.androidauto.testing.TestCarAppDataStoreOwner
 import com.mapbox.androidauto.testing.TestMapboxAudioGuidanceServices
+import com.mapbox.androidauto.testing.TestMapboxAudioGuidanceServices.Companion.SPEECH_ANNOUNCEMENT_DELAY_MS
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -105,6 +107,7 @@ class MapboxAudioGuidanceImplTest {
                 every { announcement() } returns "You have arrived at your destination"
             }
         })
+        delay(SPEECH_ANNOUNCEMENT_DELAY_MS)
 
         assertEquals(3, states.size)
         assertFalse(states[2].isMuted)
@@ -132,6 +135,7 @@ class MapboxAudioGuidanceImplTest {
                 every { announcement() } returns "You have arrived at your destination"
             }
         })
+        delay(SPEECH_ANNOUNCEMENT_DELAY_MS)
 
         assertEquals(3, states.size)
         assertTrue(states[2].isMuted)
@@ -141,6 +145,45 @@ class MapboxAudioGuidanceImplTest {
             states[2].voiceInstructions?.announcement()
         )
         assertNull(states[2].speechAnnouncement)
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun `plays voice instructions without canceling previous`() = coroutineRule.runBlockingTest {
+        val testLifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.STARTED)
+        carAppAudioGuidance.setup(testLifecycleOwner)
+        val states = mutableListOf<Pair<MapboxAudioGuidance.State, Long>>()
+        val job = launch {
+            carAppAudioGuidance.stateFlow().collect {
+                states.add(Pair(it, coroutineRule.coroutineScope.currentTime))
+            }
+        }
+
+        // Emit two announcements without waiting for one to complete.
+        testMapboxAudioGuidanceServices.emitVoiceInstruction(mockk {
+            every { isPlayable } returns true
+            every { voiceInstructions } returns mockk(relaxed = true) {
+                every { announcement() } returns "Turn right on Jefferson Street"
+            }
+        })
+        testMapboxAudioGuidanceServices.emitVoiceInstruction(mockk {
+            every { isPlayable } returns true
+            every { voiceInstructions } returns mockk(relaxed = true) {
+                every { announcement() } returns "You have arrived at your destination"
+            }
+        })
+        // Wait for the announcements. Note that this is blocking a test scheduler
+        // so it should not delay actual time.
+        delay(SPEECH_ANNOUNCEMENT_DELAY_MS * 3)
+
+        // Verify the time the speech announcements were completed.
+        assertEquals(5, states.size)
+        val firstAnnouncement = states[2].first.speechAnnouncement?.announcement
+        val secondAnnouncement = states[4].first.speechAnnouncement?.announcement
+        assertEquals("Turn right on Jefferson Street", firstAnnouncement)
+        assertEquals(SPEECH_ANNOUNCEMENT_DELAY_MS, states[2].second)
+        assertEquals("You have arrived at your destination", secondAnnouncement)
+        assertEquals(SPEECH_ANNOUNCEMENT_DELAY_MS * 2, states[4].second)
         job.cancelAndJoin()
     }
 }

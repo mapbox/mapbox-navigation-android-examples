@@ -2,10 +2,11 @@
 
 package com.mapbox.examples.androidauto.car.preview
 
-import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
@@ -18,6 +19,7 @@ import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
+import java.util.Locale
 
 private const val zLevel = 42
 
@@ -36,6 +38,10 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         every { cancelRouteRequest(any()) } just Runs
         every { navigationOptions } returns mockk {
             every { applicationContext } returns RuntimeEnvironment.systemContext
+            every { distanceFormatterOptions } returns mockk {
+                every { locale } returns Locale.US
+                every { unitType } returns UnitType.METRIC
+            }
         }
         every { getZLevel() } returns zLevel
     }

@@ -1,15 +1,16 @@
-package com.mapbox.maps.extension.androidauto
+package com.mapbox.androidauto.car.map.widgets
 
 import android.graphics.Bitmap
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import android.util.Log
-import com.mapbox.androidauto.car.map.widgets.WidgetPosition
+import com.mapbox.base.common.logger.model.Message
+import com.mapbox.base.common.logger.model.Tag
 import com.mapbox.common.Logger
 import com.mapbox.maps.BuildConfig
 import com.mapbox.maps.CustomLayerHost
 import com.mapbox.maps.CustomLayerRenderParameters
+import com.mapbox.navigation.utils.internal.LoggerProvider
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -75,9 +76,9 @@ open class ImageOverlayHost(
         if (this.width == width && this.height == height) return
         this.width = width
         this.height = height
-        Log.e(
-            TAG,
-            "onSizeChanged-> bitmap size: ${bitmap.width}, ${bitmap.height}; screen size: $width, $height"
+        LoggerProvider.logger.e(
+            Tag(TAG),
+            Message("onSizeChanged-> bitmap size: ${bitmap.width}, ${bitmap.height}; screen size: $width, $height"),
         )
         heightOffset = when (position) {
             WidgetPosition.BOTTOM_LEFT -> height.toFloat() - bitmap.height.toFloat() / 2f - margins.marginBottom

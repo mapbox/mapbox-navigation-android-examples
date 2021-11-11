@@ -1,6 +1,7 @@
 package com.mapbox.examples.androidauto.car.preview
 
 import android.text.SpannableString
+import androidx.activity.OnBackPressedCallback
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.DurationSpan
@@ -39,7 +40,6 @@ class CarRoutePreviewScreen(
         routePreviewCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.OVERVIEW
     )
-    private var routeSelected = false
 
     override fun onGetTemplate(): Template {
         val listBuilder = ItemList.Builder()
@@ -88,11 +88,18 @@ class CarRoutePreviewScreen(
                 Action.Builder()
                     .setTitle(carContext.getString(R.string.car_action_preview_navigate_button))
                     .setOnClickListener {
-                        routeSelected = true
                         MapboxCarApp.updateCarAppState(ActiveGuidanceState)
                     }
                     .build())
             .build()
+    }
+
+    private val backPressCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            logAndroidAuto("CarRoutePreviewScreen OnBackPressedCallback")
+            routePreviewCarContext.mapboxNavigation.setRoutes(listOf())
+            screenManager.pop()
+        }
     }
 
     init {
@@ -100,6 +107,7 @@ class CarRoutePreviewScreen(
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 logAndroidAuto("CarRoutePreviewScreen onResume")
+                routePreviewCarContext.carContext.onBackPressedDispatcher.addCallback(backPressCallback)
                 routePreviewCarContext.mapboxCarMap.registerObserver(carLocationRenderer)
                 routePreviewCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
@@ -108,14 +116,7 @@ class CarRoutePreviewScreen(
 
             override fun onPause(owner: LifecycleOwner) {
                 logAndroidAuto("CarRoutePreviewScreen onPause")
-                // todo a better approach would be to listen for the header action but
-                // there doesn't appear to be a way to do this. A feature request was
-                // submitted to the Google Android Auto issue tracker:
-                // https://issuetracker.google.com/u/0/issues/204353351
-                if (!routeSelected) {
-                    routePreviewCarContext.mapboxNavigation.setRoutes(listOf())
-                }
-
+                backPressCallback.remove()
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)

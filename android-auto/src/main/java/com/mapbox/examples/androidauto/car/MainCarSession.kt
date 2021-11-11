@@ -41,6 +41,7 @@ class MainCarSession : Session() {
     @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun startTripSession(mainCarContext: MainCarContext) {
         mainCarContext.apply {
+            logAndroidAuto("MainCarSession startTripSession")
             if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
                 if (MapboxCarApp.options.replayEnabled) {
                     val mapboxReplayer = mapboxNavigation.mapboxReplayer
