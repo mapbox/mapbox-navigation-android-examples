@@ -69,19 +69,23 @@ internal class CarMapLifecycleObserver internal constructor(
             val mapSurface = MapSurface(carContext, it, mapInitOptions)
             mapSurface.onStart()
             mapSurface.surfaceCreated()
-            mapSurface.getMapboxMap().loadStyleUri(mapStyleUri, onStyleLoaded = { style ->
-                logAndroidAuto("CarMapSurfaceLifecycle styleAvailable")
-                mapSurface.surfaceChanged(surfaceContainer.width, surfaceContainer.height)
-                val carMapSurface = MapboxCarMapSurface(carContext, mapSurface, surfaceContainer, style)
-                carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
-            }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
-                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                    logAndroidAuto(
-                        "CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
+            mapSurface.getMapboxMap().loadStyleUri(
+                mapStyleUri,
+                onStyleLoaded = { style ->
+                    logAndroidAuto("CarMapSurfaceLifecycle styleAvailable")
+                    mapSurface.surfaceChanged(surfaceContainer.width, surfaceContainer.height)
+                    val carMapSurface = MapboxCarMapSurface(carContext, mapSurface, surfaceContainer, style)
+                    carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
+                },
+                onMapLoadErrorListener = object : OnMapLoadErrorListener {
+                    override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                        logAndroidAuto(
+                            "CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
                                 "${eventData.type} ${eventData.message}"
-                    )
+                        )
+                    }
                 }
-            })
+            )
         }
     }
 
@@ -109,22 +113,25 @@ internal class CarMapLifecycleObserver internal constructor(
         logAndroidAuto("CarMapSurfaceLifecycle updateMapStyle $mapStyle")
         val previousCarMapSurface = carMapSurfaceSession.mapboxCarMapSurface
         val mapSurface = previousCarMapSurface?.mapSurface
-        mapSurface?.getMapboxMap()?.loadStyleUri(mapStyle, onStyleLoaded = { style ->
-            logAndroidAuto("CarMapSurfaceLifecycle updateMapStyle styleAvailable")
-            val carMapSurface = MapboxCarMapSurface(
-                carContext,
-                mapSurface,
-                previousCarMapSurface.surfaceContainer,
-                style
-            )
-            carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
-        }, onMapLoadErrorListener = object : OnMapLoadErrorListener {
-            override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                logAndroidAuto(
-                    "CarMapSurfaceLifecycle updateMapStyle onMapLoadError " +
-                            "${eventData.type} ${eventData.message}"
+        mapSurface?.getMapboxMap()?.loadStyleUri(
+            mapStyle,
+            onStyleLoaded = { style ->
+                logAndroidAuto("CarMapSurfaceLifecycle updateMapStyle styleAvailable")
+                val carMapSurface = MapboxCarMapSurface(
+                    carContext,
+                    mapSurface,
+                    previousCarMapSurface.surfaceContainer,
+                    style,
                 )
+                carMapSurfaceSession.carMapSurfaceAvailable(carMapSurface)
+            },
+            onMapLoadErrorListener = object : OnMapLoadErrorListener {
+                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                    logAndroidAuto(
+                        "CarMapSurfaceLifecycle updateMapStyle onMapLoadError ${eventData.type} ${eventData.message}",
+                    )
+                }
             }
-        })
+        )
     }
 }

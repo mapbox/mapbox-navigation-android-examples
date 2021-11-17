@@ -381,7 +381,7 @@ open class ImageOverlayHost(
         vTexCoord = aCoordinate;
         gl_Position =  uScreen * uTranslate  * uRotation * vec4(aPosition, 0.0, 1.0);
       }
-    """.trimIndent()
+        """.trimIndent()
 
         private val FRAGMENT_SHADER_CODE = """
       precision mediump float;
@@ -390,7 +390,7 @@ open class ImageOverlayHost(
       void main() {
         gl_FragColor = texture2D(vTexture, vTexCoord);
       }
-    """.trimIndent()
+        """.trimIndent()
 
         private fun loadShader(type: Int, shaderCode: String): Int {
             // create a vertex shader type (GLES20.GL_VERTEX_SHADER)

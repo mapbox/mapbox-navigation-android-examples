@@ -1,6 +1,6 @@
 @file:Suppress("NoMockkVerifyImport")
 
-package com.mapbox.androidauto.lifecycle
+package com.mapbox.navigation.lifecycle
 
 import android.app.Activity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -14,12 +14,11 @@ import org.junit.Test
 
 class CarAppLifecycleOwnerTest : MapboxRobolectricTestRunner() {
 
-    private lateinit var carAppLifecycleOwner: CarAppLifecycleOwner
     private val testLifecycleObserver: DefaultLifecycleObserver = mockk(relaxUnitFun = true)
+    private val carAppLifecycleOwner = CarAppLifecycleOwner()
 
     @Before
     fun setup() {
-        carAppLifecycleOwner = CarAppLifecycleOwner()
         carAppLifecycleOwner.lifecycle.addObserver(testLifecycleObserver)
     }
 

@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.coroutineScope
-import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.navigation.lifecycle.MapboxNavigationApp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,7 +24,7 @@ class CarAppDataStoreOwner internal constructor() {
     }
 
     fun launch(block: suspend CarAppDataStoreOwner.() -> Unit): Job =
-        MapboxCarApp.carAppLifecycleOwner.lifecycle.coroutineScope.launchWhenStarted {
+        MapboxNavigationApp.carAppLifecycleOwner.lifecycle.coroutineScope.launchWhenStarted {
             block()
         }
 

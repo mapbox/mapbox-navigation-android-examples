@@ -44,8 +44,7 @@ class MapboxAudioGuidanceVoiceTest {
         val voiceInstructions = mockk<VoiceInstructions> {
             every { announcement() } returns "Turn right on Market"
         }
-        carAppAudioGuidanceVoice.speak(voiceInstructions).collect {
-                speechAnnouncement: SpeechAnnouncement? ->
+        carAppAudioGuidanceVoice.speak(voiceInstructions).collect { speechAnnouncement ->
             assertEquals("Turn right on Market", speechAnnouncement!!.announcement)
         }
     }
@@ -62,19 +61,19 @@ class MapboxAudioGuidanceVoiceTest {
     fun `should play fallback when speech api fails`() = coroutineRule.runBlockingTest {
         every { speechApi.generate(any(), any()) } answers {
             val consumer = secondArg<MapboxNavigationConsumer<Expected<SpeechError, SpeechValue>>>()
-            consumer.accept(ExpectedFactory.createError(mockk {
+            val error = mockk<SpeechError> {
                 every { fallback } returns mockk {
                     every { announcement } returns "Turn right on Market"
                 }
-            }))
+            }
+            consumer.accept(ExpectedFactory.createError(error))
         }
         mockSuccessfulVoiceInstructionsPlayer()
 
         val voiceInstructions = mockk<VoiceInstructions> {
             every { announcement() } returns "This message fails"
         }
-        carAppAudioGuidanceVoice.speak(voiceInstructions).collect {
-                speechAnnouncement: SpeechAnnouncement? ->
+        carAppAudioGuidanceVoice.speak(voiceInstructions).collect { speechAnnouncement ->
             assertEquals("Turn right on Market", speechAnnouncement!!.announcement)
         }
     }

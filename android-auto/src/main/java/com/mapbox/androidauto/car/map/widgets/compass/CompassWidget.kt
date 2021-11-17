@@ -40,7 +40,8 @@ class CompassWidget(
         BitmapFactory.decodeResource(
             context.resources,
             R.drawable.mapbox_compass_icon
-        ), widgetPosition, Margin(marginLeft, marginTop, marginRight, marginBottom)
+        ),
+        widgetPosition, Margin(marginLeft, marginTop, marginRight, marginBottom),
     )
 
     /**

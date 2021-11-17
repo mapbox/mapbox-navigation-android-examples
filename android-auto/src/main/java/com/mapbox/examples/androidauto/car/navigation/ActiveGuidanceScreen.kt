@@ -42,6 +42,34 @@ class ActiveGuidanceScreen(
     private val carAudioGuidanceUi = CarAudioGuidanceUi(this)
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
 
+    init {
+        logAndroidAuto("ActiveGuidanceScreen constructor")
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+
+            override fun onResume(owner: LifecycleOwner) {
+                logAndroidAuto("ActiveGuidanceScreen onResume")
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(carLocationRenderer)
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(roadLabelSurfaceLayer)
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(carRouteLine)
+                carRouteProgressObserver.start {
+                    invalidate()
+                }
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                logAndroidAuto("ActiveGuidanceScreen onPause")
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(roadLabelSurfaceLayer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carRouteLine)
+                carRouteProgressObserver.stop()
+            }
+        })
+    }
+
     override fun onGetTemplate(): Template {
         logAndroidAuto("ActiveGuidanceScreen onGetTemplate")
         val builder = NavigationTemplate.Builder()
@@ -77,33 +105,5 @@ class ActiveGuidanceScreen(
         logAndroidAuto("ActiveGuidanceScreen stopNavigation")
         MapboxNavigationProvider.retrieve().setRoutes(emptyList())
         MapboxCarApp.updateCarAppState(FreeDriveState)
-    }
-
-    init {
-        logAndroidAuto("ActiveGuidanceScreen constructor")
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-
-            override fun onResume(owner: LifecycleOwner) {
-                logAndroidAuto("ActiveGuidanceScreen onResume")
-                carActiveGuidanceContext.mapboxCarMap.registerObserver(carLocationRenderer)
-                carActiveGuidanceContext.mapboxCarMap.registerObserver(roadLabelSurfaceLayer)
-                carActiveGuidanceContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
-                carActiveGuidanceContext.mapboxCarMap.registerObserver(carNavigationCamera)
-                carActiveGuidanceContext.mapboxCarMap.registerObserver(carRouteLine)
-                carRouteProgressObserver.start {
-                    invalidate()
-                }
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                logAndroidAuto("ActiveGuidanceScreen onPause")
-                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(roadLabelSurfaceLayer)
-                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
-                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
-                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
-                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carRouteLine)
-                carRouteProgressObserver.stop()
-            }
-        })
     }
 }

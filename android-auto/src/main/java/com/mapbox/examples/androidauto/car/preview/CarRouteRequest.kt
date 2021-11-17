@@ -14,6 +14,11 @@ import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 
 /**
  * This is a view interface. Each callback function represents a view that will be
@@ -34,6 +39,41 @@ class CarRouteRequest(
     private val navigationLocationProvider: NavigationLocationProvider,
 ) {
     internal var currentRequestId: Long? = null
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun requestSync(placeRecord: PlaceRecord): List<DirectionsRoute>? {
+        val routesFlow: Flow<List<DirectionsRoute>?> = callbackFlow {
+            request(
+                placeRecord,
+                object : CarRouteRequestCallback {
+                    override fun onRoutesReady(
+                        placeRecord: PlaceRecord,
+                        routes: List<DirectionsRoute>
+                    ) {
+                        trySend(routes)
+                        close()
+                    }
+
+                    override fun onUnknownCurrentLocation() {
+                        trySend(null)
+                        close()
+                    }
+
+                    override fun onDestinationLocationUnknown() {
+                        trySend(null)
+                        close()
+                    }
+
+                    override fun onNoRoutesFound() {
+                        trySend(null)
+                        close()
+                    }
+                }
+            )
+            awaitClose { cancelRequest() }
+        }
+        return routesFlow.first()
+    }
 
     /**
      * When a search result was selected, request a route.
@@ -63,6 +103,10 @@ class CarRouteRequest(
                 )
             }
         }
+    }
+
+    fun cancelRequest() {
+        currentRequestId?.let { mapboxNavigation.cancelRouteRequest(it) }
     }
 
     /**

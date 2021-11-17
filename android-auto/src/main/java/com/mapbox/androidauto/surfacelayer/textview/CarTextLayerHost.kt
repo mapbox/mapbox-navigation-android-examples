@@ -165,7 +165,7 @@ class CarTextLayerHost : CustomLayerHost {
         gl_Position = mvp_matrix * vec4(aPosition, 0, 1.0);
         vTexCoord = aTexCoord;
       }
-    """.trimIndent()
+        """.trimIndent()
 
         private val FRAGMENT_SHADER_CODE = """
       precision mediump float;
@@ -180,7 +180,13 @@ class CarTextLayerHost : CustomLayerHost {
         vec4 background = uFillColor * (1.0-texture_color.a);
         gl_FragColor = background + texture_color;
       }
-    """.trimIndent()
+        """.trimIndent()
+
+        private val emptyBitmap: Bitmap by lazy {
+            Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888).also {
+                it.eraseColor(Color.TRANSPARENT)
+            }
+        }
 
         private fun loadVertexShader(): Int =
             loadShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
@@ -195,12 +201,6 @@ class CarTextLayerHost : CustomLayerHost {
                 // add the source code to the shader and compile it
                 GLES20.glShaderSource(shader, shaderCode)
                 GLES20.glCompileShader(shader)
-            }
-        }
-
-        private val emptyBitmap: Bitmap by lazy {
-            Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888).also {
-                it.eraseColor(Color.TRANSPARENT)
             }
         }
     }

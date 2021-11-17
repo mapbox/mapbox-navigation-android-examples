@@ -25,8 +25,7 @@ class CarScene2d : CarSurfaceLayer() {
         )
 
         logAndroidAuto(
-            "CarScene2d visibleAreaChanged " +
-                    "visibleArea:$visibleArea: edgeInsets:$edgeInsets"
+            "CarScene2d visibleAreaChanged visibleArea:$visibleArea: edgeInsets:$edgeInsets",
         )
     }
 }

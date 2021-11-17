@@ -32,6 +32,14 @@ class RoadLabelSurfaceLayer(
     private val roadLabelRenderer = RoadLabelRenderer()
     private val carTextLayerHost = CarTextLayerHost()
 
+    private val roadNameObserver = object : RoadNameObserver(mapboxNavigation) {
+
+        override fun onRoadUpdate(currentRoadName: RoadName?) {
+            val bitmap = roadLabelRenderer.render(currentRoadName?.name, roadLabelOptions())
+            carTextLayerHost.offerBitmap(bitmap)
+        }
+    }
+
     override fun children() = listOf(carTextLayerHost.mapScene)
 
     @ExperimentalPreviewMapboxNavigationAPI
@@ -67,16 +75,6 @@ class RoadLabelSurfaceLayer(
         mapboxCarMapSurface?.style?.removeStyleLayer(CAR_NAVIGATION_VIEW_LAYER_ID)
         mapboxNavigation.unregisterEHorizonObserver(roadNameObserver)
         super.detached(mapboxCarMapSurface)
-    }
-
-    private val roadNameObserver = object : RoadNameObserver(mapboxNavigation) {
-        override fun onRoadUpdate(currentRoadName: RoadName?) {
-            val bitmap = roadLabelRenderer.render(
-                currentRoadName?.name,
-                roadLabelOptions()
-            )
-            carTextLayerHost.offerBitmap(bitmap)
-        }
     }
 
     private fun roadLabelOptions(): RoadLabelOptions =

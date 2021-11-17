@@ -1,8 +1,10 @@
 package com.mapbox.androidauto.navigation.audioguidance.impl
 
 import com.mapbox.androidauto.testing.MainCoroutineRule
+import com.mapbox.api.directions.v5.models.VoiceInstructions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.directions.session.RoutesUpdatedResult
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.core.trip.session.TripSessionStateObserver
 import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
@@ -35,14 +37,16 @@ class MapboxVoiceInstructionsTest {
             )
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
-            firstArg<RoutesObserver>().onRoutesChanged(mockk {
+            val result = mockk<RoutesUpdatedResult> {
                 every { routes } returns listOf(mockk(), mockk())
-            })
+            }
+            firstArg<RoutesObserver>().onRoutesChanged(result)
         }
         every { mapboxNavigation.registerVoiceInstructionsObserver(any()) } answers {
-            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(mockk {
+            val voiceInstructions = mockk<VoiceInstructions> {
                 every { announcement() } returns "Left on Broadway"
-            })
+            }
+            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(voiceInstructions)
         }
 
         val state = carAppVoiceInstructions.voiceInstructions().take(2).toList()
@@ -59,17 +63,20 @@ class MapboxVoiceInstructionsTest {
             )
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
-            firstArg<RoutesObserver>().onRoutesChanged(mockk {
+            val result = mockk<RoutesUpdatedResult> {
                 every { routes } returns listOf(mockk(), mockk())
-            })
+            }
+            firstArg<RoutesObserver>().onRoutesChanged(result)
         }
         every { mapboxNavigation.registerVoiceInstructionsObserver(any()) } answers {
-            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(mockk {
+            val firstVoiceInstructions = mockk<VoiceInstructions> {
                 every { announcement() } returns "Left on Broadway"
-            })
-            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(mockk {
+            }
+            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(firstVoiceInstructions)
+            val secondVoiceInstructions = mockk<VoiceInstructions> {
                 every { announcement() } returns "Right on Pennsylvania"
-            })
+            }
+            firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(secondVoiceInstructions)
         }
 
         val voiceInstruction = carAppVoiceInstructions.voiceInstructions().take(3).toList()
@@ -87,9 +94,10 @@ class MapboxVoiceInstructionsTest {
             )
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
-            firstArg<RoutesObserver>().onRoutesChanged(mockk {
+            val result = mockk<RoutesUpdatedResult> {
                 every { routes } returns emptyList()
-            })
+            }
+            firstArg<RoutesObserver>().onRoutesChanged(result)
         }
 
         val state = carAppVoiceInstructions.voiceInstructions().first()

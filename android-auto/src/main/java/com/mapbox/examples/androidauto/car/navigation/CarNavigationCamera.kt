@@ -35,6 +35,49 @@ class CarNavigationCamera(
 
     private var isLocationInitialized = false
 
+    private val locationObserver = object : LocationObserver {
+
+        override fun onNewRawLocation(rawLocation: Location) {
+            // not handled
+        }
+
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            // Initialize the camera at the current location. The next location will
+            // transition into the following or overview mode.
+            viewportDataSource.onLocationChanged(locationMatcherResult.enhancedLocation)
+            viewportDataSource.evaluate()
+            if (!isLocationInitialized) {
+                isLocationInitialized = true
+                val instantTransition = NavigationCameraTransitionOptions.Builder()
+                    .maxDuration(0)
+                    .build()
+                when (cameraMode) {
+                    CameraMode.IDLE -> navigationCamera.requestNavigationCameraToIdle()
+                    CameraMode.FOLLOWING -> navigationCamera.requestNavigationCameraToFollowing(
+                        stateTransitionOptions = instantTransition,
+                    )
+                    CameraMode.OVERVIEW -> navigationCamera.requestNavigationCameraToOverview(
+                        stateTransitionOptions = instantTransition,
+                    )
+                }
+            }
+        }
+    }
+
+    private val routeObserver = RoutesObserver { result ->
+        if (result.routes.isEmpty()) {
+            viewportDataSource.clearRouteData()
+        } else {
+            viewportDataSource.onRouteChanged(result.routes.first())
+        }
+        viewportDataSource.evaluate()
+    }
+
+    private val routeProgressObserver = RouteProgressObserver { routeProgress ->
+        viewportDataSource.onRouteProgressChanged(routeProgress)
+        viewportDataSource.evaluate()
+    }
+
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         super.loaded(mapboxCarMapSurface)
         this.mapboxCarMapSurface = mapboxCarMapSurface
@@ -88,49 +131,6 @@ class CarNavigationCamera(
         mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
         this.mapboxCarMapSurface = null
         isLocationInitialized = false
-    }
-
-    private val locationObserver = object : LocationObserver {
-        override fun onNewRawLocation(rawLocation: Location) {
-            // not handled
-        }
-
-        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            // Initialize the camera at the current location. The next location will
-            // transition into the following or overview mode.
-            viewportDataSource.onLocationChanged(locationMatcherResult.enhancedLocation)
-            viewportDataSource.evaluate()
-            if (!isLocationInitialized) {
-                isLocationInitialized = true
-                val instantTransition = NavigationCameraTransitionOptions.Builder()
-                    .maxDuration(0)
-                    .build()
-                when (cameraMode) {
-                    CameraMode.IDLE -> navigationCamera.requestNavigationCameraToIdle()
-                    CameraMode.FOLLOWING -> navigationCamera.requestNavigationCameraToFollowing(
-                        stateTransitionOptions = instantTransition
-                    )
-                    CameraMode.OVERVIEW -> navigationCamera
-                        .requestNavigationCameraToOverview(
-                            stateTransitionOptions = instantTransition
-                        )
-                }
-            }
-        }
-    }
-
-    private val routeObserver = RoutesObserver { result ->
-        if (result.routes.isEmpty()) {
-            viewportDataSource.clearRouteData()
-        } else {
-            viewportDataSource.onRouteChanged(result.routes.first())
-        }
-        viewportDataSource.evaluate()
-    }
-
-    private val routeProgressObserver = RouteProgressObserver { routeProgress ->
-        viewportDataSource.onRouteProgressChanged(routeProgress)
-        viewportDataSource.evaluate()
     }
 
     enum class CameraMode {

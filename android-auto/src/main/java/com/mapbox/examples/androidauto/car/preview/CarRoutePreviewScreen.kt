@@ -13,14 +13,14 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.MapboxCarApp
+import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainActionStrip
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
-import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
+import com.mapbox.examples.androidauto.car.search.PlaceRecord
 
 /**
  * After a destination has been selected. This view previews the route and lets
@@ -40,6 +40,38 @@ class CarRoutePreviewScreen(
         routePreviewCarContext.mapboxNavigation,
         CarNavigationCamera.CameraMode.OVERVIEW
     )
+
+    private val backPressCallback = object : OnBackPressedCallback(true) {
+
+        override fun handleOnBackPressed() {
+            logAndroidAuto("CarRoutePreviewScreen OnBackPressedCallback")
+            routePreviewCarContext.mapboxNavigation.setRoutes(listOf())
+            screenManager.pop()
+        }
+    }
+
+    init {
+        logAndroidAuto("CarRoutePreviewScreen constructor")
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                logAndroidAuto("CarRoutePreviewScreen onResume")
+                routePreviewCarContext.carContext.onBackPressedDispatcher.addCallback(backPressCallback)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
+                routePreviewCarContext.mapboxCarMap.registerObserver(carRouteLine)
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                logAndroidAuto("CarRoutePreviewScreen onPause")
+                backPressCallback.remove()
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(carRouteLine)
+            }
+        })
+    }
 
     override fun onGetTemplate(): Template {
         val listBuilder = ItemList.Builder()
@@ -90,38 +122,8 @@ class CarRoutePreviewScreen(
                     .setOnClickListener {
                         MapboxCarApp.updateCarAppState(ActiveGuidanceState)
                     }
-                    .build())
+                    .build(),
+            )
             .build()
-    }
-
-    private val backPressCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            logAndroidAuto("CarRoutePreviewScreen OnBackPressedCallback")
-            routePreviewCarContext.mapboxNavigation.setRoutes(listOf())
-            screenManager.pop()
-        }
-    }
-
-    init {
-        logAndroidAuto("CarRoutePreviewScreen constructor")
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onResume(owner: LifecycleOwner) {
-                logAndroidAuto("CarRoutePreviewScreen onResume")
-                routePreviewCarContext.carContext.onBackPressedDispatcher.addCallback(backPressCallback)
-                routePreviewCarContext.mapboxCarMap.registerObserver(carLocationRenderer)
-                routePreviewCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
-                routePreviewCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
-                routePreviewCarContext.mapboxCarMap.registerObserver(carRouteLine)
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                logAndroidAuto("CarRoutePreviewScreen onPause")
-                backPressCallback.remove()
-                routePreviewCarContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
-                routePreviewCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
-                routePreviewCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
-                routePreviewCarContext.mapboxCarMap.unregisterObserver(carRouteLine)
-            }
-        })
     }
 }

@@ -1,5 +1,7 @@
 package com.mapbox.androidauto.search
 
+import com.mapbox.androidauto.testing.FileUtils
+import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import com.mapbox.examples.androidauto.car.search.PlaceRecordMapper
 import com.mapbox.geojson.Point
 import com.mapbox.search.record.FavoriteRecord
@@ -40,5 +42,20 @@ class PlaceRecordMapperTest {
         assertEquals(37.80561066, placeRecord.coordinate?.latitude()!!, 0.000001)
         assertEquals("1389 Jefferson Street", placeRecord.description)
         assertTrue(placeRecord.categories.isEmpty())
+    }
+
+    @Test
+    fun `should map geocodingResponse's CarmenFeature to placeRecord`() {
+        val json = FileUtils.loadJsonFixture("carmen_feature_oakland_coffee.json")
+        val carmenFeature = CarmenFeature.fromJson(json)
+
+        val placeRecord = PlaceRecordMapper.fromCarmenFeature(carmenFeature)
+
+        assertEquals(placeRecord.id, "poi.773094129083")
+        assertEquals(placeRecord.name, "Starbucks")
+        assertEquals(placeRecord.coordinate?.latitude(), 37.800456)
+        assertEquals(placeRecord.coordinate?.longitude(), -122.273904)
+        assertEquals(placeRecord.description, "Starbucks, 801 Broadway, Oakland, California 94607, United States")
+        assertEquals(placeRecord.categories, listOf("poi"))
     }
 }

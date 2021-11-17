@@ -41,7 +41,8 @@ class LogoWidget(
             BitmapFactory.decodeResource(
                 context.resources,
                 R.drawable.mapbox_logo_icon
-            ), widgetPosition, Margin(marginLeft, marginTop, marginRight, marginBottom)
+            ),
+            widgetPosition, Margin(marginLeft, marginTop, marginRight, marginBottom),
         )
     }
 

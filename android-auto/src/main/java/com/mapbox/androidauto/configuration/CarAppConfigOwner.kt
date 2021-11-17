@@ -20,6 +20,17 @@ class CarAppConfigOwner internal constructor() {
 
     private lateinit var carAppConfigLiveData: MutableStateFlow<Configuration>
 
+    private val componentCallbacks = object : ComponentCallbacks {
+
+        override fun onConfigurationChanged(newConfig: Configuration) {
+            carAppConfigLiveData.value = newConfig
+        }
+
+        override fun onLowMemory() {
+            // noop
+        }
+    }
+
     internal fun setup(application: Application) {
         carAppConfigLiveData = MutableStateFlow(application.resources.configuration)
         application.registerComponentCallbacks(componentCallbacks)
@@ -38,17 +49,6 @@ class CarAppConfigOwner internal constructor() {
             configuration.locales.get(0)
         } else {
             configuration.locale
-        }
-    }
-
-    private val componentCallbacks = object : ComponentCallbacks {
-
-        override fun onConfigurationChanged(newConfig: Configuration) {
-            carAppConfigLiveData.value = newConfig
-        }
-
-        override fun onLowMemory() {
-            // noop
         }
     }
 }
