@@ -24,6 +24,21 @@ class CarSearchEngine(
     private val searchResults = CopyOnWriteArrayList<SearchSuggestion>()
     private var searchSuggestionsCallback: (List<SearchSuggestion>) -> Unit = { }
 
+    private val searchCallback = object : SearchSuggestionsCallback {
+
+        override fun onSuggestions(suggestions: List<SearchSuggestion>, responseInfo: ResponseInfo) {
+            logAndroidAuto("carLocationProvider result ${searchResults.size}")
+            searchResults.clear()
+            searchResults.addAll(suggestions)
+            searchSuggestionsCallback.invoke(searchResults)
+        }
+
+        override fun onError(e: Exception) {
+            logAndroidAuto("carLocationProvider error ${e.message}")
+            searchSuggestionsCallback.invoke(searchResults)
+        }
+    }
+
     /**
      * Search for suggestions.
      */
@@ -44,30 +59,13 @@ class CarSearchEngine(
         searchEngine.search(query, options, searchCallback)
     }
 
-    private val searchCallback = object : SearchSuggestionsCallback {
-        override fun onSuggestions(
-            suggestions: List<SearchSuggestion>,
-            responseInfo: ResponseInfo
-        ) {
-            logAndroidAuto("carLocationProvider result ${searchResults.size}")
-            searchResults.clear()
-            searchResults.addAll(suggestions)
-            searchSuggestionsCallback.invoke(searchResults)
-        }
-
-        override fun onError(e: Exception) {
-            logAndroidAuto("carLocationProvider error ${e.message}")
-            searchSuggestionsCallback.invoke(searchResults)
-        }
-    }
-
     /**
      * Given a [SearchSuggestion], request for [SearchResult]s.
      *
      * @param selection
      */
     fun select(selection: SearchSuggestion, callback: (List<SearchResult>) -> Unit) {
-        searchEngine.select(selection, object : SearchSelectionCallback {
+        val selectionCallback = object : SearchSelectionCallback {
             override fun onCategoryResult(
                 suggestion: SearchSuggestion,
                 results: List<SearchResult>,
@@ -96,14 +94,17 @@ class CarSearchEngine(
                 suggestions: List<SearchSuggestion>,
                 responseInfo: ResponseInfo
             ) {
-                logAndroidAutoFailure("""
+                logAndroidAutoFailure(
+                    """
                     Why are there search suggestions coming from a selection
                     suggestions: $suggestions
                     responseInfo: $responseInfo
-                """.trimIndent())
+                    """.trimIndent(),
+                )
                 error("Why are there search suggestions coming from a selection")
             }
-        })
+        }
+        searchEngine.select(selection, selectionCallback)
     }
 
     private companion object {

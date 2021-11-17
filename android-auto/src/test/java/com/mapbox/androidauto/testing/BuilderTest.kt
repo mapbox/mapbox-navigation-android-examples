@@ -116,16 +116,6 @@ abstract class BuilderTest<Implementation : Any, Builder> {
 
     private val implClass: KClass<*> by lazy { getImplementationClass() }
 
-    /**
-     * Your builder's resulting type.
-     */
-    abstract fun getImplementationClass(): KClass<Implementation>
-
-    /**
-     * Make sure that all of the required and optional values are provided and that they distinct from default ones.
-     */
-    abstract fun getFilledUpBuilder(): Builder
-
     private val toBuilderMethod = implClass.members.find { it.name == "toBuilder" } as? KFunction
         ?: throw RuntimeException("missing toBuilder method")
 
@@ -137,6 +127,16 @@ abstract class BuilderTest<Implementation : Any, Builder> {
         builderClass.members.filter { it is KProperty && it is KMutableProperty }.map { it.name }
     private val buildMethod = builderClass.members.find { it.name == "build" } as? KFunction
         ?: throw RuntimeException("missing Builder.build method")
+
+    /**
+     * Your builder's resulting type.
+     */
+    abstract fun getImplementationClass(): KClass<Implementation>
+
+    /**
+     * Make sure that all of the required and optional values are provided and that they distinct from default ones.
+     */
+    abstract fun getFilledUpBuilder(): Builder
 
     /**
      * This method needs to be overridden and HAS TO explicitly add the @Test annotation in the child.
@@ -258,7 +258,7 @@ abstract class BuilderTest<Implementation : Any, Builder> {
         val requiredFields =
             builderClass.members.filter { it is KProperty && it !is KMutableProperty } as List<KProperty<*>>
         val requiredFieldValues = mutableListOf<Pair<KProperty<*>, Any>>()
-        requiredFields.forEachIndexed { index, kProperty ->
+        for (kProperty in requiredFields) {
             kProperty.isAccessible = true
             requiredFieldValues.add(Pair(kProperty, kProperty.getter.call(builderInstance)!!))
         }
@@ -286,8 +286,10 @@ abstract class BuilderTest<Implementation : Any, Builder> {
                 // so this function sorts the argument values to be provided in an order that matches the constructor declaration
                 sortedRequiredFieldValues.add(
                     requiredFieldValues.find { it.first.name == constructorParam.name }?.second
-                        ?: throw NullPointerException("Your builder constructor argument name probably doesn't match with the field name it's assigned to. " +
-                            "Constructor param name is \"${constructorParam.name}\".")
+                        ?: throw NullPointerException(
+                            "Your builder constructor argument name probably doesn't match with the field name it's assigned to. " +
+                                "Constructor param name is \"${constructorParam.name}\".",
+                        )
                 )
             }
             @SuppressWarnings("SpreadOperator")
@@ -299,9 +301,9 @@ abstract class BuilderTest<Implementation : Any, Builder> {
                 throw RuntimeException("Make sure getFilledUpBuilder() provides a unique value for \"${field.name}\". It should not equal \"$defaultValue\".")
             }
             optionalFieldValues.filter { it != exclude }.forEach { fieldValue ->
-                (builderClass.members.find { it is KFunction && it.name == fieldValue.first.name }
-                    ?: throw RuntimeException("Make sure the \"${fieldValue.first.name}\" field name has a function with identical name."))
-                    .call(newBuilderInstance, fieldValue.second)
+                val function = builderClass.members.find { it is KFunction && it.name == fieldValue.first.name }
+                    ?: throw RuntimeException("Make sure the \"${fieldValue.first.name}\" field name has a function with identical name.")
+                function.call(newBuilderInstance, fieldValue.second)
             }
 
             val newImplInstance1 = buildMethod.call(newBuilderInstance)!!

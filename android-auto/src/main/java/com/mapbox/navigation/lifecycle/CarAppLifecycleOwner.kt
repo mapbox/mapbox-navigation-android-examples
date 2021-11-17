@@ -1,17 +1,16 @@
-package com.mapbox.androidauto.lifecycle
+package com.mapbox.navigation.lifecycle
 
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
-import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.mapbox.androidauto.logAndroidAuto
 
-class CarAppLifecycleOwner internal constructor() : LifecycleOwner {
+internal class CarAppLifecycleOwner : LifecycleOwner {
 
     // Keeps track of the activities created and foregrounded
     private var activitiesCreated = 0
@@ -27,16 +26,6 @@ class CarAppLifecycleOwner internal constructor() : LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
         .apply { currentState = Lifecycle.State.INITIALIZED }
-
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
-
-    internal fun setup(application: Application) {
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
-    }
-
-    internal fun setupCar(session: Session) {
-        session.lifecycle.addObserver(carLifecycleObserver)
-    }
 
     @VisibleForTesting
     internal val carLifecycleObserver = object : DefaultLifecycleObserver {
@@ -153,5 +142,15 @@ class CarAppLifecycleOwner internal constructor() : LifecycleOwner {
                 }
             }
         }
+    }
+
+    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+
+    internal fun setup(application: Application) {
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+    }
+
+    internal fun setupCar(carLifecycle: Lifecycle) {
+        carLifecycle.addObserver(carLifecycleObserver)
     }
 }

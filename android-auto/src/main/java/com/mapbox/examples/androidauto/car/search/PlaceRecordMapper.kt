@@ -1,5 +1,6 @@
 package com.mapbox.examples.androidauto.car.search
 
+import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import com.mapbox.navigation.utils.internal.ifNonNull
 import com.mapbox.search.record.FavoriteRecord
 import com.mapbox.search.result.SearchAddress
@@ -32,4 +33,14 @@ object PlaceRecordMapper {
         ifNonNull(address?.houseNumber, address?.street) { houseNumber, street ->
             "$houseNumber $street"
         }
+
+    fun fromCarmenFeature(carmenFeature: CarmenFeature): PlaceRecord {
+        return PlaceRecord(
+            id = carmenFeature.id() ?: "",
+            name = carmenFeature.text() ?: "",
+            coordinate = carmenFeature.center(),
+            description = carmenFeature.placeName(),
+            categories = carmenFeature.placeType() ?: emptyList()
+        )
+    }
 }

@@ -62,11 +62,11 @@ class SpeedLimitWidget(
     )
 
     fun update(expected: Expected<UpdateSpeedLimitError, UpdateSpeedLimitValue>) {
-        logAndroidAuto("SpeedLimitWidget update ${expected.isValue}")
         expected.value?.let {
             Logger.d(TAG, "${it.speedKPH}")
             Logger.d(TAG, it.speedLimitFormatter.format(it))
             if (lastSpeedLimitValue?.speedKPH == it.speedKPH) return
+            logAndroidAuto("SpeedLimitWidget update ${expected.isValue}")
             lastSpeedLimitValue = it
             viewWidgetHost.updateBitmap(
                 when (it.signFormat) {
@@ -168,7 +168,7 @@ class SpeedLimitWidget(
             lines.first(),
             width / 2f,
             height * SPEED_SIGN_BORDER_RATIO_MUTCD * SPEED_SIGN_PADDING_BORDER_RATIO_MUTCD -
-                    (textPaint.ascent() + textPaint.descent()),
+                (textPaint.ascent() + textPaint.descent()),
             textPaint
         )
         textPaint.textSize = textSize * 2f

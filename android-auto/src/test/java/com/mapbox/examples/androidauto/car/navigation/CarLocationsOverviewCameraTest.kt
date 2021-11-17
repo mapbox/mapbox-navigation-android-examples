@@ -36,7 +36,7 @@ class CarLocationsOverviewCameraTest : MapboxRobolectricTestRunner() {
 
         camera.loaded(mapboxCarMapSurface)
 
-        verify { mapboxMap.setCamera(any< CameraOptions>()) }
+        verify { mapboxMap.setCamera(any<CameraOptions>()) }
         verify { mapboxNavigation.registerLocationObserver(any()) }
         assertNotNull(camera.viewportDataSource)
         assertNotNull(camera.navigationCamera)

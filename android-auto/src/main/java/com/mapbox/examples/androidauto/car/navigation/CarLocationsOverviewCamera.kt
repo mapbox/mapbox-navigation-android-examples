@@ -33,6 +33,29 @@ class CarLocationsOverviewCamera(
         private set
     private var latestLocation: Location? = null
 
+    private val locationObserver = object : LocationObserver {
+
+        override fun onNewRawLocation(rawLocation: Location) {
+            // not handled
+        }
+
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            // Initialize the camera at the current location. The next location will
+            // transition into the overview mode.
+            latestLocation = locationMatcherResult.enhancedLocation
+            viewportDataSource.onLocationChanged(locationMatcherResult.enhancedLocation)
+            viewportDataSource.evaluate()
+            if (!isLocationInitialized) {
+                isLocationInitialized = true
+                val instantTransition = NavigationCameraTransitionOptions.Builder()
+                    .maxDuration(0)
+                    .build()
+
+                navigationCamera.requestNavigationCameraToOverview(stateTransitionOptions = instantTransition)
+            }
+        }
+    }
+
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         super.loaded(mapboxCarMapSurface)
         this.mapboxCarMapSurface = mapboxCarMapSurface
@@ -82,30 +105,6 @@ class CarLocationsOverviewCamera(
             viewportDataSource.additionalPointsToFrameForOverview(points)
             viewportDataSource.clearRouteData()
             viewportDataSource.evaluate()
-        }
-    }
-
-    private val locationObserver = object : LocationObserver {
-        override fun onNewRawLocation(rawLocation: Location) {
-            // not handled
-        }
-
-        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            // Initialize the camera at the current location. The next location will
-            // transition into the overview mode.
-            latestLocation = locationMatcherResult.enhancedLocation
-            viewportDataSource.onLocationChanged(locationMatcherResult.enhancedLocation)
-            viewportDataSource.evaluate()
-            if (!isLocationInitialized) {
-                isLocationInitialized = true
-                val instantTransition = NavigationCameraTransitionOptions.Builder()
-                    .maxDuration(0)
-                    .build()
-
-                navigationCamera.requestNavigationCameraToOverview(
-                    stateTransitionOptions = instantTransition
-                )
-            }
         }
     }
 

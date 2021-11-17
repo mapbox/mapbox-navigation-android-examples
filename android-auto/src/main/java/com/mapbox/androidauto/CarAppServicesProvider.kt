@@ -1,10 +1,11 @@
 package com.mapbox.androidauto
 
+import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidance
 import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceImpl
 import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceServicesImpl
-import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidance
 import com.mapbox.androidauto.navigation.location.CarAppLocation
 import com.mapbox.androidauto.navigation.location.impl.CarAppLocationImpl
+import com.mapbox.navigation.lifecycle.MapboxNavigationApp
 
 /**
  * The Mapbox services available from android auto for maps, search, and navigation.
@@ -22,7 +23,7 @@ class CarAppServicesProviderImpl : CarAppServicesProvider {
             MapboxAudioGuidanceServicesImpl(),
             MapboxCarApp.carAppDataStore,
             MapboxCarApp.carAppConfig
-        ).also { it.setup(MapboxCarApp.carAppLifecycleOwner) }
+        ).also { it.setup(MapboxNavigationApp.lifecycleOwner) }
     }
     private val location: CarAppLocation by lazy { CarAppLocationImpl() }
 

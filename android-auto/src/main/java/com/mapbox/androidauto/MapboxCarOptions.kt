@@ -61,10 +61,10 @@ class MapboxCarOptions private constructor(
      */
     override fun toString(): String {
         return "MapboxCarOptions(mapInitOptions='$mapInitOptions'," +
-                " mapDayStyle='$mapDayStyle'," +
-                " mapNightStyle=$mapNightStyle," +
-                " replayEnabled=$replayEnabled" +
-                ")"
+            " mapDayStyle='$mapDayStyle'," +
+            " mapNightStyle=$mapNightStyle," +
+            " replayEnabled=$replayEnabled" +
+            ")"
     }
 
     /**

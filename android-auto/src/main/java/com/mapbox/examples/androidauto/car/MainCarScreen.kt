@@ -7,9 +7,9 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
+import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 
@@ -32,16 +32,6 @@ class MainCarScreen(
         mainCarContext.mapboxNavigation
     )
 
-    override fun onGetTemplate(): Template {
-        return NavigationTemplate.Builder()
-            .setBackgroundColor(CarColor.PRIMARY)
-            .setActionStrip(
-                MainActionStrip(mainCarContext).builder()
-                    .build()
-            )
-            .build()
-    }
-
     init {
         logAndroidAuto("MainCarScreen constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -63,5 +53,12 @@ class MainCarScreen(
                 mainCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
             }
         })
+    }
+
+    override fun onGetTemplate(): Template {
+        return NavigationTemplate.Builder()
+            .setBackgroundColor(CarColor.PRIMARY)
+            .setActionStrip(MainActionStrip(mainCarContext).builder().build())
+            .build()
     }
 }

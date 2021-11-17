@@ -15,10 +15,6 @@ import kotlinx.coroutines.flow.onEach
 
 class TestMapboxAudioGuidanceServices {
 
-    fun emitVoiceInstruction(state: MapboxVoiceInstructions.State) {
-        voiceInstructionsFlow.tryEmit(state)
-    }
-
     private val voiceInstructionsFlow = MutableStateFlow<MapboxVoiceInstructions.State>(
         MapboxVoiceInstructionsState()
     )
@@ -50,6 +46,10 @@ class TestMapboxAudioGuidanceServices {
         every {
             mapboxAudioGuidanceVoice(any())
         } returns mapboxAudioGuidanceVoice
+    }
+
+    fun emitVoiceInstruction(state: MapboxVoiceInstructions.State) {
+        voiceInstructionsFlow.tryEmit(state)
     }
 
     companion object {

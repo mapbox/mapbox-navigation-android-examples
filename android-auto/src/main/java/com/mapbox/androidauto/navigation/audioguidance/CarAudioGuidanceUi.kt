@@ -28,8 +28,7 @@ class CarAudioGuidanceUi(val screen: Screen) {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     MapboxCarApp.carAppServices.audioGuidance().stateFlow()
                         .distinctUntilChanged { old, new ->
-                            old.isMuted != new.isMuted ||
-                                    old.isPlayable != new.isPlayable
+                            old.isMuted != new.isMuted || old.isPlayable != new.isPlayable
                         }
                         .collect { screen.invalidate() }
                 }

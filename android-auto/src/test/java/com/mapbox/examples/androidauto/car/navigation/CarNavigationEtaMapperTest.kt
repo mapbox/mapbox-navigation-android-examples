@@ -28,7 +28,7 @@ class CarNavigationEtaMapperTest {
 
         val result = mapper.from(routeProgress)
 
-        assertEquals(45.0, result!!.remainingDistance!!.displayDistance, 0.0)
+        assertEquals(50.0, result!!.remainingDistance!!.displayDistance, 0.0)
         assertEquals(154000, result.remainingTimeSeconds)
     }
 }

@@ -27,6 +27,27 @@ class SearchScreen(
     @VisibleForTesting
     var itemList = buildErrorItemList(R.string.car_search_no_results)
 
+    private val carRouteRequestCallback = object : CarRouteRequestCallback {
+
+        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
+            val routePreviewCarContext = RoutePreviewCarContext(searchCarContext.mainCarContext)
+
+            screenManager.push(CarRoutePreviewScreen(routePreviewCarContext, placeRecord, routes))
+        }
+
+        override fun onUnknownCurrentLocation() {
+            onErrorItemList(R.string.car_search_unknown_current_location)
+        }
+
+        override fun onDestinationLocationUnknown() {
+            onErrorItemList(R.string.car_search_unknown_search_location)
+        }
+
+        override fun onNoRoutesFound() {
+            onErrorItemList(R.string.car_search_no_results)
+        }
+    }
+
     override fun onGetTemplate(): Template {
         return SearchTemplate.Builder(
             object : SearchTemplate.SearchCallback {
@@ -60,10 +81,10 @@ class SearchScreen(
     }
 
     private fun searchItemRow(suggestion: SearchSuggestion) = Row.Builder()
-            .setTitle(suggestion.name)
-            .addText(formatDistance(suggestion))
-            .setOnClickListener { onClickSearch(suggestion) }
-            .build()
+        .setTitle(suggestion.name)
+        .addText(formatDistance(suggestion))
+        .setOnClickListener { onClickSearch(suggestion) }
+        .build()
 
     private fun formatDistance(searchSuggestion: SearchSuggestion): CharSequence {
         val distanceMeters = searchSuggestion.distanceMeters ?: return ""
@@ -83,36 +104,14 @@ class SearchScreen(
         }
     }
 
-    private val carRouteRequestCallback = object : CarRouteRequestCallback {
-        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
-            val routePreviewCarContext = RoutePreviewCarContext(searchCarContext.mainCarContext)
-
-            screenManager.push(
-                CarRoutePreviewScreen(routePreviewCarContext, placeRecord, routes)
-            )
-        }
-
-        override fun onUnknownCurrentLocation() {
-            onErrorItemList(R.string.car_search_unknown_current_location)
-        }
-
-        override fun onDestinationLocationUnknown() {
-            onErrorItemList(R.string.car_search_unknown_search_location)
-        }
-
-        override fun onNoRoutesFound() {
-            onErrorItemList(R.string.car_search_no_results)
-        }
-    }
-
     private fun onErrorItemList(@StringRes stringRes: Int) {
         itemList = buildErrorItemList(stringRes)
         invalidate()
     }
 
     private fun buildErrorItemList(@StringRes stringRes: Int) = ItemList.Builder()
-            .setNoItemsMessage(carContext.getString(stringRes))
-            .build()
+        .setNoItemsMessage(carContext.getString(stringRes))
+        .build()
 
     companion object {
         // TODO turn this into something typesafe

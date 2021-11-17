@@ -30,8 +30,7 @@ class CarManeuverIconRenderer(
         ).onError {
             logAndroidAutoFailure("CarManeuverIconRenderer renderManeuverIcon error ${it.errorMessage}")
         }.value
-        return ifNonNull(maneuverTurnIcon?.icon, maneuverTurnIcon?.shouldFlipIcon) {
-                turnIconRes, shouldFlip ->
+        return ifNonNull(maneuverTurnIcon?.icon, maneuverTurnIcon?.shouldFlipIcon) { turnIconRes, shouldFlip ->
             CarIcon.Builder(
                 IconCompat.createWithBitmap(renderBitmap(turnIconRes, shouldFlip))
             ).build()

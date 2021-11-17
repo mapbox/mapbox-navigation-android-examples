@@ -31,8 +31,9 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
     suspend fun getFavorites(): Expected<GetPlacesError, List<FavoriteRecord>> {
         getAllTask?.cancel()
         return suspendCoroutine { continuation ->
-            getAllTask = favoritesProvider.getAll(object :
-                CompletionCallback<List<FavoriteRecord>> {
+            getAllTask = favoritesProvider.getAll(
+                object : CompletionCallback<List<FavoriteRecord>> {
+
                     override fun onComplete(result: List<FavoriteRecord>) {
                         continuation.resume(ExpectedFactory.createValue(result))
                     }
@@ -44,7 +45,8 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
                             )
                         )
                     }
-            })
+                },
+            )
         }
     }
 
@@ -65,9 +67,10 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
                             )
                         )
                     }
-                })
-            }
+                },
+            )
         }
+    }
 
     suspend fun removeFavorite(favoriteId: String): Expected<GetPlacesError, Boolean> {
         removeFavoriteTask?.cancel()
@@ -86,9 +89,10 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
                             )
                         )
                     }
-                })
-            }
+                },
+            )
         }
+    }
 
     private fun cancelRequests() {
         getAllTask?.cancel()

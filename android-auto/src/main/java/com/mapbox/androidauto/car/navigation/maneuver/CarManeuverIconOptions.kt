@@ -56,10 +56,10 @@ class CarManeuverIconOptions private constructor(
      */
     override fun toString(): String {
         return "CarManeuverIconOptions(" +
-                "context=$context, " +
-                "background=$background, " +
-                "styleRes=$styleRes" +
-                ")"
+            "context=$context, " +
+            "background=$background, " +
+            "styleRes=$styleRes" +
+            ")"
     }
 
     /**
@@ -72,6 +72,7 @@ class CarManeuverIconOptions private constructor(
     ) {
         @ColorInt
         private var background: Int? = null
+
         @StyleRes
         private var styleRes: Int? = null
 

@@ -34,8 +34,7 @@ class PlacesListItemMapper(
         places.filter { it.coordinate != null }.forEach { placeRecord ->
             val distanceUnits = getDistanceUnits(unitType)
             val distance: Double = TurfMeasurement.distance(
-                Point.fromLngLat(anchorLocation.longitude,
-                    anchorLocation.latitude),
+                Point.fromLngLat(anchorLocation.longitude, anchorLocation.latitude),
                 placeRecord.coordinate!!,
                 distanceUnits.second
             )

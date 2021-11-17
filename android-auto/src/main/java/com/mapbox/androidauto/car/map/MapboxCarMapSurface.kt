@@ -18,9 +18,9 @@ class MapboxCarMapSurface internal constructor(
 ) {
     override fun toString(): String {
         return "MapboxCarMapSurface(carContext=$carContext," +
-                " mapSurface=$mapSurface," +
-                " surfaceContainer=$surfaceContainer," +
-                " style=$style" +
-                ")"
+            " mapSurface=$mapSurface," +
+            " surfaceContainer=$surfaceContainer," +
+            " style=$style" +
+            ")"
     }
 }

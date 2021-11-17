@@ -19,15 +19,16 @@ class CarSettingsScreen(
     private val carSettingsStorage = settingsCarContext.carSettingsStorage
 
     override fun onGetTemplate(): Template {
-        val templateBuilder = ListTemplate.Builder()
-            .setSingleList(ItemList.Builder()
+        val templateBuilder = ListTemplate.Builder().setSingleList(
+            ItemList.Builder()
                 .addItem(
                     buildRowToggle(
                         R.string.car_settings_toggle_place_holder,
                         R.string.car_settings_toggle_place_holder_key
                     )
                 )
-                .build())
+                .build(),
+        )
         return templateBuilder
             .setHeaderAction(Action.BACK)
             .setTitle(carContext.getString(R.string.car_settings_title))

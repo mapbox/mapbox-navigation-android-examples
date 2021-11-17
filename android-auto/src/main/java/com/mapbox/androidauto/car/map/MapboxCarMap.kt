@@ -47,7 +47,7 @@ class MapboxCarMap internal constructor(
         carMapSurfaceSession.unregisterObserver(mapboxCarMapObserver)
     }
 
-    fun clearListeners() {
+    fun clearObservers() {
         carMapSurfaceSession.clearObservers()
     }
 

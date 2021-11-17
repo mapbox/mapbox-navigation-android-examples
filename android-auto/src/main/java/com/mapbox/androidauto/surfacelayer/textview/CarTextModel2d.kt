@@ -54,18 +54,24 @@ class CarTextModel2d : CarSurfaceLayer() {
         val scaleX = bitmap.width / width.toFloat()
         val scaleY = bitmap.height / height.toFloat()
 
-        Matrix.translateM(modelMatrix, 0,
+        Matrix.translateM(
+            modelMatrix, 0,
             translateX.toFloat(),
             translateY.toFloat(),
-            0.0f)
-        Matrix.translateM(modelMatrix, 0,
+            0.0f,
+        )
+        Matrix.translateM(
+            modelMatrix, 0,
             (width / 2.0f).toFloat() - bitmap.width / 2.0f,
             height.toFloat() - bitmap.height,
-            0.0f)
-        Matrix.scaleM(modelMatrix, 0,
+            0.0f,
+        )
+        Matrix.scaleM(
+            modelMatrix, 0,
             width.toFloat() * scaleX,
             height.toFloat() * scaleY,
-            1.0f)
+            1.0f,
+        )
     }
 
     private companion object {

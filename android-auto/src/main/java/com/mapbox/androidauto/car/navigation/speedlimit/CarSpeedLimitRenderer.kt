@@ -29,6 +29,18 @@ class CarSpeedLimitRenderer(
         MapboxSpeedLimitApi(speedLimitFormatter)
     }
 
+    private val locationObserver = object : LocationObserver {
+
+        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            val value = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
+            speedLimitWidget.update(value)
+        }
+
+        override fun onNewRawLocation(rawLocation: Location) {
+            // no op
+        }
+    }
+
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarSpeedLimitRenderer carMapSurface loaded")
         mapboxCarMapSurface.style.addPersistentStyleCustomLayer(
@@ -44,16 +56,5 @@ class CarSpeedLimitRenderer(
         MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
         mapboxCarMapSurface?.style?.removeStyleLayer(SpeedLimitWidget.SPEED_LIMIT_WIDGET_LAYER_ID)
         speedLimitWidget.clear()
-    }
-
-    private val locationObserver = object : LocationObserver {
-        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            val value = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
-            speedLimitWidget.update(value)
-        }
-
-        override fun onNewRawLocation(rawLocation: Location) {
-            // no op
-        }
     }
 }

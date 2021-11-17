@@ -18,9 +18,19 @@ import com.mapbox.examples.androidauto.car.navigation.CarActiveGuidanceCarContex
 class MainScreenManager(
     val mainCarContext: MainCarContext
 ) : DefaultLifecycleObserver {
+
+    private val carAppStateObserver = Observer<CarAppState> { carAppState ->
+        val currentScreen = currentScreen(carAppState)
+        val screenManager = mainCarContext.carContext.getCarService(ScreenManager::class.java)
+        logAndroidAuto("MainScreenManager screen change ${currentScreen.javaClass.simpleName}")
+        if (screenManager.top.javaClass != currentScreen.javaClass) {
+            screenManager.push(currentScreen)
+        }
+    }
+
     fun currentScreen(): Screen = currentScreen(MapboxCarApp.carAppState.value!!)
 
-    fun currentScreen(carAppState: CarAppState): Screen {
+    private fun currentScreen(carAppState: CarAppState): Screen {
         return when (carAppState) {
             FreeDriveState, RoutePreviewState -> MainCarScreen(mainCarContext)
             ActiveGuidanceState, ArrivalState -> {
@@ -29,21 +39,13 @@ class MainScreenManager(
         }
     }
 
-    val carAppStateObserver = Observer<CarAppState> { carAppState ->
-        val currentScreen = currentScreen(carAppState)
-        val screenManager = mainCarContext.carContext.getCarService(ScreenManager::class.java)
-        if (screenManager.top.javaClass != currentScreen.javaClass) {
-            screenManager.push(currentScreen)
-        }
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        logAndroidAuto("MainCarSession onResume")
+    override fun onCreate(owner: LifecycleOwner) {
+        logAndroidAuto("MainScreenManager onCreate")
         MapboxCarApp.carAppState.observe(owner, carAppStateObserver)
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        logAndroidAuto("MainCarSession onPause")
+    override fun onDestroy(owner: LifecycleOwner) {
+        logAndroidAuto("MainScreenManager onDestroy")
         MapboxCarApp.carAppState.removeObserver(carAppStateObserver)
     }
 }

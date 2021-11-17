@@ -1,7 +1,7 @@
 package com.mapbox.androidauto.car.navigation.lanes
 
-import androidx.car.app.navigation.model.Lane
 import androidx.car.app.navigation.model.LaneDirection
+import com.mapbox.navigation.ui.maneuver.model.Lane
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -15,23 +15,25 @@ class CarLaneMapperTest {
 
     @Test
     fun `empty values should return empty list`() {
-        val lanes = carLaneMapper.mapLanes(mockk {
+        val laneGuidance = mockk<Lane> {
             every { allLanes } returns emptyList()
-        })
+        }
+        val lanes = carLaneMapper.mapLanes(laneGuidance)
 
         assertTrue(lanes.isEmpty())
     }
 
     @Test
     fun `map a lane that is valid but not active`() {
-        val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
+        val laneGuidance = mockk<Lane> {
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns false
                     every { directions } returns listOf("straight")
                 }
             )
-        })
+        }
+        val lanes = carLaneMapper.mapLanes(laneGuidance)
 
         assertEquals(1, lanes.size)
         val lane = lanes[0]
@@ -42,14 +44,15 @@ class CarLaneMapperTest {
 
     @Test
     fun `map a lane with multiple indications`() {
-        val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
+        val laneGuidance = mockk<Lane> {
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns true
                     every { directions } returns listOf("straight", "right")
                 }
             )
-        })
+        }
+        val lanes = carLaneMapper.mapLanes(laneGuidance)
 
         assertEquals(1, lanes.size)
         val lane = lanes[0]
@@ -62,14 +65,15 @@ class CarLaneMapperTest {
 
     @Test
     fun `map a lane without valid indication`() {
-        val lanes: List<Lane> = carLaneMapper.mapLanes(mockk {
+        val laneGuidance = mockk<Lane> {
             every { allLanes } returns listOf(
                 mockk {
                     every { isActive } returns false
                     every { directions } returns listOf("left")
                 }
             )
-        })
+        }
+        val lanes = carLaneMapper.mapLanes(laneGuidance)
 
         assertEquals(1, lanes.size)
         val lane = lanes[0]
