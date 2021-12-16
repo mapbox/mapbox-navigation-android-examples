@@ -30,8 +30,8 @@
             android:resource="@style/CarAppTheme"/>
 
         <meta-data
-            android:name="androidx.car.app.min-api-level"
-            android:value="1" />
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="3" />
 
     </application>
 

@@ -21,8 +21,8 @@ class ReplayNavigationObserver : MapboxNavigationObserver {
         }
     }
 
-    override fun onDetached(mapboxNavigation: MapboxNavigation?) {
-        mapboxNavigation?.unregisterRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation?.unregisterRoutesObserver(replayRoutesObserver)
+    override fun onDetached(mapboxNavigation: MapboxNavigation) {
+        mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
+        mapboxNavigation.unregisterRoutesObserver(replayRoutesObserver)
     }
 }

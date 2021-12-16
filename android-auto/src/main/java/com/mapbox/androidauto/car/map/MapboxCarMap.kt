@@ -5,8 +5,8 @@ import androidx.car.app.CarContext
 import androidx.lifecycle.Lifecycle
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.MapboxCarOptions
-import com.mapbox.androidauto.car.map.impl.CarMapLifecycleObserver
-import com.mapbox.androidauto.car.map.impl.CarMapSurfaceSession
+import com.mapbox.androidauto.car.map.internal.CarMapLifecycleObserver
+import com.mapbox.androidauto.car.map.internal.CarMapSurfaceOwner
 import com.mapbox.maps.EdgeInsets
 
 /**
@@ -16,16 +16,16 @@ import com.mapbox.maps.EdgeInsets
  * The [androidx.car.app.Screen] has a [Lifecycle], attach it to this map
  * and then [registerObserver] your implementations to create custom experiences.
  */
-class MapboxCarMap internal constructor(
+class MapboxCarMap(
     mapboxCarOptions: MapboxCarOptions,
     carContext: CarContext,
     lifecycle: Lifecycle
 ) {
-    private val carMapSurfaceSession = CarMapSurfaceSession()
+    private val carMapSurfaceSession = CarMapSurfaceOwner()
     private val carMapLifecycleObserver = CarMapLifecycleObserver(
         carContext,
         carMapSurfaceSession,
-        mapboxCarOptions.mapInitOptions
+        mapboxCarOptions
     )
 
     val mapboxCarMapSurface: MapboxCarMapSurface?

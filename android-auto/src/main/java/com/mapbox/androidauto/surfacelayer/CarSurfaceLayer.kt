@@ -42,7 +42,7 @@ open class CarSurfaceLayer : MapboxCarMapObserver {
     }
 
     @CallSuper
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         this.mapboxCarMapSurface = null
         this.visibleArea = null
         this.edgeInsets = null

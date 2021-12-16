@@ -42,7 +42,7 @@ class RoadLabelSurfaceLayer(
 
     override fun children() = listOf(carTextLayerHost.mapScene)
 
-    @ExperimentalPreviewMapboxNavigationAPI
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("RoadLabelSurfaceLayer carMapSurface loaded")
         super.loaded(mapboxCarMapSurface)
@@ -69,10 +69,10 @@ class RoadLabelSurfaceLayer(
         mapboxNavigation.registerEHorizonObserver(roadNameObserver)
     }
 
-    @ExperimentalPreviewMapboxNavigationAPI
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("RoadLabelSurfaceLayer carMapSurface detached")
-        mapboxCarMapSurface?.style?.removeStyleLayer(CAR_NAVIGATION_VIEW_LAYER_ID)
+        mapboxCarMapSurface.style.removeStyleLayer(CAR_NAVIGATION_VIEW_LAYER_ID)
         mapboxNavigation.unregisterEHorizonObserver(roadNameObserver)
         super.detached(mapboxCarMapSurface)
     }

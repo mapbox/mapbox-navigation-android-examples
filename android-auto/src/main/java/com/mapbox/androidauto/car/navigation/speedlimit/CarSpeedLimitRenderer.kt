@@ -51,10 +51,10 @@ class CarSpeedLimitRenderer(
         MapboxNavigationProvider.retrieve().registerLocationObserver(locationObserver)
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarSpeedLimitRenderer carMapSurface detached")
         MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
-        mapboxCarMapSurface?.style?.removeStyleLayer(SpeedLimitWidget.SPEED_LIMIT_WIDGET_LAYER_ID)
+        mapboxCarMapSurface.style.removeStyleLayer(SpeedLimitWidget.SPEED_LIMIT_WIDGET_LAYER_ID)
         speedLimitWidget.clear()
     }
 }

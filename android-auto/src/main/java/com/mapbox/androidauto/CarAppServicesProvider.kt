@@ -25,7 +25,9 @@ class CarAppServicesProviderImpl : CarAppServicesProvider {
             MapboxCarApp.carAppConfig
         ).also { it.setup(MapboxNavigationApp.lifecycleOwner) }
     }
-    private val location: CarAppLocation by lazy { CarAppLocationImpl() }
+    private val location: CarAppLocation by lazy {
+        CarAppLocationImpl().also { MapboxNavigationApp.registerObserver(it) }
+    }
 
     override fun audioGuidance(): MapboxAudioGuidance = audioGuidance
     override fun location(): CarAppLocation = location

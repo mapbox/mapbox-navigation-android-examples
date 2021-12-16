@@ -90,7 +90,7 @@ class CarLocationsOverviewCamera(
         viewportDataSource.evaluate()
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         super.detached(mapboxCarMapSurface)
         logAndroidAuto("LocationsOverviewCamera detached $mapboxCarMapSurface")
 

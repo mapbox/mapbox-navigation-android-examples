@@ -102,10 +102,10 @@ class CarRouteLine(
         }
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarRouteLine carMapSurface detached $mapboxCarMapSurface")
-        mapboxCarMapSurface?.mapSurface?.location
-            ?.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
+        val mapSurface = mapboxCarMapSurface.mapSurface
+        mapSurface.location.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
         mainCarContext.mapboxNavigation.apply {
             unregisterRouteProgressObserver(routeProgressObserver)
             unregisterRoutesObserver(routesObserver)

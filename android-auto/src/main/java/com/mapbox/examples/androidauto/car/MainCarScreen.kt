@@ -10,6 +10,7 @@ import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 
@@ -25,12 +26,15 @@ class MainCarScreen(
     val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
     val carNavigationCamera = CarNavigationCamera(
         mainCarContext.mapboxNavigation,
-        CarNavigationCamera.CameraMode.FOLLOWING
+        CarCameraMode.FOLLOWING
     )
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         mainCarContext.carContext,
         mainCarContext.mapboxNavigation
     )
+
+    private val mainActionStrip = MainActionStrip(mainCarContext)
+    private val mapActionStripBuilder = MainMapActionStrip(this, carNavigationCamera)
 
     init {
         logAndroidAuto("MainCarScreen constructor")
@@ -58,7 +62,8 @@ class MainCarScreen(
     override fun onGetTemplate(): Template {
         return NavigationTemplate.Builder()
             .setBackgroundColor(CarColor.PRIMARY)
-            .setActionStrip(MainActionStrip(mainCarContext).builder().build())
+            .setActionStrip(mainActionStrip.builder().build())
+            .setMapActionStrip(mapActionStripBuilder.build())
             .build()
     }
 }

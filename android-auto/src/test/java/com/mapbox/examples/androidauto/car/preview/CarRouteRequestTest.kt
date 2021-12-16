@@ -2,9 +2,9 @@
 
 package com.mapbox.examples.androidauto.car.preview
 
+import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
-import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.navigation.base.route.RouterCallback
@@ -20,8 +20,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 import java.util.Locale
-
-private const val zLevel = 42
 
 class CarRouteRequestTest : MapboxRobolectricTestRunner() {
 
@@ -43,7 +41,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
                 every { unitType } returns UnitType.METRIC
             }
         }
-        every { getZLevel() } returns zLevel
+        every { getZLevel() } returns Z_LEVEL
     }
 
     private val carRouteRequest = CarRouteRequest(mapboxNavigation, navigationLocationProvider)
@@ -171,6 +169,11 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
         val searchCoordinate = Point.fromLngLat(-121.467001, 38.568105)
         carRouteRequest.request(mockk { every { coordinate } returns searchCoordinate }, callback)
 
-        assertEquals(listOf(zLevel, null), routeOptionsSlot.captured.layersList())
+        assertEquals(listOf(Z_LEVEL, null), routeOptionsSlot.captured.layersList())
+    }
+
+    private companion object {
+
+        private const val Z_LEVEL = 42
     }
 }

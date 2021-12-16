@@ -16,6 +16,7 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
+import com.mapbox.examples.androidauto.car.MainMapActionStrip
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 import com.mapbox.navigation.core.MapboxNavigationProvider
 
@@ -32,7 +33,7 @@ class ActiveGuidanceScreen(
     val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
     val carNavigationCamera = CarNavigationCamera(
         carActiveGuidanceContext.mapboxNavigation,
-        CarNavigationCamera.CameraMode.FOLLOWING
+        CarCameraMode.FOLLOWING
     )
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         carActiveGuidanceContext.carContext,
@@ -41,6 +42,7 @@ class ActiveGuidanceScreen(
 
     private val carAudioGuidanceUi = CarAudioGuidanceUi(this)
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
+    private val mapActionStripBuilder = MainMapActionStrip(this, carNavigationCamera)
 
     init {
         logAndroidAuto("ActiveGuidanceScreen constructor")
@@ -89,6 +91,7 @@ class ActiveGuidanceScreen(
                     )
                     .build()
             )
+            .setMapActionStrip(mapActionStripBuilder.build())
 
         carRouteProgressObserver.navigationInfo?.let {
             builder.setNavigationInfo(it)

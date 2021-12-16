@@ -19,7 +19,7 @@ class CarLogoSurfaceRenderer(
         )
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
-        mapboxCarMapSurface?.style?.removeStyleLayer(LogoWidget.LOGO_WIDGET_LAYER_ID)
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        mapboxCarMapSurface.style.removeStyleLayer(LogoWidget.LOGO_WIDGET_LAYER_ID)
     }
 }
