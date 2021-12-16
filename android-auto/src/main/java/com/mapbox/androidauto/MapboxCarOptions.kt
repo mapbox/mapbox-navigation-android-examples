@@ -2,7 +2,6 @@ package com.mapbox.androidauto
 
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.Style
-import java.util.Locale
 
 /**
  * The top level options for using Mapbox maps and navigation with Android Auto.
@@ -75,7 +74,6 @@ class MapboxCarOptions private constructor(
     ) {
         private var mapDayStyle: String = Style.TRAFFIC_DAY
         private var mapNightStyle: String? = null
-        private var directionsLanguage: String = Locale.getDefault().language
         private var replayEnabled: Boolean = false
 
         /**
@@ -98,14 +96,6 @@ class MapboxCarOptions private constructor(
          */
         fun mapNightStyle(mapNightStyle: String?): Builder = apply {
             this.mapNightStyle = mapNightStyle
-        }
-
-        /**
-         * This is temporary but required at the moment.
-         * https://github.com/mapbox/mapbox-navigation-android/issues/4686
-         */
-        fun directionsLanguage(directionsLanguage: String): Builder = apply {
-            this.directionsLanguage = directionsLanguage
         }
 
         /**

@@ -1,37 +1,47 @@
 package com.mapbox.navigation.lifecycle
 
-import android.app.Application
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.base.common.logger.model.Message
+import com.mapbox.base.common.logger.model.Tag
+import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.utils.internal.logI
 import java.util.concurrent.CopyOnWriteArraySet
 
-internal class MapboxNavigationOwner(
-    private val application: Application,
-    private val mapboxNavigationInitializer: MapboxNavigationInitializer
-) {
+internal class MapboxNavigationOwner {
+    internal lateinit var navigationOptions: NavigationOptions
+        private set
+
     private val services = CopyOnWriteArraySet<MapboxNavigationObserver>()
     private var mapboxNavigation: MapboxNavigation? = null
+    private var attached = false
+
     internal val carAppLifecycleObserver = object : DefaultLifecycleObserver {
 
         override fun onStart(owner: LifecycleOwner) {
-            logAndroidAuto("MapboxNavigationOwner navigation.onStart")
-            val navigationOptions = mapboxNavigationInitializer.create(application)
+            logI(TAG, Message("onStart"))
             check(!MapboxNavigationProvider.isCreated()) {
-                "MapboxNavigation should only be destroyed by the MapboxNavigationLifetime"
+                "MapboxNavigation should only be created by the MapboxNavigationOwner"
             }
             val mapboxNavigation = MapboxNavigationProvider.create(navigationOptions)
             this@MapboxNavigationOwner.mapboxNavigation = mapboxNavigation
+            attached = true
             services.forEach { it.onAttached(mapboxNavigation) }
         }
 
         override fun onStop(owner: LifecycleOwner) {
-            logAndroidAuto("MapboxNavigationOwner navigation.onStop")
+            logI(TAG, Message("onStop"))
+            attached = false
             services.forEach { it.onDetached(mapboxNavigation!!) }
             MapboxNavigationProvider.destroy()
+            mapboxNavigation = null
         }
+    }
+
+    fun setup(navigationOptions: NavigationOptions) {
+        this.navigationOptions = navigationOptions
     }
 
     fun register(mapboxNavigationObserver: MapboxNavigationObserver) = apply {
@@ -40,7 +50,21 @@ internal class MapboxNavigationOwner(
     }
 
     fun unregister(mapboxNavigationObserver: MapboxNavigationObserver) {
-        mapboxNavigationObserver.onDetached(mapboxNavigation)
+        mapboxNavigation?.let { mapboxNavigationObserver.onDetached(it) }
         services.remove(mapboxNavigationObserver)
+    }
+
+    fun disable() {
+        if (attached) {
+            attached = false
+            services.forEach { it.onDetached(mapboxNavigation!!) }
+            MapboxNavigationProvider.destroy()
+        }
+    }
+
+    fun current(): MapboxNavigation? = mapboxNavigation
+
+    private companion object {
+        private val TAG = Tag("MbxNavigationOwner")
     }
 }

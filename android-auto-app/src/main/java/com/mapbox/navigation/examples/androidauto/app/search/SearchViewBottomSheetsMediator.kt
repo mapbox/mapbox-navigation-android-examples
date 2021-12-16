@@ -2,6 +2,7 @@ package com.mapbox.navigation.examples.androidauto.app.search
 
 import android.os.Bundle
 import android.os.Parcelable
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.examples.androidauto.BuildConfig
 import com.mapbox.search.MapboxSearchSdk
@@ -34,10 +35,15 @@ class SearchViewBottomSheetsMediator(
     init {
         with(searchBottomSheetView) {
             addOnCategoryClickListener { openCategory(it) }
-            addOnSearchResultClickListener { searchResult ->
-                val coordinate = searchResult.coordinate
-                if (coordinate != null) {
-                    openPlaceCard(SearchPlace.createFromSearchResult(searchResult, coordinate))
+            addOnSearchResultClickListener { searchResult, responseInfo ->
+                searchResult.coordinate?.let { coordinate ->
+                    openPlaceCard(
+                        SearchPlace.createFromSearchResult(
+                            searchResult,
+                            responseInfo,
+                            coordinate
+                        )
+                    )
                 }
             }
             addOnFavoriteClickListener {
@@ -74,10 +80,15 @@ class SearchViewBottomSheetsMediator(
             }
 
             addOnCloseClickListener { resetToRoot() }
-            addOnSearchResultClickListener {
-                val coordinate = it.coordinate
-                if (coordinate != null) {
-                    openPlaceCard(SearchPlace.createFromSearchResult(it, coordinate))
+            addOnSearchResultClickListener { searchResult, responseInfo ->
+                searchResult.coordinate?.let { coordinate ->
+                    openPlaceCard(
+                        SearchPlace.createFromSearchResult(
+                            searchResult,
+                            responseInfo,
+                            coordinate
+                        )
+                    )
                 }
             }
         }
@@ -229,11 +240,14 @@ class SearchViewBottomSheetsMediator(
         const val KEY_STATE_EXTERNAL_BACK_STACK = "SearchViewBottomSheetsMediator.state.external.back_stack"
 
         fun userDistanceTo(destination: Point): Double? {
-            val currentLocation = MapboxSearchSdk.serviceProvider.locationProvider().getLocation()
-            return currentLocation?.run {
+            val location = MapboxCarApp.carAppServices
+                .location().navigationLocationProvider.lastLocation
+
+            return location?.let {
+                val point = Point.fromLngLat(it.longitude, it.latitude)
                 MapboxSearchSdk.serviceProvider
-                    .distanceCalculator(latitude = latitude())
-                    .distance(this, destination)
+                    .distanceCalculator(latitude = it.latitude)
+                    .distance(point, destination)
             }
         }
 

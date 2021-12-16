@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
@@ -94,7 +95,10 @@ class MapboxAudioGuidanceImpl(
      * Top level flow that will switch based on the language and muted state.
      */
     private fun audioGuidanceFlow(): Flow<MapboxAudioGuidance.State> {
-        return carAppConfigOwner.language()
+        return combine(
+            audioGuidanceServices.mapboxVoiceInstructions().voiceLanguage(),
+            carAppConfigOwner.language(),
+        ) { voiceLanguage, deviceLanguage -> voiceLanguage ?: deviceLanguage }
             .flatMapLatest { language ->
                 val audioGuidance = audioGuidanceServices.mapboxAudioGuidanceVoice(language)
                 carAppDataStore.read(StoreAudioGuidanceMuted).flatMapLatest { isMuted ->

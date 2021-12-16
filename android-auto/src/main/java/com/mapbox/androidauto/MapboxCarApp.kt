@@ -102,6 +102,6 @@ object MapboxCarApp {
                 )
             }
         })
-        MapboxNavigationApp.carAppLifecycleOwner.setupCar(carLifecycle)
+        MapboxNavigationApp.attach(session)
     }
 }

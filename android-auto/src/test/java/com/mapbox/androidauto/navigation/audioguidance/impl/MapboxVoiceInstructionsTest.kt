@@ -1,6 +1,7 @@
 package com.mapbox.androidauto.navigation.audioguidance.impl
 
 import com.mapbox.androidauto.testing.MainCoroutineRule
+import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.VoiceInstructions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
@@ -8,7 +9,9 @@ import com.mapbox.navigation.core.directions.session.RoutesUpdatedResult
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.core.trip.session.TripSessionStateObserver
 import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -116,5 +119,45 @@ class MapboxVoiceInstructionsTest {
         val state = carAppVoiceInstructions.voiceInstructions().first()
 
         assertNull(state.voiceInstructions?.announcement())
+    }
+
+    @Test
+    fun `should emit voice language from the first route`() = coroutineRule.runBlockingTest {
+        val language = "de"
+        every { mapboxNavigation.registerRoutesObserver(any()) } answers {
+            val result = mockk<RoutesUpdatedResult> {
+                every { routes } returns listOf(createRoute(language), createRoute(voiceLanguage = "en"))
+            }
+            firstArg<RoutesObserver>().onRoutesChanged(result)
+        }
+
+        val state = carAppVoiceInstructions.voiceLanguage().take(2).toList()
+
+        assertEquals(listOf(null, language), state)
+    }
+
+    @Test
+    fun `should emit null voice language when routes is empty`() = coroutineRule.runBlockingTest {
+        every { mapboxNavigation.registerRoutesObserver(any()) } answers {
+            val result = mockk<RoutesUpdatedResult> {
+                every { routes } returns emptyList()
+            }
+            firstArg<RoutesObserver>().onRoutesChanged(result)
+        }
+
+        assertNull(carAppVoiceInstructions.voiceLanguage().first())
+    }
+
+    @Test
+    fun `should emit null voice language before routes are updated`() = coroutineRule.runBlockingTest {
+        every { mapboxNavigation.registerRoutesObserver(any()) } just Runs
+
+        assertNull(carAppVoiceInstructions.voiceLanguage().first())
+    }
+
+    private fun createRoute(voiceLanguage: String): DirectionsRoute {
+        return mockk {
+            every { voiceLanguage() } returns voiceLanguage
+        }
     }
 }

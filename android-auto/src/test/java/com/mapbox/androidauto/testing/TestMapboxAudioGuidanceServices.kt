@@ -19,8 +19,11 @@ class TestMapboxAudioGuidanceServices {
         MapboxVoiceInstructionsState()
     )
 
+    private val voiceLanguageFlow = MutableStateFlow<String?>(value = null)
+
     private val mapboxVoiceInstructions = mockk<MapboxVoiceInstructions> {
         every { voiceInstructions() } returns voiceInstructionsFlow
+        every { voiceLanguage() } returns voiceLanguageFlow
     }
 
     private val mapboxAudioGuidanceVoice = mockk<MapboxAudioGuidanceVoice> {
@@ -50,6 +53,10 @@ class TestMapboxAudioGuidanceServices {
 
     fun emitVoiceInstruction(state: MapboxVoiceInstructions.State) {
         voiceInstructionsFlow.tryEmit(state)
+    }
+
+    fun emitVoiceLanguage(language: String?) {
+        voiceLanguageFlow.tryEmit(language)
     }
 
     companion object {

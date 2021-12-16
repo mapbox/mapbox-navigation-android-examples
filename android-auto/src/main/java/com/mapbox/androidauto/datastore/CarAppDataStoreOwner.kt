@@ -24,7 +24,7 @@ class CarAppDataStoreOwner internal constructor() {
     }
 
     fun launch(block: suspend CarAppDataStoreOwner.() -> Unit): Job =
-        MapboxNavigationApp.carAppLifecycleOwner.lifecycle.coroutineScope.launchWhenStarted {
+        MapboxNavigationApp.lifecycleOwner.lifecycle.coroutineScope.launchWhenStarted {
             block()
         }
 

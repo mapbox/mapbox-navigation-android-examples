@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 
 /**
  * This class converts [MapboxNavigation] callback streams into [Flow].
@@ -30,6 +32,10 @@ class MapboxVoiceInstructions(
                     flowOf(MapboxVoiceInstructionsState(false, null))
                 }
             }
+    }
+
+    fun voiceLanguage(): Flow<String?> {
+        return routesFlow().mapLatest { it.routes.firstOrNull()?.voiceLanguage() }.onStart { emit(value = null) }
     }
 
     private fun routesUpdatedResultToVoiceInstructions(): Flow<State> {

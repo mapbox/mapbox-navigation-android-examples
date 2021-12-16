@@ -60,10 +60,10 @@ class PlacesListOnMapScreen(
             loadPlaceRecords()
         }
 
-        override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
+        override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
             super.detached(mapboxCarMapSurface)
             logAndroidAuto("PlacesListOnMapScreen detached")
-            mapboxCarMapSurface?.style?.let { style ->
+            mapboxCarMapSurface.style.let { style ->
                 placesLayerUtil.removePlacesListOnMapLayer(style)
             }
         }

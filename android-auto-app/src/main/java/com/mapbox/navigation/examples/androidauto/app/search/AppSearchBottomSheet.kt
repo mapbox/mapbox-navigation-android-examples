@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.androidauto.app.search
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import com.mapbox.search.ui.view.SearchBottomSheetView
 import com.mapbox.search.ui.view.category.Category
 import com.mapbox.search.ui.view.category.SearchCategoriesBottomSheetView
@@ -10,12 +11,14 @@ import com.mapbox.search.ui.view.place.SearchPlace
 import com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView
 
 class AppSearchBottomSheet(
-    val searchBottomSheetView: SearchBottomSheetView,
-    val searchPlaceView: SearchPlaceBottomSheetView,
-    val searchCategoriesView: SearchCategoriesBottomSheetView,
-    val view: View,
-    val savedInstanceState: Bundle?
+    private val searchBottomSheetView: SearchBottomSheetView,
+    private val searchPlaceView: SearchPlaceBottomSheetView,
+    private val searchCategoriesView: SearchCategoriesBottomSheetView,
+    view: View,
+    savedInstanceState: Bundle?
 ) {
+    val searchPlaceLiveData = MutableLiveData<SearchPlace>()
+
     private val configuration = if (view.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
         SearchBottomSheetView.Configuration(
             collapsedStateAnchor = SearchBottomSheetView.CollapsedStateAnchor.SEARCH_BAR
@@ -30,7 +33,6 @@ class AppSearchBottomSheet(
         searchCategoriesView
     )
 
-    private var placeClickListener: ((SearchPlace) -> Unit) = {}
     private var navigateClickListener: ((SearchPlace) -> Unit) = {}
 
     init {
@@ -42,7 +44,7 @@ class AppSearchBottomSheet(
         cardsMediator.addSearchBottomSheetsEventsListener(
             object : SearchViewBottomSheetsMediator.SearchBottomSheetsEventsListener {
                 override fun onOpenPlaceBottomSheet(place: SearchPlace) {
-                    placeClickListener(place)
+                    this@AppSearchBottomSheet.searchPlaceLiveData.value = place
                 }
 
                 override fun onOpenCategoriesBottomSheet(category: Category) {}
@@ -53,9 +55,7 @@ class AppSearchBottomSheet(
     }
 
     fun handleOnBackPressed(): Boolean = cardsMediator.handleOnBackPressed()
-    fun placeClickListener(placeClickListener: (SearchPlace) -> Unit) = apply {
-        this.placeClickListener = placeClickListener
-    }
+
     fun navigateClickListener(navigateClickListener: (SearchPlace) -> Unit) = apply {
         searchPlaceView.removeOnNavigateClickListener(this.navigateClickListener)
         searchPlaceView.removeOnShareClickListener(this.navigateClickListener)
@@ -63,6 +63,13 @@ class AppSearchBottomSheet(
         searchPlaceView.addOnShareClickListener { navigateClickListener(it) }
         this.navigateClickListener = navigateClickListener
     }
+
+    fun clearNavigateClickListener() {
+        searchPlaceView.removeOnNavigateClickListener(this.navigateClickListener)
+        searchPlaceView.removeOnShareClickListener(this.navigateClickListener)
+        this.navigateClickListener = {}
+    }
+
     fun onSaveInstanceState(outState: Bundle) {
         cardsMediator.onSaveInstanceState(outState)
     }

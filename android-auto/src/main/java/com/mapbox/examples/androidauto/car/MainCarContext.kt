@@ -6,8 +6,8 @@ import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.examples.androidauto.car.settings.CarSettingsStorage
 import com.mapbox.navigation.base.formatter.DistanceFormatter
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
+import com.mapbox.navigation.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.utils.internal.JobControl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,7 @@ class MainCarContext internal constructor(
     val carSettingsStorage = CarSettingsStorage(carContext)
 
     val mapboxNavigation: MapboxNavigation by lazy {
-        MapboxNavigationProvider.retrieve()
+        MapboxNavigationApp.current()!!
     }
 
     val distanceFormatter: DistanceFormatter by lazy {

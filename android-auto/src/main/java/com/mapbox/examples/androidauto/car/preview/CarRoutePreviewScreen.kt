@@ -19,6 +19,7 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainActionStrip
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
 
@@ -38,7 +39,7 @@ class CarRoutePreviewScreen(
     val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
     val carNavigationCamera = CarNavigationCamera(
         routePreviewCarContext.mapboxNavigation,
-        CarNavigationCamera.CameraMode.OVERVIEW
+        CarCameraMode.OVERVIEW
     )
 
     private val backPressCallback = object : OnBackPressedCallback(true) {

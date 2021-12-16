@@ -33,8 +33,8 @@ class CarCompassSurfaceRenderer(
             .addOnCameraChangeListener(onCameraChangeListener)
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface?) {
-        mapboxCarMapSurface?.apply {
+    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        mapboxCarMapSurface.apply {
             style.removeStyleLayer(LogoWidget.LOGO_WIDGET_LAYER_ID)
             mapSurface.getMapboxMap().removeOnCameraChangeListener(onCameraChangeListener)
         }

@@ -1,3 +1,5 @@
+@file:Suppress("NoMockkVerifyImport")
+
 package com.mapbox.androidauto.navigation.audioguidance.impl
 
 import androidx.lifecycle.Lifecycle
@@ -10,7 +12,9 @@ import com.mapbox.androidauto.testing.TestCarAppDataStoreOwner
 import com.mapbox.androidauto.testing.TestMapboxAudioGuidanceServices
 import com.mapbox.androidauto.testing.TestMapboxAudioGuidanceServices.Companion.SPEECH_ANNOUNCEMENT_DELAY_MS
 import io.mockk.every
+import io.mockk.excludeRecords
 import io.mockk.mockk
+import io.mockk.verifySequence
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -25,6 +29,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+private const val deviceLanguage = "en"
+
 @ExperimentalCoroutinesApi
 class MapboxAudioGuidanceImplTest {
 
@@ -34,7 +40,7 @@ class MapboxAudioGuidanceImplTest {
     private val testMapboxAudioGuidanceServices = TestMapboxAudioGuidanceServices()
     private val testCarAppDataStoreOwner = TestCarAppDataStoreOwner()
     private val carAppConfigOwner: CarAppConfigOwner = mockk {
-        every { language() } returns flowOf("en")
+        every { language() } returns flowOf(deviceLanguage)
     }
 
     private val carAppAudioGuidance = MapboxAudioGuidanceImpl(
@@ -192,5 +198,22 @@ class MapboxAudioGuidanceImplTest {
         assertEquals("You have arrived at your destination", secondAnnouncement)
         assertEquals(SPEECH_ANNOUNCEMENT_DELAY_MS * 2, states[4].second)
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun `voice language from route is preferred to device language`() = coroutineRule.runBlockingTest {
+        val testLifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.STARTED)
+        carAppAudioGuidance.setup(testLifecycleOwner)
+
+        val voiceLanguage = "ru"
+        testMapboxAudioGuidanceServices.emitVoiceLanguage(voiceLanguage)
+
+        excludeRecords {
+            testMapboxAudioGuidanceServices.mapboxAudioGuidanceServices.mapboxVoiceInstructions()
+        }
+        verifySequence {
+            testMapboxAudioGuidanceServices.mapboxAudioGuidanceServices.mapboxAudioGuidanceVoice(deviceLanguage)
+            testMapboxAudioGuidanceServices.mapboxAudioGuidanceServices.mapboxAudioGuidanceVoice(voiceLanguage)
+        }
     }
 }
