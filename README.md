@@ -11,7 +11,7 @@ The repository is a collection of examples showing off the [Mapbox Navigation An
 
 ## Installation
 
-Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/beta/navigation/guides/install/) guide. Once you have your public access token and secret token ready, do the following:
+Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/beta/navigation/guides/install/) guide. Once you have your **public and secret access tokens ready**, do the following:
 
 ### [app](app)
 
@@ -26,7 +26,8 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
        <string name="mapbox_access_token">YOUR_ACCESS_TOKEN_HERE</string>
    </resources>
    ```
-6. Run the examples under `app`.
+6. Ensure that your secret token is added to [build.gradle](./build.gradle) or to global `gradle.properties` as described in the installation guide.
+7. Run the examples under `app`.
 
 
 ## Getting Help
