@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,6 +34,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!isMapboxTokenProvided()) {
+            showNoTokenErrorDialog()
+            return
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -178,4 +184,20 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             ),
         )
     }
+
+    private fun isMapboxTokenProvided() =
+        getString(R.string.mapbox_access_token) != MAPBOX_ACCESS_TOKEN_PLACEHOLDER
+
+    private fun showNoTokenErrorDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.noTokenDialogTitle))
+            .setMessage(getString(R.string.noTokenDialogBody))
+            .setCancelable(false)
+            .setPositiveButton("Ok") { _, _ ->
+                finish()
+            }
+            .show()
+    }
 }
+
+private const val MAPBOX_ACCESS_TOKEN_PLACEHOLDER = "YOUR_MAPBOX_ACCESS_TOKEN_GOES_HERE"
