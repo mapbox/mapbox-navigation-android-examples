@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
+import com.mapbox.navigation.examples.basics.CustomArrivalActivity
 import com.mapbox.navigation.examples.basics.FetchARouteActivity
 import com.mapbox.navigation.examples.basics.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.basics.PlayVoiceInstructionsActivity
@@ -182,6 +183,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 getString(R.string.description_multiple_way_points),
                 MultipleWaypointsActivity::class.java
             ),
+            MapboxExample(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.mapbox_screenshot_building_extrusion
+                ),
+                getString(R.string.title_building_extrusions_custom_arrival),
+                getString(R.string.description_building_extrusions_custom_arrival),
+                CustomArrivalActivity::class.java
+            )
         )
     }
 
