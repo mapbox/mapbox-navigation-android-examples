@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.base.common.logger.model.Message
@@ -19,11 +20,8 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.options.NavigationOptions
-import com.mapbox.navigation.base.trip.model.RouteLegProgress
-import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
-import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
@@ -31,8 +29,9 @@ import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
+import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.R
-import com.mapbox.navigation.examples.databinding.MapboxActivityBuildingExtrusionsBinding
+import com.mapbox.navigation.examples.databinding.MapboxActivityCustomArrivalBinding
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
 import com.mapbox.navigation.ui.maps.building.api.MapboxBuildingsApi
 import com.mapbox.navigation.ui.maps.building.model.BuildingError
@@ -49,7 +48,7 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
 import com.mapbox.navigation.utils.internal.LoggerProvider
 
 /**
- * The example demonstrates how to extrude a building upon reaching a waypoint and final destination.
+ * The example demonstrates how to extrude a building upon reaching a final destination.
  *
  * Before running the example make sure you have put your access_token in the correct place
  * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
@@ -74,14 +73,21 @@ import com.mapbox.navigation.utils.internal.LoggerProvider
  * - When the example starts, the camera transitions to the location where the route origin is.
  * - Click on Set Route to draw a route line on the map using the hardcoded route.
  * - Click on start navigation.
- * - You should now start to navigate and see building extrusion once when you reach the waypoint
- * and again when you reach the final destination.
+ * - You should now start to navigate and see building extrusion once when you reach the final destination.
  *
  * Note:
  * The example does not demonstrate the use of [MapboxRouteArrowApi] and [MapboxRouteArrowView].
  * Take a look at [RenderRouteLineActivity] example to learn more about route line and route arrow.
  */
-class ShowBuildingExtrusionsActivity : AppCompatActivity() {
+class CustomArrivalActivity : AppCompatActivity() {
+
+    // These variables are being used to customize the arrival experience base on route progress.
+    // In this case the activity will check at least a specified percentage of the route has been traveled
+    // and the distance to the destination is less than or equal to a specified distance value.
+    private var percentDistanceTraveledThreshold: Double = 95.0
+    private var distanceRemainingThresholdInMeters = 30
+    private var arrivalNotificationHasDisplayed = false
+    //
 
     // todo move to resources
     private val route = DirectionsRoute.fromJson(
@@ -124,7 +130,7 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
     /**
      * Bindings to the example layout.
      */
-    private lateinit var binding: MapboxActivityBuildingExtrusionsBinding
+    private lateinit var binding: MapboxActivityCustomArrivalBinding
 
     /**
      * Generates updates for the [MapboxBuildingView] by querying a building feature if it exists
@@ -237,26 +243,30 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         }
     }
 
-    private val arrivalObserver: ArrivalObserver = object : ArrivalObserver {
-        override fun onFinalDestinationArrival(routeProgress: RouteProgress) {
+    // The route progress can be used to determine when an arrival event has taken place.
+    private val routeProgressObserver = RouteProgressObserver { routeProgress ->
+        // Monitor the route progress to customize the arrival experience.
+        // In this example when at least a specified percentage of the distance has been traveled
+        // and the distance remaining is less than what is specified. This is just one example
+        // of the criteria that could be used. The RouteProgress has useful data in it that can
+        // be used to define an arrival state.
+        val totalDistance = routeProgress.distanceTraveled + routeProgress.distanceRemaining
+        val percentDistanceTraveled = (routeProgress.distanceTraveled / totalDistance) * 100
+        if (
+            percentDistanceTraveled >= percentDistanceTraveledThreshold &&
+            routeProgress.distanceRemaining <= distanceRemainingThresholdInMeters &&
+            !arrivalNotificationHasDisplayed
+        ) {
+            arrivalNotificationHasDisplayed = true
+            Toast.makeText(this, "You have arrived!", Toast.LENGTH_LONG).show()
             buildingApi.queryBuildingOnFinalDestination(routeProgress, callback)
-        }
-
-        override fun onNextRouteLegStart(routeLegProgress: RouteLegProgress) {
-            mapboxMap.getStyle { style ->
-                buildingView.removeBuildingHighlight(style)
-            }
-        }
-
-        override fun onWaypointArrival(routeProgress: RouteProgress) {
-            buildingApi.queryBuildingOnWaypoint(routeProgress, callback)
         }
     }
 
     @SuppressLint("MissingPermission", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MapboxActivityBuildingExtrusionsBinding.inflate(layoutInflater)
+        binding = MapboxActivityCustomArrivalBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mapboxMap = binding.mapView.getMapboxMap()
 
@@ -325,11 +335,12 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         )
     }
 
+    @SuppressLint("MissingPermission")
     private fun startSimulation() {
         mapboxReplayer.run {
             stop()
             clearEvents()
-            pushRealLocation(this@ShowBuildingExtrusionsActivity, 0.0)
+            pushRealLocation(this@CustomArrivalActivity, 0.0)
             val replayEvents = ReplayRouteMapper().mapDirectionsRouteGeometry(route)
             pushEvents(replayEvents)
             seekTo(replayEvents.first())
@@ -341,9 +352,9 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         super.onStart()
         mapboxNavigation.run {
             registerRoutesObserver(routesObserver)
-            registerArrivalObserver(arrivalObserver)
             registerLocationObserver(locationObserver)
             registerRouteProgressObserver(replayProgressObserver)
+            registerRouteProgressObserver(routeProgressObserver)
         }
     }
 
@@ -352,12 +363,12 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         mapboxNavigation.run {
             // make sure to unregister the routes observer you have registered.
             unregisterRoutesObserver(routesObserver)
-            // make sure to unregister the arrival observer you have registered.
-            unregisterArrivalObserver(arrivalObserver)
             // make sure to unregister the location observer you have registered.
             unregisterLocationObserver(locationObserver)
             // make sure to unregister the route progress observer you have registered.
             unregisterRouteProgressObserver(replayProgressObserver)
+            // make sure to unregister the route progress observer you have registered.
+            unregisterRouteProgressObserver(routeProgressObserver)
         }
         mapboxReplayer.finish()
         buildingApi.cancel()

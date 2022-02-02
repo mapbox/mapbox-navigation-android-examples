@@ -72,6 +72,11 @@
         android:screenOrientation="portrait"
         android:exported="false"
         />
+
+    <activity android:name=".basics.CustomArrivalActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
   </application>
 
 </manifest>
