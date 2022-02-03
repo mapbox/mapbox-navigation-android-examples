@@ -10,11 +10,8 @@ import androidx.transition.Scene
 import androidx.transition.TransitionManager
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.dropin.binder.UIBinder
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterAction
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterViewModel
 import com.mapbox.navigation.dropin.internal.extensions.flowRoutesUpdated
 import com.mapbox.navigation.dropin.lifecycle.UIComponent
 import com.mapbox.navigation.examples.preview.R
@@ -56,12 +53,7 @@ class CustomViewInjectionActivity : AppCompatActivity() {
         binding = MapboxActivityInjectCustomViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val tripSessionStarterViewModel = MapboxNavigationApp.getObserver(
-            TripSessionStarterViewModel::class
-        )
-        tripSessionStarterViewModel.invoke(
-            TripSessionStarterAction.EnableReplayTripSession
-        )
+        binding.navigationView.isReplayEnabled = true
 
         binding.navigationView.customizeViewBinders {
             infoPanelContentBinder = MyInfoPanelContentBinder()

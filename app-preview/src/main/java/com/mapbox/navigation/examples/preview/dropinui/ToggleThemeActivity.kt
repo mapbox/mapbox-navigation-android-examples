@@ -5,9 +5,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterAction
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterViewModel
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityToggleThemeBinding
 
 /**
@@ -40,12 +37,7 @@ class ToggleThemeActivity : AppCompatActivity() {
         binding = MapboxActivityToggleThemeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val tripSessionStarterViewModel = MapboxNavigationApp.getObserver(
-            TripSessionStarterViewModel::class
-        )
-        tripSessionStarterViewModel.invoke(
-            TripSessionStarterAction.EnableReplayTripSession
-        )
+        binding.navigationView.isReplayEnabled = true
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
 

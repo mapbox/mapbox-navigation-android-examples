@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="MapboxCustomStatusView" parent="MapboxStyleStatusView">
+    <item name="android:elevation">0dp</item>
+    <item name="android:background">#673AB7</item>
+    <item name="android:scaleX">0</item>
+    <item name="android:scaleY">0</item>
+    <item name="android:padding">10dp</item>
+    <item name="statusViewShowAnimator">@animator/scale_in</item>
+    <item name="statusViewHideAnimator">@animator/scale_out</item>
+    <item name="statusViewProgressBarTint">#ffffff</item>
+    <item name="statusViewIconTint">#ffffff</item>
+    <item name="statusViewTextAppearance">@style/MapboxCustomStatusView.TextAppearance</item>
+  </style>
+
+  <style name="MapboxCustomStatusView.TextAppearance">
+    <item name="android:textColor">#ffffff</item>
+    <item name="android:textSize">16sp</item>
+    <item name="android:fontFamily">cursive</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textAllCaps">true</item>
+  </style>
+</resources>
