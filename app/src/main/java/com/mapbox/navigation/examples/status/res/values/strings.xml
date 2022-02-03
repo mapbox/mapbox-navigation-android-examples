@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="title_show_status">Show status messages</string>
+    <string name="description_show_status">Learn how to use MapboxStatusView to show status messages.</string>
+    <string name="title_show_custom_status">Show customized status messages</string>
+    <string name="description_show_custom_status">Learn how to customize MapboxStatusView to match your application theme.</string>
+
+</resources>

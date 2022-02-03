@@ -5,12 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.maps.Style
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.dropin.ViewOptionsCustomization
 import com.mapbox.navigation.dropin.ViewOptionsCustomization.Companion.defaultRouteArrowOptions
 import com.mapbox.navigation.dropin.ViewOptionsCustomization.Companion.defaultRouteLineOptions
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterAction
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterViewModel
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomizeNavigationviewOptionsBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants
@@ -76,12 +73,7 @@ class CustomNavigationViewOptionsActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeNavigationviewOptionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val tripSessionStarterViewModel = MapboxNavigationApp.getObserver(
-            TripSessionStarterViewModel::class
-        )
-        tripSessionStarterViewModel.invoke(
-            TripSessionStarterAction.EnableReplayTripSession
-        )
+        binding.navigationView.isReplayEnabled = true
 
         binding.toggleOptions.setOnClickListener {
             binding.navigationView.customizeViewOptions {

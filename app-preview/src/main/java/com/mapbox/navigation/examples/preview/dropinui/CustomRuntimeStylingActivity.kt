@@ -3,10 +3,7 @@ package com.mapbox.navigation.examples.preview.dropinui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.dropin.ViewStyleCustomization
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterAction
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterViewModel
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomRuntimeStylingBinding
 
@@ -41,12 +38,7 @@ class CustomRuntimeStylingActivity : AppCompatActivity() {
         binding = MapboxActivityCustomRuntimeStylingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val tripSessionStarterViewModel = MapboxNavigationApp.getObserver(
-            TripSessionStarterViewModel::class
-        )
-        tripSessionStarterViewModel.invoke(
-            TripSessionStarterAction.EnableReplayTripSession
-        )
+        binding.navigationView.isReplayEnabled = true
 
         binding.toggleStyle.setOnClickListener {
             binding.navigationView.customizeViewStyles {

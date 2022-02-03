@@ -3,10 +3,7 @@ package com.mapbox.navigation.examples.preview.dropinui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.dropin.NavigationView
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterAction
-import com.mapbox.navigation.dropin.component.tripsession.TripSessionStarterViewModel
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityNavigationViewBinding
 
 /**
@@ -35,11 +32,6 @@ class NavigationViewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // This allows to simulate your location
-        val tripSessionStarterViewModel = MapboxNavigationApp.getObserver(
-            TripSessionStarterViewModel::class
-        )
-        tripSessionStarterViewModel.invoke(
-            TripSessionStarterAction.EnableReplayTripSession
-        )
+        binding.navigationView.isReplayEnabled = true
     }
 }

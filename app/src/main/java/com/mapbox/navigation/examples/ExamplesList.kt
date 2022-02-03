@@ -11,6 +11,8 @@ import com.mapbox.navigation.examples.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.speedlimit.ShowSpeedLimitActivity
+import com.mapbox.navigation.examples.status.ShowCustomStatusActivity
+import com.mapbox.navigation.examples.status.ShowStatusActivity
 import com.mapbox.navigation.examples.tripprogress.ShowTripProgressActivity
 import com.mapbox.navigation.examples.turnbyturn.TurnByTurnExperienceActivity
 import com.mapbox.navigation.examples.voice.PlayVoiceInstructionsActivity
@@ -87,5 +89,17 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_building_extrusions_custom_arrival),
         getString(R.string.description_building_extrusions_custom_arrival),
         CustomArrivalActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_status_basic),
+        getString(R.string.title_show_status),
+        getString(R.string.description_show_status),
+        ShowStatusActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_status_custom),
+        getString(R.string.title_show_custom_status),
+        getString(R.string.description_show_custom_status),
+        ShowCustomStatusActivity::class.java
     )
 )
