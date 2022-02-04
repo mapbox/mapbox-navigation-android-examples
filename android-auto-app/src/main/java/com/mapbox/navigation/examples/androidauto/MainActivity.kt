@@ -25,6 +25,7 @@ import com.mapbox.navigation.examples.androidauto.app.navigation.AppRouteLine
 import com.mapbox.navigation.examples.androidauto.app.routerequest.MapLongClickRouteRequest
 import com.mapbox.navigation.examples.androidauto.app.search.SearchFragment
 import com.mapbox.navigation.examples.androidauto.databinding.ActivityMainBinding
+import com.mapbox.navigation.ui.maps.NavigationStyles
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
     private val permissionsManager = PermissionsManager(this)
@@ -44,16 +45,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             MapLongClickRouteRequest().observeClicks(binding.mapView, lifecycle)
         }
 
-        binding.mapView.getMapboxMap().loadStyleUri(ExampleCarInitializer.DAY_STYLE) { style ->
-            lifecycle.addObserver(
-                AppRouteLine(
-                    context = this,
-                    style = style,
-                    mapboxNavigation = MapboxNavigationProvider.retrieve(),
-                    mapView = binding.mapView
+        binding.mapView.getMapboxMap()
+            .loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) { style ->
+                lifecycle.addObserver(
+                    AppRouteLine(
+                        context = this,
+                        style = style,
+                        mapboxNavigation = MapboxNavigationProvider.retrieve(),
+                        mapView = binding.mapView
+                    )
                 )
-            )
-        }
+            }
 
         lifecycle.addObserver(
             AppNavigationCamera(binding.mapView, AppNavigationCamera.CameraMode.FOLLOWING)
@@ -92,7 +94,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         }
     }
 
-    fun carAppStateFragment() =
+    private fun carAppStateFragment() =
         supportFragmentManager.findFragmentById(R.id.carAppStateFragment)
 
     override fun onBackPressed() {
@@ -110,7 +112,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
     private fun startTripSession() {
         val mapboxNavigation = MapboxNavigationProvider.retrieve()
         if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-            if (ExampleCarInitializer.ENABLE_REPLAY) {
+            if (ReplayNavigationObserver.ENABLE_REPLAY) {
                 val mapboxReplayer = MapboxNavigationProvider.retrieve().mapboxReplayer
                 mapboxReplayer.pushRealLocation(this, 0.0)
                 mapboxNavigation.startReplayTripSession()

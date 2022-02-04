@@ -1,26 +1,25 @@
 package com.mapbox.examples.androidauto.car
 
 import androidx.car.app.CarContext
-import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.examples.androidauto.car.settings.CarSettingsStorage
 import com.mapbox.navigation.base.formatter.DistanceFormatter
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
-import com.mapbox.navigation.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.utils.internal.JobControl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-class MainCarContext internal constructor(
-    val carContext: CarContext
+class MainCarContext(
+    val carContext: CarContext,
+    val mapboxCarMap: MapboxCarMap
 ) {
-    val mapboxCarMap: MapboxCarMap = MapboxCarApp.mapboxCarMap
     val carSettingsStorage = CarSettingsStorage(carContext)
 
     val mapboxNavigation: MapboxNavigation by lazy {
-        MapboxNavigationApp.current()!!
+        MapboxNavigationProvider.retrieve()
     }
 
     val distanceFormatter: DistanceFormatter by lazy {

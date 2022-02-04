@@ -7,12 +7,13 @@ import androidx.car.app.SurfaceCallback
 import androidx.car.app.SurfaceContainer
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.MapboxCarOptions
 import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.base.common.logger.model.Message
 import com.mapbox.base.common.logger.model.Tag
+import com.mapbox.maps.MapInitOptions
+import com.mapbox.maps.Style
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.navigation.utils.internal.logE
@@ -29,23 +30,15 @@ import com.mapbox.navigation.utils.internal.logI
 internal class CarMapLifecycleObserver internal constructor(
     private val carContext: CarContext,
     private val carMapSurfaceOwner: CarMapSurfaceOwner,
-    private val mapboxCarOptions: MapboxCarOptions
+    private val mapInitOptions: MapInitOptions
 ) : DefaultLifecycleObserver, SurfaceCallback {
 
-    private var mapStyleUri: String
+    private var mapStyleUri: String = mapInitOptions.styleUri ?: Style.MAPBOX_STREETS
 
     private val logMapError = object : OnMapLoadErrorListener {
         override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
             val errorData = "${eventData.type} ${eventData.message}"
             logE(TAG, Message("updateMapStyle onMapLoadError $errorData"))
-        }
-    }
-
-    init {
-        mapStyleUri = if (carContext.isDarkMode) {
-            mapboxCarOptions.mapNightStyle ?: mapboxCarOptions.mapDayStyle
-        } else {
-            mapboxCarOptions.mapDayStyle
         }
     }
 
@@ -65,7 +58,7 @@ internal class CarMapLifecycleObserver internal constructor(
             val mapSurface = MapSurfaceProvider.create(
                 carContext,
                 surface,
-                mapboxCarOptions.mapInitOptions
+                mapInitOptions
             )
             mapSurface.onStart()
             mapSurface.surfaceCreated()

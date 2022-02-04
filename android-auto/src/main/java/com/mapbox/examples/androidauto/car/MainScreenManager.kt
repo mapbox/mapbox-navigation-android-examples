@@ -12,6 +12,10 @@ import com.mapbox.androidauto.FreeDriveState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.androidauto.navigation.audioguidance.CarAudioGuidanceUi
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
+import com.mapbox.examples.androidauto.car.feedback.ui.activeGuidanceCarFeedbackProvider
 import com.mapbox.examples.androidauto.car.navigation.ActiveGuidanceScreen
 import com.mapbox.examples.androidauto.car.navigation.CarActiveGuidanceCarContext
 
@@ -34,7 +38,17 @@ class MainScreenManager(
         return when (carAppState) {
             FreeDriveState, RoutePreviewState -> MainCarScreen(mainCarContext)
             ActiveGuidanceState, ArrivalState -> {
-                ActiveGuidanceScreen(CarActiveGuidanceCarContext(mainCarContext))
+                ActiveGuidanceScreen(
+                    CarActiveGuidanceCarContext(mainCarContext),
+                    listOf(
+                        CarFeedbackAction(
+                            mainCarContext.mapboxCarMap,
+                            CarFeedbackSender(),
+                            activeGuidanceCarFeedbackProvider(mainCarContext.carContext)
+                        ),
+                        CarAudioGuidanceUi()
+                    )
+                )
             }
         }
     }

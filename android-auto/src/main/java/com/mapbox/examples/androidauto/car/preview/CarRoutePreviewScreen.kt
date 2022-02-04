@@ -4,6 +4,7 @@ import android.text.SpannableString
 import androidx.activity.OnBackPressedCallback
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
+import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.DurationSpan
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.Row
@@ -15,9 +16,12 @@ import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.androidauto.navigation.audioguidance.muteAudioGuidance
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.MainActionStrip
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.routePreviewCarFeedbackProvider
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
@@ -53,6 +57,7 @@ class CarRoutePreviewScreen(
 
     init {
         logAndroidAuto("CarRoutePreviewScreen constructor")
+        lifecycle.muteAudioGuidance()
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 logAndroidAuto("CarRoutePreviewScreen onResume")
@@ -112,8 +117,14 @@ class CarRoutePreviewScreen(
             .setItemList(listBuilder.build())
             .setTitle(carContext.getString(R.string.car_action_preview_title))
             .setActionStrip(
-                MainActionStrip(routePreviewCarContext.mainCarContext)
-                    .buildSettings()
+                ActionStrip.Builder()
+                    .addAction(
+                        CarFeedbackAction(
+                            routePreviewCarContext.mapboxCarMap,
+                            CarFeedbackSender(),
+                            routePreviewCarFeedbackProvider(carContext)
+                        ).getAction(this@CarRoutePreviewScreen)
+                    )
                     .build()
             )
             .setHeaderAction(Action.BACK)

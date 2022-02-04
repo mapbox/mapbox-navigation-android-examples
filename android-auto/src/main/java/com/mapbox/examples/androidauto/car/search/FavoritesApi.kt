@@ -1,7 +1,11 @@
 package com.mapbox.examples.androidauto.car.search
 
+import androidx.car.app.CarContext
 import com.mapbox.bindgen.Expected
 import com.mapbox.bindgen.ExpectedFactory
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackItemProvider
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackItem
+import com.mapbox.examples.androidauto.car.feedback.ui.buildSearchPlacesCarFeedbackItems
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapProvider
 import com.mapbox.search.AsyncOperationTask
 import com.mapbox.search.CompletionCallback
@@ -10,15 +14,21 @@ import com.mapbox.search.record.FavoritesDataProvider
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : PlacesListOnMapProvider {
+class FavoritesApi(
+    private val carContext: CarContext,
+    private val favoritesProvider: FavoritesDataProvider
+) : PlacesListOnMapProvider, CarFeedbackItemProvider {
 
     private var getAllTask: AsyncOperationTask? = null
     private var addFavoriteTask: AsyncOperationTask? = null
     private var removeFavoriteTask: AsyncOperationTask? = null
+    private var favoriteRecords: List<FavoriteRecord> = emptyList()
 
     override suspend fun getPlaces(): Expected<GetPlacesError, List<PlaceRecord>> {
-        return getFavorites().mapValue { favorites ->
-            favorites.map {
+        val favorites = getFavorites()
+        favoriteRecords = favorites.value ?: emptyList()
+        return favorites.mapValue { favoriteRecord ->
+            favoriteRecord.map {
                 PlaceRecordMapper.fromFavoriteRecord(it)
             }
         }
@@ -27,6 +37,11 @@ class FavoritesApi(private val favoritesProvider: FavoritesDataProvider) : Place
     override fun cancel() {
         cancelRequests()
     }
+
+    override fun feedbackItems(): List<CarFeedbackItem> = buildSearchPlacesCarFeedbackItems(
+        carContext = carContext,
+        favoriteRecords = favoriteRecords
+    )
 
     suspend fun getFavorites(): Expected<GetPlacesError, List<FavoriteRecord>> {
         getAllTask?.cancel()

@@ -1,19 +1,20 @@
 package com.mapbox.androidauto.deeplink
 
 import android.content.Intent
-import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.lifecycle.Lifecycle
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.MainCarContext
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceMarkerRenderer
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListItemMapper
-import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
-import com.mapbox.examples.androidauto.car.search.SearchCarContext
+import com.mapbox.navigation.core.geodeeplink.GeoDeeplink
+import com.mapbox.navigation.core.geodeeplink.GeoDeeplinkParser
 
 class GeoDeeplinkNavigateAction(
-    val carContext: CarContext,
+    val mainCarContext: MainCarContext,
     val lifecycle: Lifecycle
 ) {
     fun onNewIntent(intent: Intent): Screen? {
@@ -24,16 +25,19 @@ class GeoDeeplinkNavigateAction(
 
     private fun preparePlacesListOnMapScreen(geoDeeplink: GeoDeeplink): Screen {
         logAndroidAuto("GeoDeeplinkNavigateAction preparePlacesListOnMapScreen")
-        val mainCarContext = MainCarContext(carContext)
+        val accessToken = mainCarContext.mapboxNavigation.navigationOptions.accessToken
+        checkNotNull(accessToken) {
+            "GeoDeeplinkGeocoding requires an access token"
+        }
+        val placesProvider = GeoDeeplinkPlacesListOnMapProvider(
+            mainCarContext.carContext,
+            GeoDeeplinkGeocoding(accessToken),
+            geoDeeplink
+        )
+
         return PlacesListOnMapScreen(
             mainCarContext,
-            GeoDeeplinkPlacesListOnMapProvider(
-                GeoDeeplinkGeocoding(
-                    mainCarContext.mapboxNavigation.navigationOptions.accessToken!!
-                ),
-                geoDeeplink
-            ),
-            PlacesListOnMapLayerUtil(),
+            placesProvider,
             PlacesListItemMapper(
                 PlaceMarkerRenderer(mainCarContext.carContext),
                 mainCarContext
@@ -42,7 +46,9 @@ class GeoDeeplinkNavigateAction(
                     .distanceFormatterOptions
                     .unitType
             ),
-            SearchCarContext(mainCarContext)
+            listOf(
+                CarFeedbackAction(mainCarContext.mapboxCarMap, CarFeedbackSender(), placesProvider)
+            )
         )
     }
 }

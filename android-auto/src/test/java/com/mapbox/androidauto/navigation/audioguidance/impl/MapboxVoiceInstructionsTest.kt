@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
@@ -52,10 +53,12 @@ class MapboxVoiceInstructionsTest {
             firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(voiceInstructions)
         }
 
-        val state = carAppVoiceInstructions.voiceInstructions().take(2).toList()
+        val state = carAppVoiceInstructions.voiceInstructions().take(3).toList()
 
-        assertTrue(state[0].isPlayable)
-        assertEquals("Left on Broadway", state[1].voiceInstructions?.announcement())
+        assertFalse(state[0].isPlayable) // routesFlow() on start sends empty list to disable sound button  in FreeDrive
+        assertEquals(null, state[0].voiceInstructions)
+        assertTrue(state[1].isPlayable) // voiceInstructionsFlow() sends null voiceInstruction before observer is fired
+        assertEquals("Left on Broadway", state[2].voiceInstructions?.announcement())
     }
 
     @Test
@@ -82,11 +85,13 @@ class MapboxVoiceInstructionsTest {
             firstArg<VoiceInstructionsObserver>().onNewVoiceInstructions(secondVoiceInstructions)
         }
 
-        val voiceInstruction = carAppVoiceInstructions.voiceInstructions().take(3).toList()
+        val voiceInstruction = carAppVoiceInstructions.voiceInstructions().take(4).toList()
 
         val actual = voiceInstruction.map { it.voiceInstructions?.announcement() }
-        assertEquals("Left on Broadway", actual[1])
-        assertEquals("Right on Pennsylvania", actual[2])
+        assertEquals(null, actual[0]) // routesFlow() on start sends empty list to disable sound button  in FreeDrive
+        assertEquals(null, actual[1]) // voiceInstructionsFlow() sends null voiceInstruction before observer is fired
+        assertEquals("Left on Broadway", actual[2])
+        assertEquals("Right on Pennsylvania", actual[3])
     }
 
     @Test
@@ -131,9 +136,11 @@ class MapboxVoiceInstructionsTest {
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
 
-        val state = carAppVoiceInstructions.voiceLanguage().take(2).toList()
+        val state = carAppVoiceInstructions.voiceLanguage().take(3).toList()
 
-        assertEquals(listOf(null, language), state)
+        assertEquals(null, state[0]) // routesFlow() on start sends empty list to disable sound button  in FreeDrive
+        assertEquals(null, state[1]) // voiceInstructionsFlow() sends null voiceInstruction before observer is fired
+        assertEquals(language, state[2])
     }
 
     @Test

@@ -35,13 +35,13 @@ class MapboxVoiceInstructions(
     }
 
     fun voiceLanguage(): Flow<String?> {
-        return routesFlow().mapLatest { it.routes.firstOrNull()?.voiceLanguage() }.onStart { emit(value = null) }
+        return routesFlow().mapLatest { it.firstOrNull()?.voiceLanguage() }.onStart { emit(value = null) }
     }
 
     private fun routesUpdatedResultToVoiceInstructions(): Flow<State> {
         return routesFlow()
-            .flatMapLatest { routesUpdatedResult ->
-                if (routesUpdatedResult.routes.isNotEmpty()) {
+            .flatMapLatest { routes ->
+                if (routes.isNotEmpty()) {
                     voiceInstructionsFlow()
                 } else {
                     flowOf(MapboxVoiceInstructionsState(false, null))
@@ -61,13 +61,13 @@ class MapboxVoiceInstructions(
 
     private fun routesFlow() = channelFlow {
         val routesObserver = RoutesObserver { routesUpdatedResult ->
-            trySend(routesUpdatedResult)
+            trySend(routesUpdatedResult.routes)
         }
         mapboxNavigation.registerRoutesObserver(routesObserver)
         awaitClose {
             mapboxNavigation.unregisterRoutesObserver(routesObserver)
         }
-    }
+    }.onStart { emit(emptyList()) }
 
     private fun voiceInstructionsFlow() = channelFlow {
         val voiceInstructionsObserver = VoiceInstructionsObserver { voiceInstructions ->

@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
+import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate
@@ -16,6 +17,7 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainCarContext
+import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarLocationsOverviewCamera
 import com.mapbox.examples.androidauto.car.preview.CarRoutePreviewScreen
@@ -35,9 +37,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 class PlacesListOnMapScreen(
     private val mainCarContext: MainCarContext,
     private val placesProvider: PlacesListOnMapProvider,
-    private val placesLayerUtil: PlacesListOnMapLayerUtil,
     private val placesListItemMapper: PlacesListItemMapper,
-    private val searchCarContext: SearchCarContext
+    private val actionProviders: List<MapboxActionProvider>,
+    private val searchCarContext: SearchCarContext = SearchCarContext(mainCarContext),
+    private val placesLayerUtil: PlacesListOnMapLayerUtil = PlacesListOnMapLayerUtil()
 ) : Screen(mainCarContext.carContext) {
 
     @VisibleForTesting
@@ -140,9 +143,23 @@ class PlacesListOnMapScreen(
         val placesItemList = locationProvider.lastLocation?.run {
             placesListItemMapper.mapToItemList(this, placeRecords, placeClickListener)
         } ?: ItemList.Builder().build()
+        val actionStrip = ActionStrip.Builder().apply {
+            actionProviders.forEach {
+                when (it) {
+                    is MapboxActionProvider.ScreenActionProvider -> {
+                        this.addAction(it.getAction(this@PlacesListOnMapScreen))
+                    }
+                    is MapboxActionProvider.ActionProvider -> {
+                        this.addAction(it.getAction())
+                    }
+                }
+            }
+        }.build()
+
         return PlaceListNavigationTemplate.Builder()
             .setItemList(placesItemList)
             .setHeaderAction(Action.BACK)
+            .setActionStrip(actionStrip)
             .build()
     }
 

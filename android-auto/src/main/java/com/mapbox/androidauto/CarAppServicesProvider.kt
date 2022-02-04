@@ -5,7 +5,8 @@ import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceI
 import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceServicesImpl
 import com.mapbox.androidauto.navigation.location.CarAppLocation
 import com.mapbox.androidauto.navigation.location.impl.CarAppLocationImpl
-import com.mapbox.navigation.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 
 /**
  * The Mapbox services available from android auto for maps, search, and navigation.
@@ -17,6 +18,7 @@ interface CarAppServicesProvider {
     fun audioGuidance(): MapboxAudioGuidance
 }
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarAppServicesProviderImpl : CarAppServicesProvider {
     private val audioGuidance: MapboxAudioGuidance by lazy {
         MapboxAudioGuidanceImpl(

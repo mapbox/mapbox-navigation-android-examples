@@ -1,14 +1,17 @@
 package com.mapbox.examples.androidauto.car
 
+import androidx.car.app.Screen
 import androidx.car.app.ScreenManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
 import com.mapbox.examples.androidauto.R
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
+import com.mapbox.examples.androidauto.car.feedback.ui.buildFreeDriveFeedbackItemsProvider
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlaceMarkerRenderer
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListItemMapper
-import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
 import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapScreen
 import com.mapbox.examples.androidauto.car.search.FavoritesApi
 import com.mapbox.examples.androidauto.car.search.SearchCarContext
@@ -18,6 +21,7 @@ import com.mapbox.examples.androidauto.car.settings.SettingsCarContext
 import com.mapbox.search.MapboxSearchSdk
 
 class MainActionStrip(
+    private val screen: Screen,
     private val mainCarContext: MainCarContext
 ) {
     private val carContext = mainCarContext.carContext
@@ -28,6 +32,7 @@ class MainActionStrip(
      */
     fun builder() = ActionStrip.Builder()
         .addAction(buildSettingsAction())
+        .addAction(buildFreeDriveFeedbackAction())
         .addAction(buildSearchAction())
         .addAction(buildFavoritesAction())
 
@@ -36,6 +41,13 @@ class MainActionStrip(
      */
     fun buildSettings() = ActionStrip.Builder()
         .addAction(buildSettingsAction())
+
+    private fun buildFreeDriveFeedbackAction() =
+        CarFeedbackAction(
+            mainCarContext.mapboxCarMap,
+            CarFeedbackSender(),
+            buildFreeDriveFeedbackItemsProvider(screen.carContext)
+        ).getAction(screen)
 
     private fun buildSettingsAction() = Action.Builder()
         .setIcon(
@@ -62,7 +74,11 @@ class MainActionStrip(
                 )
             ).build()
         )
-        .setOnClickListener { screenManager.push(SearchScreen(SearchCarContext(mainCarContext))) }
+        .setOnClickListener {
+            screenManager.push(
+                SearchScreen(SearchCarContext(mainCarContext))
+            )
+        }
         .build()
 
     private fun buildFavoritesAction() = Action.Builder()
@@ -70,18 +86,25 @@ class MainActionStrip(
         .setOnClickListener { screenManager.push(favoritesScreen()) }
         .build()
 
-    private fun favoritesScreen() = PlacesListOnMapScreen(
-        mainCarContext,
-        FavoritesApi(MapboxSearchSdk.serviceProvider.favoritesDataProvider()),
-        PlacesListOnMapLayerUtil(),
-        PlacesListItemMapper(
-            PlaceMarkerRenderer(mainCarContext.carContext),
-            mainCarContext
-                .mapboxNavigation
-                .navigationOptions
-                .distanceFormatterOptions
-                .unitType
-        ),
-        SearchCarContext(mainCarContext)
-    )
+    private fun favoritesScreen(): PlacesListOnMapScreen {
+        val placesProvider = FavoritesApi(
+            mainCarContext.carContext,
+            MapboxSearchSdk.serviceProvider.favoritesDataProvider()
+        )
+        return PlacesListOnMapScreen(
+            mainCarContext,
+            placesProvider,
+            PlacesListItemMapper(
+                PlaceMarkerRenderer(mainCarContext.carContext),
+                mainCarContext
+                    .mapboxNavigation
+                    .navigationOptions
+                    .distanceFormatterOptions
+                    .unitType
+            ),
+            listOf(
+                CarFeedbackAction(mainCarContext.mapboxCarMap, CarFeedbackSender(), placesProvider)
+            )
+        )
+    }
 }
