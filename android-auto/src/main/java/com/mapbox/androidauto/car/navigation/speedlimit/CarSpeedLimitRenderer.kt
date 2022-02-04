@@ -1,10 +1,12 @@
 package com.mapbox.androidauto.car.navigation.speedlimit
 
+import android.graphics.Rect
 import android.location.Location
 import androidx.car.app.CarContext
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -56,5 +58,14 @@ class CarSpeedLimitRenderer(
         MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
         mapboxCarMapSurface.style.removeStyleLayer(SpeedLimitWidget.SPEED_LIMIT_WIDGET_LAYER_ID)
         speedLimitWidget.clear()
+    }
+
+    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.visibleAreaChanged(visibleArea, edgeInsets)
+        if (edgeInsets.right > 0) {
+            speedLimitWidget.setVisible(false)
+        } else {
+            speedLimitWidget.setVisible(true)
+        }
     }
 }

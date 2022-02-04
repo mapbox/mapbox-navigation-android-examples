@@ -10,13 +10,13 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.FreeDriveState
 import com.mapbox.androidauto.MapboxCarApp
-import com.mapbox.androidauto.navigation.audioguidance.CarAudioGuidanceUi
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
+import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
-import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
 import com.mapbox.examples.androidauto.car.MainMapActionStrip
+import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
+import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
 import com.mapbox.navigation.core.MapboxNavigationProvider
 
@@ -25,7 +25,8 @@ import com.mapbox.navigation.core.MapboxNavigationProvider
  * for completing the route.
  */
 class ActiveGuidanceScreen(
-    private val carActiveGuidanceContext: CarActiveGuidanceCarContext
+    private val carActiveGuidanceContext: CarActiveGuidanceCarContext,
+    private val actionProviders: List<MapboxActionProvider>
 ) : Screen(carActiveGuidanceContext.carContext) {
 
     val carRouteLine = CarRouteLine(carActiveGuidanceContext.mainCarContext)
@@ -40,7 +41,6 @@ class ActiveGuidanceScreen(
         carActiveGuidanceContext.mapboxNavigation
     )
 
-    private val carAudioGuidanceUi = CarAudioGuidanceUi(this)
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
     private val mapActionStripBuilder = MainMapActionStrip(this, carNavigationCamera)
 
@@ -74,23 +74,28 @@ class ActiveGuidanceScreen(
 
     override fun onGetTemplate(): Template {
         logAndroidAuto("ActiveGuidanceScreen onGetTemplate")
+        val actionStrip = ActionStrip.Builder().apply {
+            actionProviders.forEach {
+                when (it) {
+                    is MapboxActionProvider.ScreenActionProvider -> {
+                        this.addAction(it.getAction(this@ActiveGuidanceScreen))
+                    }
+                    is MapboxActionProvider.ActionProvider -> {
+                        this.addAction(it.getAction())
+                    }
+                }
+            }
+            this.addAction(
+                Action.Builder()
+                    .setTitle(carContext.getString(R.string.car_action_navigation_stop_button))
+                    .setOnClickListener {
+                        stopNavigation()
+                    }.build()
+            )
+        }.build()
         val builder = NavigationTemplate.Builder()
             .setBackgroundColor(CarColor.PRIMARY)
-            .setActionStrip(
-                ActionStrip.Builder()
-                    .addAction(
-                        Action.Builder()
-                            .setTitle(carContext.getString(R.string.car_action_navigation_stop_button))
-                            .setOnClickListener {
-                                stopNavigation()
-                            }
-                            .build()
-                    )
-                    .addAction(
-                        carAudioGuidanceUi.buildSoundButtonAction()
-                    )
-                    .build()
-            )
+            .setActionStrip(actionStrip)
             .setMapActionStrip(mapActionStripBuilder.build())
 
         carRouteProgressObserver.navigationInfo?.let {

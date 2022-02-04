@@ -3,6 +3,7 @@
 package com.mapbox.androidauto.deeplink
 
 import android.location.Location
+import androidx.car.app.CarContext
 import com.mapbox.androidauto.CarAppServicesProvider
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.navigation.location.CarAppLocation
@@ -10,6 +11,7 @@ import com.mapbox.androidauto.testing.MainCoroutineRule
 import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.core.geodeeplink.GeoDeeplink
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -17,10 +19,12 @@ import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.unmockkObject
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class GeoDeeplinkPlacesListOnMapProviderTest {
 
     @get:Rule
@@ -28,10 +32,12 @@ class GeoDeeplinkPlacesListOnMapProviderTest {
 
     @Test
     fun cancel() {
+        val carContext = mockk<CarContext> {
+            every { getString(any()) } returns "test_string"
+        }
         val geoDeeplinkGeocoding = mockk<GeoDeeplinkGeocoding>(relaxed = true)
         val geoDeeplink = mockk<GeoDeeplink>()
-
-        GeoDeeplinkPlacesListOnMapProvider(geoDeeplinkGeocoding, geoDeeplink).cancel()
+        GeoDeeplinkPlacesListOnMapProvider(carContext, geoDeeplinkGeocoding, geoDeeplink).cancel()
 
         verify { geoDeeplinkGeocoding.cancel() }
     }
@@ -74,7 +80,10 @@ class GeoDeeplinkPlacesListOnMapProviderTest {
             coEvery { requestPlaces(geoDeeplink, capture(originSlot)) } returns response
         }
 
-        val result = GeoDeeplinkPlacesListOnMapProvider(geoDeeplinkGeocoding, geoDeeplink)
+        val carContext = mockk<CarContext> {
+            every { getString(any()) } returns "test_string"
+        }
+        val result = GeoDeeplinkPlacesListOnMapProvider(carContext, geoDeeplinkGeocoding, geoDeeplink)
             .getPlaces()
             .value!!
 

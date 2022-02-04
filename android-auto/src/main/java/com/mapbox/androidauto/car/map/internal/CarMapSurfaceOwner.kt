@@ -137,7 +137,7 @@ internal class CarMapSurfaceOwner {
 
         logI(TAG, Message("fling $velocityX, $velocityY"))
         // TODO implement fling
-        // https://github.com/mapbox/mapbox-navigation-android-examples/issues/67
+        // https://github.com/mapbox/1tap-android/issues/1490
     }
 
     fun scale(focusX: Float, focusY: Float, scaleFactor: Float) {

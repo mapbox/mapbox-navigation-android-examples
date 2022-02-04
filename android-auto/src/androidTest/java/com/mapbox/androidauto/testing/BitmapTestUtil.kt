@@ -12,6 +12,7 @@ import org.junit.Assert.fail
 import org.junit.rules.TestName
 import java.io.File
 import java.nio.IntBuffer
+import kotlin.math.abs
 import kotlin.math.max
 
 /**
@@ -94,11 +95,12 @@ class BitmapTestUtil(
         val expectedPixels = getSingleImagePixels(expected)
         val actualPixels = getSingleImagePixels(actual)
         val differencePixels = differencePixels(expectedPixels, actualPixels)
+        val similarity = calculateSimilarity(differencePixels)
+        differencePixels.enhancePixelDifferences()
         val width = max(expected.width, actual.width)
         val height = max(expected.height, actual.height)
         val difference = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         difference.copyPixelsFromBuffer(IntBuffer.wrap(differencePixels))
-        val similarity = calculateSimilarity(differencePixels)
         return BitmapDifference(
             expected = expected,
             actual = actual,
@@ -114,10 +116,17 @@ class BitmapTestUtil(
      *  Returns 1.0 when every pixel is different.
      */
     private fun calculateSimilarity(differencePixels: IntArray): Double {
-        val countPixels = differencePixels.fold(0) { acc: Int, pixel: Int ->
-            acc + if (pixel != 0) 1 else 0
-        }
-        return countPixels / differencePixels.size.toDouble()
+        val total = differencePixels.size.toDouble()
+        return differencePixels
+            .filterNot { it == Color.TRANSPARENT }
+            .fold(0.0) { acc: Double, pixelDiff: Int ->
+                acc + calculateSimilarity(pixelDiff).toDouble() / total
+            }
+    }
+
+    private fun calculateSimilarity(pixelDiff: Int): Float {
+        val color = Color.valueOf(pixelDiff)
+        return color.components.maxOrNull() ?: 0.0f
     }
 
     /**
@@ -131,13 +140,60 @@ class BitmapTestUtil(
             diff[col] = if (expectedPixel == null || actualPixel == null) {
                 Color.WHITE
             } else {
-                expectedPixel - actualPixel
-            }
-            if (diff[col] != 0) {
-                println("$expectedPixel $actualPixel ${diff[col]}")
+                differencePixel(expectedPixel, actualPixel)
             }
         }
         return diff
+    }
+
+    /**
+     * If the pixel has any differences, set the alpha channel to 1.0 so
+     * we can easily see what the image difference is.
+     */
+    private fun IntArray.enhancePixelDifferences() = apply {
+        forEachIndexed { index, i ->
+            if (i != Color.TRANSPARENT) {
+                val differenceColor = Color.valueOf(i)
+                val similarity = calculateSimilarity(i)
+                this[index] = Color.argb(
+                    1.0f,
+                    differenceColor.red(),
+                    differenceColor.green(),
+                    differenceColor.blue()
+                )
+            }
+        }
+    }
+
+    /**
+     * Given two pixels, calculate the difference for each color component and create a new
+     * color that we can see in an image that identifies pixel differences.
+     */
+    private fun differencePixel(expectedPixel: Int, actualPixel: Int): Int {
+        val expectedColor = Color.valueOf(expectedPixel)
+        val actualColor = Color.valueOf(actualPixel)
+        return Color.argb(
+            differencePercentage(expectedColor, actualColor, 0),
+            differencePercentage(expectedColor, actualColor, 1),
+            differencePercentage(expectedColor, actualColor, 2),
+            differencePercentage(expectedColor, actualColor, 3),
+        )
+    }
+
+    /**
+     * The difference percentage for a color component. A full difference will result in 1,
+     * no difference will be 0.0.
+     *
+     * For example: If we are expecting a yellow color but get a blue color. The red component in
+     * yellow is missing, so the red component will be 1.0 because there is 100% difference. The
+     * blue component in yellow is not different, so it will be 0.0.
+     */
+    private fun differencePercentage(expected: Color, actual: Color, component: Int): Float {
+        if (expected.colorSpace != actual.colorSpace) return 1.0f
+        val difference = abs(expected.getComponent(component) - actual.getComponent(component))
+        val minValue = expected.colorSpace.getMinValue(component)
+        val maxValue = expected.colorSpace.getMaxValue(component)
+        return (difference - minValue) / (maxValue - minValue)
     }
 
     /**

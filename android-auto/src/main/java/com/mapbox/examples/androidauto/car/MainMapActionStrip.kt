@@ -26,7 +26,12 @@ class MainMapActionStrip(
             mapActionStripBuilder.addAction(
                 buildRecenterAction(carNavigationCamera)
             )
+        } else if (!carNavigationCamera.zoomUpdatesAllowed()) {
+            mapActionStripBuilder.addAction(
+                buildRecenterAction(carNavigationCamera)
+            )
         }
+
         return mapActionStripBuilder
             .addAction(buildZoomInAction(carNavigationCamera))
             .addAction(buildZoomOutAction(carNavigationCamera))
@@ -53,7 +58,10 @@ class MainMapActionStrip(
                 )
             ).build()
         )
-        .setOnClickListener { carNavigationCamera.zoomInAction() }
+        .setOnClickListener {
+            carNavigationCamera.zoomUpdatesAllowed(true)
+            carNavigationCamera.zoomInAction()
+        }
         .build()
 
     private fun buildZoomOutAction(carNavigationCamera: CarNavigationCamera) = Action.Builder()
@@ -65,7 +73,10 @@ class MainMapActionStrip(
                 )
             ).build()
         )
-        .setOnClickListener { carNavigationCamera.zoomOutAction() }
+        .setOnClickListener {
+            carNavigationCamera.zoomUpdatesAllowed(false)
+            carNavigationCamera.zoomOutAction()
+        }
         .build()
 
     private fun buildRecenterAction(carNavigationCamera: CarNavigationCamera): Action {
@@ -79,6 +90,7 @@ class MainMapActionStrip(
                 ).build()
             )
             .setOnClickListener {
+                carNavigationCamera.zoomUpdatesAllowed(true)
                 carNavigationCamera.updateCameraMode(CarCameraMode.FOLLOWING)
             }
             .build()

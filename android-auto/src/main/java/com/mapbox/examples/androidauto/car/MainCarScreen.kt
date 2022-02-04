@@ -33,7 +33,7 @@ class MainCarScreen(
         mainCarContext.mapboxNavigation
     )
 
-    private val mainActionStrip = MainActionStrip(mainCarContext)
+    private val mainActionStrip = MainActionStrip(this, mainCarContext)
     private val mapActionStripBuilder = MainMapActionStrip(this, carNavigationCamera)
 
     init {

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.mapbox.examples.androidauto.car.navigation
 
 import android.graphics.Rect
@@ -184,6 +186,25 @@ class CarNavigationCamera(
      * Function dedicated to zoom in map action buttons.
      */
     fun zoomOutAction() = scaleEaseBy(-ZOOM_ACTION_DELTA)
+
+    /**
+     * If true the camera may recalculate and update the zoom level. If false
+     * the feature is disabled.
+     */
+    fun zoomUpdatesAllowed(allowed: Boolean) {
+        viewportDataSource.options.followingFrameOptions.zoomUpdatesAllowed = allowed
+    }
+
+    /**
+     * Indicates whether the camera is configured to recalculate and update the zoom level.
+     */
+    fun zoomUpdatesAllowed(): Boolean {
+        return if (this::viewportDataSource.isInitialized) {
+            viewportDataSource.options.followingFrameOptions.zoomUpdatesAllowed
+        } else {
+            true
+        }
+    }
 
     private fun scaleEaseBy(delta: Double) {
         val mapSurface = mapboxCarMapSurface?.mapSurface

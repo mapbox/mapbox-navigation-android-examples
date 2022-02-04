@@ -4,6 +4,7 @@ import com.mapbox.api.geocoding.v5.GeocodingCriteria
 import com.mapbox.api.geocoding.v5.MapboxGeocoding
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.core.geodeeplink.GeoDeeplink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -26,24 +27,26 @@ class GeoDeeplinkGeocoding(
         origin: Point
     ): GeocodingResponse? {
         currentMapboxGeocoding?.cancelCall()
+        val point = geoDeeplink.point
+        val placeQuery = geoDeeplink.placeQuery
         currentMapboxGeocoding = when {
-            geoDeeplink.point != null -> {
+            point != null -> {
                 MapboxGeocoding.builder()
                     .accessToken(accessToken)
-                    .query(geoDeeplink.point)
+                    .query(point)
                     .proximity(origin)
                     .geocodingTypes(GeocodingCriteria.TYPE_ADDRESS)
                     .build()
             }
-            geoDeeplink.placeQuery != null -> {
+            placeQuery != null -> {
                 MapboxGeocoding.builder()
                     .accessToken(accessToken)
-                    .query(geoDeeplink.placeQuery)
+                    .query(placeQuery)
                     .proximity(origin)
                     .build()
             }
             else -> {
-                throw IllegalStateException("GeoDeepLink must have a point or query")
+                error("GeoDeepLink must have a point or query")
             }
         }
         return withContext(Dispatchers.IO) {

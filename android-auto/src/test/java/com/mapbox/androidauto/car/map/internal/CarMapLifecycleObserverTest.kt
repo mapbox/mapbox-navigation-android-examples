@@ -7,8 +7,8 @@ import androidx.car.app.AppManager
 import androidx.car.app.CarContext
 import androidx.car.app.SurfaceCallback
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.MapboxCarOptions
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
+import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
@@ -32,15 +32,13 @@ class CarMapLifecycleObserverTest {
 
     private val carContext: CarContext = mockk(relaxed = true)
     private val carMapSurfaceOwner: CarMapSurfaceOwner = mockk()
-    private val mapboxCarOptions: MapboxCarOptions = MapboxCarOptions
-        .Builder(mockk())
-        .build()
     private val testMapSurface: MapSurface = mockk(relaxed = true)
+    private val mapInitOptions: MapInitOptions = mockk(relaxed = true)
 
     private val carMapLifecycleObserver = CarMapLifecycleObserver(
         carContext,
         carMapSurfaceOwner,
-        mapboxCarOptions
+        mapInitOptions,
     )
 
     @Before

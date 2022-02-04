@@ -1,4 +1,4 @@
-package com.mapbox.examples.androidauto.car
+package com.mapbox.navigation.examples.androidauto.car
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -12,35 +12,30 @@ import androidx.car.app.Session
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.MapboxCarApp
-import com.mapbox.androidauto.MapboxCarApp.mapboxCarMap
+import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.androidauto.car.map.widgets.compass.CarCompassSurfaceRenderer
 import com.mapbox.androidauto.car.map.widgets.logo.CarLogoSurfaceRenderer
 import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.examples.androidauto.car.MainCarContext
+import com.mapbox.examples.androidauto.car.MainScreenManager
 import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
+import com.mapbox.maps.MapInitOptions
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.ui.maps.NavigationStyles
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainCarSession : Session() {
-
-    private val mapStyleUri: String
-        get() = MapboxCarApp.options.run {
-            if (carContext.isDarkMode) {
-                mapNightStyle ?: mapDayStyle
-            } else {
-                mapDayStyle
-            }
-        }
 
     private var hasLocationPermissions = false
     private var mainCarContext: MainCarContext? = null
     private lateinit var mainScreenManager: MainScreenManager
+    private lateinit var mapboxCarMap: MapboxCarMap
 
     init {
-        // Let the car app know that the car has been created.
-        // Make sure to call ths before setting up other car components.
-        MapboxCarApp.setupCar(this)
+        MapboxNavigationApp.attach(this)
 
         val logoSurfaceRenderer = CarLogoSurfaceRenderer()
         val compassSurfaceRenderer = CarCompassSurfaceRenderer()
@@ -50,7 +45,16 @@ class MainCarSession : Session() {
             override fun onCreate(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onCreate")
                 hasLocationPermissions = hasLocationPermission()
-                mainCarContext = MainCarContext(carContext)
+                val mapInitOptions = MapInitOptions(
+                    context = carContext,
+                    styleUri = mapStyleUri()
+                )
+                mapboxCarMap = MapboxCarMap(
+                    mapInitOptions,
+                    carContext = carContext,
+                    lifecycle = lifecycle
+                )
+                mainCarContext = MainCarContext(carContext, mapboxCarMap)
                 mainScreenManager = MainScreenManager(mainCarContext!!)
             }
 
@@ -101,21 +105,23 @@ class MainCarSession : Session() {
         mainCarContext.apply {
             logAndroidAuto("MainCarSession startTripSession")
             if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-                if (MapboxCarApp.options.replayEnabled) {
-                    val mapboxReplayer = mapboxNavigation.mapboxReplayer
-                    mapboxReplayer.pushRealLocation(carContext, 0.0)
-                    mapboxNavigation.startReplayTripSession()
-                    mapboxReplayer.play()
-                } else {
-                    mapboxNavigation.startTripSession()
-                }
+                mapboxNavigation.startTripSession()
             }
+        }
+    }
+
+    private fun mapStyleUri(): String {
+        return if (carContext.isDarkMode) {
+            NavigationStyles.NAVIGATION_NIGHT_STYLE
+        } else {
+            NavigationStyles.NAVIGATION_DAY_STYLE
         }
     }
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
         logAndroidAuto("onCarConfigurationChanged ${carContext.isDarkMode}")
-        mapboxCarMap.updateMapStyle(mapStyleUri)
+
+        mapboxCarMap.updateMapStyle(mapStyleUri())
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -126,7 +132,9 @@ class MainCarSession : Session() {
             false -> NeedsLocationPermissionsScreen(carContext)
             true -> {
                 if (intent.action == CarContext.ACTION_NAVIGATE) {
-                    GeoDeeplinkNavigateAction(carContext, lifecycle).onNewIntent(intent)
+                    mainCarContext?.let {
+                        GeoDeeplinkNavigateAction(it, lifecycle).onNewIntent(intent)
+                    }
                 } else {
                     null
                 }

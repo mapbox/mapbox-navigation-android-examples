@@ -4,17 +4,21 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
+import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.Row
 import androidx.car.app.model.SearchTemplate
 import androidx.car.app.model.Template
-import com.mapbox.examples.androidauto.car.preview.CarRoutePreviewScreen
-import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
-import com.mapbox.examples.androidauto.car.preview.RoutePreviewCarContext
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
+import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.buildSearchPlacesCarFeedbackProvider
+import com.mapbox.examples.androidauto.car.preview.CarRoutePreviewScreen
+import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
+import com.mapbox.examples.androidauto.car.preview.RoutePreviewCarContext
 import com.mapbox.search.result.SearchSuggestion
 
 /**
@@ -26,6 +30,9 @@ class SearchScreen(
 
     @VisibleForTesting
     var itemList = buildErrorItemList(R.string.car_search_no_results)
+
+    // Cached to send to feedback.
+    private var searchSuggestions: List<SearchSuggestion> = emptyList()
 
     private val carRouteRequestCallback = object : CarRouteRequestCallback {
 
@@ -60,6 +67,20 @@ class SearchScreen(
                 }
             })
             .setHeaderAction(Action.BACK)
+            .setActionStrip(
+                ActionStrip.Builder()
+                    .addAction(
+                        CarFeedbackAction(
+                            searchCarContext.mainCarContext.mapboxCarMap,
+                            CarFeedbackSender(),
+                            buildSearchPlacesCarFeedbackProvider(
+                                carContext = carContext,
+                                searchSuggestions = searchSuggestions
+                            )
+                        ).getAction(this@SearchScreen)
+                    )
+                    .build()
+            )
             .setShowKeyboardByDefault(false)
             .setItemList(itemList)
             .build()
@@ -67,6 +88,7 @@ class SearchScreen(
 
     fun doSearch(searchText: String) {
         searchCarContext.carSearchEngine.search(searchText) { suggestions ->
+            searchSuggestions = suggestions
             if (suggestions.isEmpty()) {
                 onErrorItemList(R.string.car_search_no_results)
             } else {

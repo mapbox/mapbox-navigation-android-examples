@@ -4,10 +4,10 @@ import android.graphics.Rect
 import androidx.car.app.CarContext
 import androidx.lifecycle.Lifecycle
 import com.mapbox.androidauto.MapboxCarApp
-import com.mapbox.androidauto.MapboxCarOptions
 import com.mapbox.androidauto.car.map.internal.CarMapLifecycleObserver
 import com.mapbox.androidauto.car.map.internal.CarMapSurfaceOwner
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapInitOptions
 
 /**
  * This is the main entry point for controlling the Mapbox map surface.
@@ -17,7 +17,7 @@ import com.mapbox.maps.EdgeInsets
  * and then [registerObserver] your implementations to create custom experiences.
  */
 class MapboxCarMap(
-    mapboxCarOptions: MapboxCarOptions,
+    mapInitOptions: MapInitOptions,
     carContext: CarContext,
     lifecycle: Lifecycle
 ) {
@@ -25,7 +25,7 @@ class MapboxCarMap(
     private val carMapLifecycleObserver = CarMapLifecycleObserver(
         carContext,
         carMapSurfaceSession,
-        mapboxCarOptions
+        mapInitOptions
     )
 
     val mapboxCarMapSurface: MapboxCarMapSurface?

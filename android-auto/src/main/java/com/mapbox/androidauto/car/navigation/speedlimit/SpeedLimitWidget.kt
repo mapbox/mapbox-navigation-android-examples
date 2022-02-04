@@ -190,6 +190,10 @@ class SpeedLimitWidget(
         lastSpeedLimitValue = null
     }
 
+    fun setVisible(shouldBeVisible: Boolean) {
+        viewWidgetHost.shouldRender = shouldBeVisible
+    }
+
     companion object {
         private const val TAG = "SpeedLimitWidget"
         private const val SPEED_SIGN_BORDER_RATIO_MUTCD = 0.05f
