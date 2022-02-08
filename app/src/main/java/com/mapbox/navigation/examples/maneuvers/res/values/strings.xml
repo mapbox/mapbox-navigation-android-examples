@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Maneuvers -->
+    <string name="title_maneuver">Render maneuver instructions for a route</string>
+    <string name="description_maneuver">Draw maneuver instructions using the Maneuver API and MapboxManeuverView.</string>
+
+</resources>

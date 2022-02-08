@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Show camera transitions -->
+    <string name="title_camera_transitions">Use camera to frame the map</string>
+    <string name="description_camera_transitions">Use NavigationCamera to show various map camera transitions using live location and routing data.</string>
+
+</resources>

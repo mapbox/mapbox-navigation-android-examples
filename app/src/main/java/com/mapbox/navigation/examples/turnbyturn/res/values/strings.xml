@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Turn by Turn -->
+    <string name="title_turn_by_turn">Add a complete turn-by-turn experience</string>
+    <string name="description_turn_by_turn">Render a complete turn-by-turn experience using all relevant Navigation SDK APIs and pre-built UI components.</string>
+
+</resources>
