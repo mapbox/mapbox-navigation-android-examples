@@ -19,61 +19,61 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".basics.FetchARouteActivity"
+    <activity android:name=".fetchroute.FetchARouteActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowCurrentLocationActivity"
+    <activity android:name=".location.ShowCurrentLocationActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.RenderRouteLineActivity"
+    <activity android:name=".routeline.RenderRouteLineActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowCameraTransitionsActivity"
+    <activity android:name=".camera.ShowCameraTransitionsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowTripProgressActivity"
+    <activity android:name=".tripprogress.ShowTripProgressActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowManeuversActivity"
+    <activity android:name=".maneuvers.ShowManeuversActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.PlayVoiceInstructionsActivity"
+    <activity android:name=".voice.PlayVoiceInstructionsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowSpeedLimitActivity"
+    <activity android:name=".speedlimit.ShowSpeedLimitActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.ShowBuildingExtrusionsActivity"
+    <activity android:name=".building.ShowBuildingExtrusionsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.TurnByTurnExperienceActivity"
+    <activity android:name=".turnbyturn.TurnByTurnExperienceActivity"
         android:exported="false"
         />
 
-    <activity android:name=".basics.MultipleWaypointsActivity"
+    <activity android:name=".multiplewaypoints.MultipleWaypointsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".basics.CustomArrivalActivity"
+    <activity android:name=".arrival.CustomArrivalActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />

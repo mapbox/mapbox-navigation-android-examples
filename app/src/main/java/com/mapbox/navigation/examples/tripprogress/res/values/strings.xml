@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Trip progress -->
+    <string name="title_trip_progress">Render trip progress information</string>
+    <string name="description_trip_progress">Draw trip progress information using the Trip Progress API and MapboxTripProgressView.</string>
+
+</resources>

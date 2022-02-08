@@ -52,6 +52,19 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    sourceSets {
+        main {
+            def srcDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples")
+                    .listFiles({ it.isDirectory() } as FileFilter)
+                    .collect { it.name }
+
+            res.srcDirs = ['src/main/res']
+            srcDirs.forEach {
+                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/' + it + '/res'
+            }
+        }
+    }
 }
 
 dependencies {

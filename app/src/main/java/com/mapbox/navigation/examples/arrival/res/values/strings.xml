@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Custom Arrival Building Extrusions -->
+    <string name="title_building_extrusions_custom_arrival">Render building extrusion based on custom arrival criteria.</string>
+    <string name="description_building_extrusions_custom_arrival">Use the example to render building extrusions on arrival using building API and MapboxBuildingView.</string>
+
+</resources>

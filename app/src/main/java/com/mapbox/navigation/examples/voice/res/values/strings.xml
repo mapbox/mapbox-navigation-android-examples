@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- Voice -->
+    <string name="title_voice">Play voice instructions for a route</string>
+    <string name="description_voice">Use the example to play voice instructions using Speech API and Voice Instruction Player.</string>
+
+</resources>
