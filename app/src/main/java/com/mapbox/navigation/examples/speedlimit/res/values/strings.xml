@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- Speed Limit -->
     <string name="title_speed_limit">Render speed limit for a route</string>
     <string name="description_speed_limit">Render the speed limit of the current road using the Speed Limit API and MapboxSpeedLimitView.</string>
 

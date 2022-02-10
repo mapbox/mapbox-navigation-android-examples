@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- Fetch Route -->
     <string name="fetch_a_route_message">Route was fetched successfully</string>
     <string name="fetch_a_route_cancel_message">Route request was canceled</string>
     <string name="fetch_a_route_error_message">Route request returned error</string>
