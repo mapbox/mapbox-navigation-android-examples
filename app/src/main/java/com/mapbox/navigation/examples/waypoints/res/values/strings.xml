@@ -1,6 +1,5 @@
 <resources>
 
-  <!-- Multiple way points -->
   <string name="title_multiple_way_points">Build a multiple waypoints route</string>
   <string name="description_multiple_way_points">Build a route using different types of waypoints: regular, silent, and named.</string>
   <string name="reset_route_button">Reset the route</string>
