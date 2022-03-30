@@ -18,10 +18,14 @@ import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
 import com.mapbox.examples.androidauto.car.feedback.ui.activeGuidanceCarFeedbackProvider
 import com.mapbox.examples.androidauto.car.navigation.ActiveGuidanceScreen
 import com.mapbox.examples.androidauto.car.navigation.CarActiveGuidanceCarContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 
 class MainScreenManager(
     val mainCarContext: MainCarContext
 ) : DefaultLifecycleObserver {
+    private val parentJob = SupervisorJob()
+    private val parentScope = CoroutineScope(parentJob + Dispatchers.Main)
 
     private val carAppStateObserver = Observer<CarAppState> { carAppState ->
         val currentScreen = currentScreen(carAppState)
@@ -55,11 +59,15 @@ class MainScreenManager(
 
     override fun onCreate(owner: LifecycleOwner) {
         logAndroidAuto("MainScreenManager onCreate")
-        MapboxCarApp.carAppState.observe(owner, carAppStateObserver)
+        parentScope.launch {
+            MapboxCarApp.carAppState.collect { carAppState ->
+                carAppStateObserver.onChanged(carAppState)
+            }
+        }
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
         logAndroidAuto("MainScreenManager onDestroy")
-        MapboxCarApp.carAppState.removeObserver(carAppStateObserver)
+        parentJob.cancelChildren()
     }
 }

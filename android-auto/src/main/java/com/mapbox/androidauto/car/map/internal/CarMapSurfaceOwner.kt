@@ -6,13 +6,10 @@ import android.graphics.Rect
 import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.base.common.logger.model.Message
-import com.mapbox.base.common.logger.model.Tag
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.ScreenCoordinate
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.maps.plugin.animation.easeTo
 import com.mapbox.navigation.utils.internal.ifNonNull
 import com.mapbox.navigation.utils.internal.logI
 import java.util.concurrent.CopyOnWriteArraySet
@@ -37,13 +34,13 @@ internal class CarMapSurfaceOwner {
 
     fun registerObserver(mapboxCarMapObserver: MapboxCarMapObserver) {
         carMapObservers.add(mapboxCarMapObserver)
-        logI(TAG, Message("registerObserver + 1 = ${carMapObservers.size}"))
+        logI(TAG, "registerObserver + 1 = ${carMapObservers.size}")
 
         mapboxCarMapSurface?.let { carMapSurface ->
             mapboxCarMapObserver.loaded(carMapSurface)
         }
         ifNonNull(mapboxCarMapSurface, visibleArea, edgeInsets) { _, area, edge ->
-            logI(TAG, Message("registerObserver visibleAreaChanged"))
+            logI(TAG, "registerObserver visibleAreaChanged")
             mapboxCarMapObserver.visibleAreaChanged(area, edge)
         }
     }
@@ -51,7 +48,7 @@ internal class CarMapSurfaceOwner {
     fun unregisterObserver(mapboxCarMapObserver: MapboxCarMapObserver) {
         carMapObservers.remove(mapboxCarMapObserver)
         mapboxCarMapSurface?.let { mapboxCarMapObserver.detached(it) }
-        logI(TAG, Message("unregisterObserver - 1 = ${carMapObservers.size}"))
+        logI(TAG, "unregisterObserver - 1 = ${carMapObservers.size}")
     }
 
     fun clearObservers() {
@@ -61,7 +58,7 @@ internal class CarMapSurfaceOwner {
     }
 
     fun surfaceAvailable(mapboxCarMapSurface: MapboxCarMapSurface) {
-        logI(TAG, Message("surfaceAvailable"))
+        logI(TAG, "surfaceAvailable")
         val oldCarMapSurface = this.mapboxCarMapSurface
         this.mapboxCarMapSurface = mapboxCarMapSurface
         oldCarMapSurface?.let { carMapObservers.forEach { it.detached(oldCarMapSurface) } }
@@ -70,7 +67,7 @@ internal class CarMapSurfaceOwner {
     }
 
     fun surfaceDestroyed() {
-        logI(TAG, Message("surfaceDestroyed"))
+        logI(TAG, "surfaceDestroyed")
         val detachSurface = this.mapboxCarMapSurface
         detachSurface?.mapSurface?.onStop()
         detachSurface?.mapSurface?.surfaceDestroyed()
@@ -80,7 +77,7 @@ internal class CarMapSurfaceOwner {
     }
 
     fun surfaceVisibleAreaChanged(visibleArea: Rect) {
-        logI(TAG, Message("surfaceVisibleAreaChanged"))
+        logI(TAG, "surfaceVisibleAreaChanged")
         this.visibleArea = visibleArea
         notifyVisibleAreaChanged()
     }
@@ -89,7 +86,7 @@ internal class CarMapSurfaceOwner {
         this.edgeInsets = visibleArea?.edgeInsets()
         this.visibleCenter = visibleCenter()
         ifNonNull(mapboxCarMapSurface, visibleArea, edgeInsets) { _, area, edge ->
-            logI(TAG, Message("notifyVisibleAreaChanged $area $edge"))
+            logI(TAG, "notifyVisibleAreaChanged $area $edge")
             carMapObservers.forEach {
                 it.visibleAreaChanged(area, edge)
             }
@@ -124,7 +121,7 @@ internal class CarMapSurfaceOwner {
                 fromCoordinate.x - distanceX,
                 fromCoordinate.y - distanceY
             )
-            logI(TAG, Message("scroll from $fromCoordinate to $toCoordinate"))
+            logI(TAG, "scroll from $fromCoordinate to $toCoordinate")
             setCamera(getDragCameraOptions(fromCoordinate, toCoordinate))
             dragEnd()
         }
@@ -135,7 +132,7 @@ internal class CarMapSurfaceOwner {
         val handled = carMapObservers.any { it.fling(carMapSurface, velocityX, velocityY) }
         if (handled) return
 
-        logI(TAG, Message("fling $velocityX, $velocityY"))
+        logI(TAG, "fling $velocityX, $velocityY")
         // TODO implement fling
         // https://github.com/mapbox/1tap-android/issues/1490
     }
@@ -157,7 +154,7 @@ internal class CarMapSurfaceOwner {
                 .anchor(anchor)
                 .build()
 
-            logI(TAG, Message("scale with $focusX, $focusY $scaleFactor -> $fromZoom $toZoom"))
+            logI(TAG, "scale with $focusX, $focusY $scaleFactor -> $fromZoom $toZoom")
             if (scaleFactor == DOUBLE_TAP_SCALE_FACTOR) {
                 carMapSurface.mapSurface.camera.easeTo(cameraOptions)
             } else {
@@ -167,7 +164,7 @@ internal class CarMapSurfaceOwner {
     }
 
     private companion object {
-        private val TAG = Tag("CarMapSurfaceOwner")
+        private const val TAG = "CarMapSurfaceOwner"
 
         private val rectCenterMapper = { rect: Rect ->
             ScreenCoordinate(rect.exactCenterX().toDouble(), rect.exactCenterY().toDouble())

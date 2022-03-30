@@ -10,12 +10,10 @@ import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackItemProvider
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.telemetry.events.BitmapEncodeOptions
 import com.mapbox.navigation.core.telemetry.events.FeedbackHelper
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarFeedbackAction(
     private val mapboxCarMap: MapboxCarMap,
     private val carFeedBackSender: CarFeedbackSender,
@@ -53,7 +51,7 @@ class CarFeedbackAction(
                         feedbackSender,
                         feedbackItems,
                         encodedSnapshot
-                    )
+                    ) { screen.screenManager.pop() }
                 )
             }
         }

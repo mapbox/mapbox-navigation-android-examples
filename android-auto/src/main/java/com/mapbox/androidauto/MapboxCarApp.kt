@@ -1,10 +1,10 @@
 package com.mapbox.androidauto
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.mapbox.androidauto.configuration.CarAppConfigOwner
 import com.mapbox.androidauto.datastore.CarAppDataStoreOwner
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The entry point for your Mapbox Android Auto app.
@@ -12,12 +12,12 @@ import com.mapbox.androidauto.datastore.CarAppDataStoreOwner
 object MapboxCarApp {
 
     private lateinit var servicesProvider: CarAppServicesProvider
-    private val carAppStateLiveData = MutableLiveData<CarAppState>(FreeDriveState)
+    private val carAppStateFlow = MutableStateFlow<CarAppState>(FreeDriveState)
 
     /**
      * Attach observers to the CarAppState to determine which view to show.
      */
-    val carAppState: LiveData<CarAppState> = carAppStateLiveData
+    val carAppState: StateFlow<CarAppState> = carAppStateFlow
 
     /**
      * Stores preferences that can be remembered across app launches.
@@ -38,7 +38,7 @@ object MapboxCarApp {
      * Keep your car and app in sync with CarAppState.
      */
     fun updateCarAppState(carAppState: CarAppState) {
-        carAppStateLiveData.postValue(carAppState)
+        carAppStateFlow.value = carAppState
     }
 
     /**

@@ -24,10 +24,10 @@ import org.junit.Test
 class FavoritesApiTest {
 
     @get:Rule
-    var coroutineRule = MainCoroutineRule()
+    val coroutineRule = MainCoroutineRule()
 
     @Test
-    fun getPlaces() = coroutineRule.runBlockingTest {
+    fun getPlaces() = coroutineRule.runTest {
         val expectedItemList = listOf(
             FavoriteRecord(
                 "id",
@@ -59,7 +59,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun getFavorites() = coroutineRule.runBlockingTest {
+    fun getFavorites() = coroutineRule.runTest {
         val expectedItemList = listOf<FavoriteRecord>()
         val callbackSlot = slot<CompletionCallback<List<FavoriteRecord>>>()
         val mockFavoritesProvider = mockk<FavoritesDataProvider>(relaxed = true) {
@@ -75,7 +75,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun getFavorites_cancelsAsyncTask() = coroutineRule.runBlockingTest {
+    fun getFavorites_cancelsAsyncTask() = coroutineRule.runTest {
         val expectedAsyncOperationTask = mockk<AsyncOperationTask>(relaxed = true)
         val expectedItemList = listOf<FavoriteRecord>()
         val callbackSlot = slot<CompletionCallback<List<FavoriteRecord>>>()
@@ -94,7 +94,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun getFavorites_onError() = coroutineRule.runBlockingTest {
+    fun getFavorites_onError() = coroutineRule.runTest {
         val callbackSlot = slot<CompletionCallback<List<FavoriteRecord>>>()
         val mockFavoritesProvider = mockk<FavoritesDataProvider>(relaxed = true) {
             every { getAll(capture(callbackSlot)) } answers {
@@ -109,7 +109,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun addFavorite() = coroutineRule.runBlockingTest {
+    fun addFavorite() = coroutineRule.runTest {
         val expected = mockk<FavoriteRecord>(relaxed = true)
         val callbackSlot = slot<CompletionCallback<Unit>>()
         val mockFavoritesProvider = mockk<FavoritesDataProvider>(relaxed = true) {
@@ -125,7 +125,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun addFavorite_cancelsAsyncTask() = coroutineRule.runBlockingTest {
+    fun addFavorite_cancelsAsyncTask() = coroutineRule.runTest {
         val favoriteRecord = mockk<FavoriteRecord>(relaxed = true)
         val expectedAsyncOperationTask = mockk<AsyncOperationTask>(relaxed = true)
         val callbackSlot = slot<CompletionCallback<Unit>>()
@@ -145,7 +145,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun removeFavorite() = coroutineRule.runBlockingTest {
+    fun removeFavorite() = coroutineRule.runTest {
         val callbackSlot = slot<CompletionCallback<Boolean>>()
         val mockFavoritesProvider = mockk<FavoritesDataProvider>(relaxed = true) {
             every { remove("foobar", capture(callbackSlot)) } answers {
@@ -160,7 +160,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun removeFavorite_cancelsAsyncTask() = coroutineRule.runBlockingTest {
+    fun removeFavorite_cancelsAsyncTask() = coroutineRule.runTest {
         val expectedAsyncOperationTask = mockk<AsyncOperationTask>(relaxed = true)
         val callbackSlot = slot<CompletionCallback<Boolean>>()
         val mockFavoritesProvider = mockk<FavoritesDataProvider>(relaxed = true) {
@@ -178,7 +178,7 @@ class FavoritesApiTest {
     }
 
     @Test
-    fun cancelRequests() = coroutineRule.runBlockingTest {
+    fun cancelRequests() = coroutineRule.runTest {
         val favoriteRecord = mockk<FavoriteRecord>(relaxed = true)
         val getAllTask = mockk<AsyncOperationTask>(relaxed = true)
         val addFavoriteTask = mockk<AsyncOperationTask>(relaxed = true)

@@ -45,10 +45,8 @@ class TestMapboxAudioGuidanceServices {
     }
 
     val mapboxAudioGuidanceServices = mockk<MapboxAudioGuidanceServices> {
-        every { mapboxVoiceInstructions() } returns mapboxVoiceInstructions
-        every {
-            mapboxAudioGuidanceVoice(any())
-        } returns mapboxAudioGuidanceVoice
+        every { mapboxVoiceInstructions(any()) } returns mapboxVoiceInstructions
+        every { mapboxAudioGuidanceVoice(any(), any()) } returns mapboxAudioGuidanceVoice
     }
 
     fun emitVoiceInstruction(state: MapboxVoiceInstructions.State) {

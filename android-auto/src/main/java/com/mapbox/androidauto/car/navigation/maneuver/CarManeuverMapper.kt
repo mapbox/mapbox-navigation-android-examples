@@ -1,11 +1,56 @@
 package com.mapbox.androidauto.car.navigation.maneuver
 
+import androidx.car.app.model.DateTimeWithZone
+import androidx.car.app.model.Distance
 import androidx.car.app.navigation.model.Maneuver
+import androidx.car.app.navigation.model.Step
+import androidx.car.app.navigation.model.TravelEstimate
+import androidx.car.app.navigation.model.Trip
 import com.mapbox.api.directions.v5.models.ManeuverModifier
 import com.mapbox.api.directions.v5.models.StepManeuver
+import com.mapbox.bindgen.Expected
+import com.mapbox.navigation.base.trip.model.RouteProgress
+import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
+import com.mapbox.navigation.ui.maneuver.model.ManeuverError
+import java.util.Calendar
+import java.util.TimeZone
 
 @Suppress("TooManyFunctions")
-class CarManeuverMapper {
+object CarManeuverMapper {
+
+    fun from(routeProgress: RouteProgress, maneuverApi: MapboxManeuverApi): Trip {
+        val etaAsCalendar = Calendar.getInstance().also {
+            it.add(Calendar.SECOND, routeProgress.durationRemaining.toInt())
+        }
+
+        val eta = TravelEstimate.Builder(
+            Distance.create(routeProgress.distanceRemaining.toDouble(), Distance.UNIT_METERS),
+            DateTimeWithZone.create(etaAsCalendar.timeInMillis, TimeZone.getDefault())
+        ).build()
+        val maneuvers = maneuverApi.getManeuvers(routeProgress)
+        val maneuver = from(maneuvers).build()
+        val step = Step.Builder().setManeuver(maneuver).build()
+        return Trip.Builder().addStep(step, eta).build()
+    }
+
+    fun from(
+        expected: Expected<ManeuverError, List<com.mapbox.navigation.ui.maneuver.model.Maneuver>>
+    ): Maneuver.Builder {
+        return expected.mapValue {
+            when (it.isEmpty()) {
+                true -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
+                false -> from(
+                    it.first().primary.type,
+                    it.first().primary.modifier,
+                    it.first().primary.degrees
+                )
+            }
+        }.fold({
+            Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
+        }, {
+            it
+        })
+    }
 
     fun from(
         maneuverType: String?,
@@ -27,7 +72,7 @@ class CarManeuverMapper {
             StepManeuver.EXIT_ROUNDABOUT,
             StepManeuver.ROUNDABOUT_TURN,
             StepManeuver.ROUNDABOUT -> mapRoundabout(maneuverModifier, degrees)
-            StepManeuver.NOTIFICATION -> error("Handle notifications elsewhere")
+            StepManeuver.NOTIFICATION -> mapEmptyManeuverType(maneuverModifier)
             else -> mapEmptyManeuverType(maneuverModifier)
         }
     }
@@ -70,7 +115,7 @@ class CarManeuverMapper {
             ManeuverModifier.LEFT,
             ManeuverModifier.SLIGHT_LEFT,
             ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_DESTINATION_LEFT)
-            else -> error("Unknown arrive modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 
@@ -98,7 +143,7 @@ class CarManeuverMapper {
             ManeuverModifier.LEFT -> Maneuver.Builder(Maneuver.TYPE_ON_RAMP_NORMAL_LEFT)
             ManeuverModifier.SLIGHT_LEFT -> Maneuver.Builder(Maneuver.TYPE_ON_RAMP_SLIGHT_LEFT)
             ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_ON_RAMP_SHARP_LEFT)
-            else -> error("Unknown on ramp modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 
@@ -112,7 +157,7 @@ class CarManeuverMapper {
             ManeuverModifier.LEFT,
             ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_OFF_RAMP_NORMAL_LEFT)
             ManeuverModifier.SLIGHT_LEFT -> Maneuver.Builder(Maneuver.TYPE_OFF_RAMP_SLIGHT_LEFT)
-            else -> error("Unknown off ramp modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 
@@ -126,7 +171,7 @@ class CarManeuverMapper {
             ManeuverModifier.LEFT,
             ManeuverModifier.SLIGHT_LEFT,
             ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_FORK_LEFT)
-            else -> error("Unknown fork modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 
@@ -140,7 +185,7 @@ class CarManeuverMapper {
             ManeuverModifier.LEFT,
             ManeuverModifier.SLIGHT_LEFT,
             ManeuverModifier.SHARP_LEFT -> Maneuver.Builder(Maneuver.TYPE_DESTINATION_LEFT)
-            else -> error("Unknown end of road modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 
@@ -163,7 +208,7 @@ class CarManeuverMapper {
                         .setRoundaboutExitNumber(1)
                 }
             }
-            else -> error("Unknown roundabout modifier $maneuverModifier")
+            else -> Maneuver.Builder(Maneuver.TYPE_UNKNOWN)
         }
     }
 }

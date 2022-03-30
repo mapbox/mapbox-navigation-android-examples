@@ -8,13 +8,13 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequest
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.examples.androidauto.R
 import com.mapbox.search.ui.view.place.SearchPlace
@@ -60,8 +60,11 @@ class DropInSearchComponent(
         carRouteRequest.request(
             searchPlace.toPlaceRecord(),
             object : CarRouteRequestCallback {
-                override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
-                    MapboxNavigationProvider.retrieve().setRoutes(routes)
+                override fun onRoutesReady(
+                    placeRecord: PlaceRecord,
+                    routes: List<NavigationRoute>
+                ) {
+                    MapboxNavigationProvider.retrieve().setNavigationRoutes(routes)
                     ready()
                 }
 

@@ -7,6 +7,7 @@ import com.mapbox.navigation.base.formatter.DistanceFormatter
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
+import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
 import com.mapbox.navigation.utils.internal.JobControl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,10 @@ class MainCarContext(
         MapboxDistanceFormatter(
             mapboxNavigation.navigationOptions.distanceFormatterOptions
         )
+    }
+
+    val maneuverApi: MapboxManeuverApi by lazy {
+        MapboxManeuverApi(distanceFormatter)
     }
 
     fun getJobControl(): JobControl {

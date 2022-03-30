@@ -227,3 +227,33 @@ fun buildSearchPlacesCarFeedbackProvider(
         }
     }
 }
+
+fun buildArrivalFeedbackProvider(
+    carContext: CarContext,
+) = listOf(
+    CarFeedbackItem(
+        carFeedbackTitle = carContext.getString(R.string.car_feedback_positive_arrived_at_destination),
+        carFeedbackIcon = PositiveCarFeedbackIcon,
+        navigationFeedbackType = FeedbackEvent.ARRIVAL_FEEDBACK_GOOD,
+    ),
+    CarFeedbackItem(
+        carFeedbackTitle = carContext.getString(R.string.car_feedback_positive_no_issue),
+        carFeedbackIcon = PositiveCarFeedbackIcon,
+        navigationFeedbackType = FeedbackEvent.ARRIVAL_FEEDBACK_GOOD,
+    ),
+    CarFeedbackItem(
+        carFeedbackTitle = carContext.getString(R.string.car_feedback_positive_amazing),
+        carFeedbackIcon = PositiveCarFeedbackIcon,
+        navigationFeedbackType = FeedbackEvent.ARRIVAL_FEEDBACK_GOOD,
+    ),
+    CarFeedbackItem(
+        carFeedbackTitle = carContext.getString(R.string.car_feedback_negative_unable_arrive),
+        carFeedbackIcon = NegativeCarFeedbackIcon,
+        navigationFeedbackType = FeedbackEvent.ARRIVAL_FEEDBACK_NOT_GOOD,
+    ),
+    CarFeedbackItem(
+        carFeedbackTitle = carContext.getString(R.string.car_feedback_negative_other_issue),
+        carFeedbackIcon = NegativeCarFeedbackIcon,
+        navigationFeedbackType = FeedbackEvent.ARRIVAL_FEEDBACK_NOT_GOOD,
+    )
+)

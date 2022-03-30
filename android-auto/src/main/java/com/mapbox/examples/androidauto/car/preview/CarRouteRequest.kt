@@ -3,29 +3,27 @@ package com.mapbox.examples.androidauto.car.preview
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.api.directions.v5.DirectionsCriteria
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.formatter.UnitType
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * This is a view interface. Each callback function represents a view that will be
  * shown for the situations.
  */
 interface CarRouteRequestCallback {
-    fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>)
+    fun onRoutesReady(placeRecord: PlaceRecord, routes: List<NavigationRoute>)
     fun onUnknownCurrentLocation()
     fun onDestinationLocationUnknown()
     fun onNoRoutesFound()
@@ -40,39 +38,31 @@ class CarRouteRequest(
 ) {
     internal var currentRequestId: Long? = null
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun requestSync(placeRecord: PlaceRecord): List<DirectionsRoute>? {
-        val routesFlow: Flow<List<DirectionsRoute>?> = callbackFlow {
+    suspend fun requestSync(placeRecord: PlaceRecord): List<NavigationRoute>? {
+        return suspendCancellableCoroutine { continuation ->
+            continuation.invokeOnCancellation { cancelRequest() }
             request(
                 placeRecord,
                 object : CarRouteRequestCallback {
-                    override fun onRoutesReady(
-                        placeRecord: PlaceRecord,
-                        routes: List<DirectionsRoute>
-                    ) {
-                        trySend(routes)
-                        close()
+
+                    override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<NavigationRoute>) {
+                        continuation.resume(routes)
                     }
 
                     override fun onUnknownCurrentLocation() {
-                        trySend(null)
-                        close()
+                        continuation.resume(value = null)
                     }
 
                     override fun onDestinationLocationUnknown() {
-                        trySend(null)
-                        close()
+                        continuation.resume(value = null)
                     }
 
                     override fun onNoRoutesFound() {
-                        trySend(null)
-                        close()
+                        continuation.resume(value = null)
                     }
                 }
             )
-            awaitClose { cancelRequest() }
         }
-        return routesFlow.first()
     }
 
     /**
@@ -135,13 +125,12 @@ class CarRouteRequest(
     private fun carCallbackTransformer(
         searchResult: PlaceRecord,
         callback: CarRouteRequestCallback
-    ): RouterCallback {
-        return object : RouterCallback {
-            override fun onRoutesReady(routes: List<DirectionsRoute>, routerOrigin: RouterOrigin) {
+    ): NavigationRouterCallback {
+        return object : NavigationRouterCallback {
+            override fun onRoutesReady(routes: List<NavigationRoute>, routerOrigin: RouterOrigin) {
                 currentRequestId = null
 
                 logAndroidAuto("onRoutesReady ${routes.size}")
-                mapboxNavigation.setRoutes(routes)
                 callback.onRoutesReady(searchResult, routes)
             }
 

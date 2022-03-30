@@ -1,55 +1,50 @@
 package com.mapbox.androidauto.car.navigation.roadlabel
 
-import com.mapbox.navigation.base.trip.model.eh.EHorizonPosition
-import com.mapbox.navigation.base.trip.model.eh.RoadName
-import com.mapbox.navigation.base.trip.model.roadobject.RoadObjectEnterExitInfo
-import com.mapbox.navigation.base.trip.model.roadobject.RoadObjectPassInfo
-import com.mapbox.navigation.base.trip.model.roadobject.distanceinfo.RoadObjectDistanceInfo
+import android.location.Location
+import com.mapbox.androidauto.car.map.MapboxCarMap
+import com.mapbox.navigation.base.road.model.RoadComponent
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.trip.session.eh.EHorizonObserver
+import com.mapbox.navigation.core.trip.session.LocationMatcherResult
+import com.mapbox.navigation.core.trip.session.LocationObserver
+import com.mapbox.navigation.ui.shield.api.MapboxRouteShieldApi
+import com.mapbox.navigation.ui.shield.model.RouteShield
+import com.mapbox.navigation.ui.shield.model.RouteShieldCallback
 
 abstract class RoadNameObserver(
-    val mapboxNavigation: MapboxNavigation
-) : EHorizonObserver {
+    val mapboxNavigation: MapboxNavigation,
+    private val routeShieldApi: MapboxRouteShieldApi,
+    private val mapboxCarMap: MapboxCarMap,
+) : LocationObserver {
 
-    var currentRoadName: RoadName? = null
+    var currentRoad = emptyList<RoadComponent>()
+    var currentShields = emptyList<RouteShield>()
 
-    abstract fun onRoadUpdate(currentRoadName: RoadName?)
-
-    override fun onPositionUpdated(
-        position: EHorizonPosition,
-        distances: List<RoadObjectDistanceInfo>
-    ) {
-        val edgeId = position.eHorizonGraphPosition.edgeId
-        val edgeMetadata = mapboxNavigation.graphAccessor.getEdgeMetadata(edgeId)
-        val currentRoadName = edgeMetadata?.names?.firstOrNull()
-        if (this.currentRoadName != currentRoadName) {
-            this.currentRoadName = currentRoadName
-            onRoadUpdate(currentRoadName)
+    private val roadNameShieldsCallback = RouteShieldCallback { shieldResult ->
+        val newShields = shieldResult.mapNotNull { it.value?.shield }
+        if (currentShields != newShields) {
+            currentShields = newShields
+            onRoadUpdate(currentRoad, newShields)
         }
     }
 
-    override fun onRoadObjectAdded(roadObjectId: String) {
+    abstract fun onRoadUpdate(road: List<RoadComponent>, shields: List<RouteShield>)
+
+    override fun onNewRawLocation(rawLocation: Location) {
         // Do nothing
     }
 
-    override fun onRoadObjectEnter(objectEnterExitInfo: RoadObjectEnterExitInfo) {
-        // Do nothing
-    }
-
-    override fun onRoadObjectExit(objectEnterExitInfo: RoadObjectEnterExitInfo) {
-        // Do nothing
-    }
-
-    override fun onRoadObjectPassed(objectPassInfo: RoadObjectPassInfo) {
-        // Do nothing
-    }
-
-    override fun onRoadObjectRemoved(roadObjectId: String) {
-        // Do nothing
-    }
-
-    override fun onRoadObjectUpdated(roadObjectId: String) {
-        // Do nothing
+    override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+        val newRoad = locationMatcherResult.road.components
+        if (currentRoad != newRoad) {
+            currentRoad = newRoad
+            onRoadUpdate(newRoad, currentShields)
+            routeShieldApi.getRouteShields(
+                locationMatcherResult.road,
+                mapboxCarMap.userId,
+                mapboxCarMap.styleId,
+                mapboxNavigation.navigationOptions.accessToken,
+                roadNameShieldsCallback,
+            )
+        }
     }
 }

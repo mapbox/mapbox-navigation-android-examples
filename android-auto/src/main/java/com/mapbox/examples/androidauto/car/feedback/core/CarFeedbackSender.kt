@@ -5,7 +5,9 @@ import com.google.gson.Gson
 import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackItem
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.telemetry.events.FeedbackEvent
 import com.mapbox.navigation.core.telemetry.events.FeedbackMetadata
+import com.mapbox.navigation.utils.internal.ifNonNull
 
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarFeedbackSender {
@@ -13,25 +15,27 @@ class CarFeedbackSender {
     private val gson: Gson = Gson()
 
     fun send(
-        selectedItem: CarFeedbackItem?,
+        selectedItem: CarFeedbackItem,
         encodedSnapshot: String?,
         sourceScreenSimpleName: String
     ) {
         val feedbackMetadata = MapboxNavigationApp.current()
             ?.provideFeedbackMetadataWrapper()?.get()
 
-        // TODO send navigation feedback
-//        ifNonNull(selectedItem?.navigationFeedbackType, MapboxNavigationApp.current(), feedbackMetadata) {
-//                feedbackType, mapboxNavigation, metadata ->
-//            mapboxNavigation.postUserFeedback(
-//                feedbackType = feedbackType,
-//                description = "Android Auto",
-//                feedbackSource = FeedbackEvent.UI,
-//                screenshot = encodedSnapshot ?: "",
-//                feedbackSubType = emptyArray(),
-//                feedbackMetadata = metadata
-//            )
-//        }
+        ifNonNull(
+            selectedItem.navigationFeedbackType,
+            MapboxNavigationApp.current(), feedbackMetadata
+        ) { feedbackType, mapboxNavigation, metadata ->
+            mapboxNavigation.postUserFeedback(
+                feedbackType = feedbackType,
+                description = "Android Auto selection: ${selectedItem.carFeedbackTitle}",
+                feedbackSource = FeedbackEvent.UI,
+                screenshot = encodedSnapshot ?: "",
+                feedbackSubType = emptyArray(),
+                feedbackMetadata = metadata
+            )
+        }
+
         // TODO send search feedback
 //        ifNonNull(selectedItem?.searchFeedbackReason) { _ ->
 //            val analyticsService = MapboxSearchSdk.serviceProvider.analyticsService()

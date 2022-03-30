@@ -6,6 +6,7 @@ import android.graphics.Rect
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
+import com.mapbox.common.Logger
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapSurface
@@ -13,12 +14,11 @@ import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.ScreenCoordinate
 import com.mapbox.maps.plugin.animation.CameraAnimationsPlugin
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.navigation.utils.internal.LoggerProvider
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -34,8 +34,9 @@ class CarMapSurfaceOwnerTest : MapboxRobolectricTestRunner() {
 
     @Before
     fun setup() {
-        mockkObject(LoggerProvider)
-        every { LoggerProvider.logger } returns mockk(relaxUnitFun = true)
+        mockkStatic(Logger::class)
+        every { Logger.e(any(), any()) } just Runs
+        every { Logger.i(any(), any()) } just Runs
     }
 
     @After

@@ -6,7 +6,6 @@ import com.mapbox.api.geocoding.v5.models.GeocodingResponse
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.core.geodeeplink.GeoDeeplink
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -58,7 +57,6 @@ class GeoDeeplinkGeocoding(
         currentMapboxGeocoding?.cancelCall()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun MapboxGeocoding.asFlow(): Flow<GeocodingResponse?> = callbackFlow {
         enqueueCall(object : Callback<GeocodingResponse> {
             override fun onResponse(

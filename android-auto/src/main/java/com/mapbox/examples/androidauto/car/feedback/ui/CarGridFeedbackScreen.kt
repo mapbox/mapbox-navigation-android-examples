@@ -14,37 +14,36 @@ import androidx.car.app.model.Template
 import androidx.core.graphics.drawable.IconCompat
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 
 /**
  * This screen allows the user to search for a destination.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarGridFeedbackScreen constructor(
     carContext: CarContext,
     private val sourceScreenSimpleName: String,
     private val carFeedbackSender: CarFeedbackSender,
     private val feedbackItems: List<CarFeedbackItem>,
-    private val encodedSnapshot: String?
+    private val encodedSnapshot: String?,
+    private val onFinish: () -> Unit,
 ) : Screen(carContext) {
 
     private var selectedItem: CarFeedbackItem? = null
 
     override fun onGetTemplate(): Template {
         return GridTemplate.Builder()
-            .setHeaderAction(Action.BACK)
             .setTitle(carContext.resources.getString(R.string.car_feedback_title))
             .setActionStrip(feedbackActionStrip())
             .setSingleList(buildItemList(carContext))
             .build()
     }
 
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun feedbackActionStrip() = ActionStrip.Builder()
+        .addAction(Action.Builder().setIcon(CarIcon.BACK).setOnClickListener(onFinish).build())
         .addAction(
             Action.Builder()
                 .setTitle(carContext.getString(R.string.car_feedback_submit))
                 .setOnClickListener {
+                    val selectedItem = this.selectedItem
                     if (selectedItem == null) {
                         CarToast.makeText(
                             carContext,
@@ -58,7 +57,7 @@ class CarGridFeedbackScreen constructor(
                             carContext.getString(R.string.car_feedback_submit_toast_success),
                             CarToast.LENGTH_LONG
                         ).show()
-                        screenManager.pop()
+                        onFinish()
                     }
                 }
                 .build()

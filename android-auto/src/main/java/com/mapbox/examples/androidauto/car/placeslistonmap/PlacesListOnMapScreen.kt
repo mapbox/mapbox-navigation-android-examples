@@ -14,7 +14,6 @@ import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
@@ -28,6 +27,7 @@ import com.mapbox.examples.androidauto.car.search.SearchCarContext
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.base.route.NavigationRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
@@ -82,7 +82,7 @@ class PlacesListOnMapScreen(
 
     private val carRouteRequestCallback = object : CarRouteRequestCallback {
 
-        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
+        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<NavigationRoute>) {
             val routePreviewCarContext = RoutePreviewCarContext(searchCarContext.mainCarContext)
             logAndroidAuto("PlacesListOnMapScreen go to CarRoutePreviewScreen ${routes.size}")
             screenManager.push(CarRoutePreviewScreen(routePreviewCarContext, placeRecord, routes))

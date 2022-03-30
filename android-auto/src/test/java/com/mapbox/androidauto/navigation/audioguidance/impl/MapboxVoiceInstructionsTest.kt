@@ -1,8 +1,8 @@
 package com.mapbox.androidauto.navigation.audioguidance.impl
 
 import com.mapbox.androidauto.testing.MainCoroutineRule
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.VoiceInstructions
+import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.directions.session.RoutesUpdatedResult
@@ -28,13 +28,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 class MapboxVoiceInstructionsTest {
 
     @get:Rule
-    var coroutineRule = MainCoroutineRule()
+    val coroutineRule = MainCoroutineRule()
 
     private val mapboxNavigation = mockk<MapboxNavigation>(relaxUnitFun = true)
     private val carAppVoiceInstructions = MapboxVoiceInstructions(mapboxNavigation)
 
     @Test
-    fun `should emit voice instruction`(): Unit = coroutineRule.runBlockingTest {
+    fun `should emit voice instruction`() = coroutineRule.runTest {
         every { mapboxNavigation.registerTripSessionStateObserver(any()) } answers {
             firstArg<TripSessionStateObserver>().onSessionStateChanged(
                 TripSessionState.STARTED
@@ -42,7 +42,7 @@ class MapboxVoiceInstructionsTest {
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
             val result = mockk<RoutesUpdatedResult> {
-                every { routes } returns listOf(mockk(), mockk())
+                every { navigationRoutes } returns listOf(mockk(), mockk())
             }
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
@@ -62,7 +62,7 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit multiple voice instructions`(): Unit = coroutineRule.runBlockingTest {
+    fun `should emit multiple voice instructions`() = coroutineRule.runTest {
         every { mapboxNavigation.registerTripSessionStateObserver(any()) } answers {
             firstArg<TripSessionStateObserver>().onSessionStateChanged(
                 TripSessionState.STARTED
@@ -70,7 +70,7 @@ class MapboxVoiceInstructionsTest {
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
             val result = mockk<RoutesUpdatedResult> {
-                every { routes } returns listOf(mockk(), mockk())
+                every { navigationRoutes } returns listOf(mockk(), mockk())
             }
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
@@ -95,7 +95,7 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit null routes is empty`(): Unit = coroutineRule.runBlockingTest {
+    fun `should emit null routes is empty`() = coroutineRule.runTest {
         every { mapboxNavigation.registerTripSessionStateObserver(any()) } answers {
             firstArg<TripSessionStateObserver>().onSessionStateChanged(
                 TripSessionState.STARTED
@@ -103,7 +103,7 @@ class MapboxVoiceInstructionsTest {
         }
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
             val result = mockk<RoutesUpdatedResult> {
-                every { routes } returns emptyList()
+                every { navigationRoutes } returns emptyList()
             }
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
@@ -114,7 +114,7 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit null when session is stopped`(): Unit = coroutineRule.runBlockingTest {
+    fun `should emit null when session is stopped`() = coroutineRule.runTest {
         every { mapboxNavigation.registerTripSessionStateObserver(any()) } answers {
             firstArg<TripSessionStateObserver>().onSessionStateChanged(
                 TripSessionState.STOPPED
@@ -127,11 +127,11 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit voice language from the first route`() = coroutineRule.runBlockingTest {
+    fun `should emit voice language from the first route`() = coroutineRule.runTest {
         val language = "de"
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
             val result = mockk<RoutesUpdatedResult> {
-                every { routes } returns listOf(createRoute(language), createRoute(voiceLanguage = "en"))
+                every { navigationRoutes } returns listOf(createRoute(language), createRoute(voiceLanguage = "en"))
             }
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
@@ -144,10 +144,10 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit null voice language when routes is empty`() = coroutineRule.runBlockingTest {
+    fun `should emit null voice language when routes is empty`() = coroutineRule.runTest {
         every { mapboxNavigation.registerRoutesObserver(any()) } answers {
             val result = mockk<RoutesUpdatedResult> {
-                every { routes } returns emptyList()
+                every { navigationRoutes } returns emptyList()
             }
             firstArg<RoutesObserver>().onRoutesChanged(result)
         }
@@ -156,15 +156,17 @@ class MapboxVoiceInstructionsTest {
     }
 
     @Test
-    fun `should emit null voice language before routes are updated`() = coroutineRule.runBlockingTest {
+    fun `should emit null voice language before routes are updated`() = coroutineRule.runTest {
         every { mapboxNavigation.registerRoutesObserver(any()) } just Runs
 
         assertNull(carAppVoiceInstructions.voiceLanguage().first())
     }
 
-    private fun createRoute(voiceLanguage: String): DirectionsRoute {
+    private fun createRoute(voiceLanguage: String): NavigationRoute {
         return mockk {
-            every { voiceLanguage() } returns voiceLanguage
+            every { directionsRoute } returns mockk {
+                every { voiceLanguage() } returns voiceLanguage
+            }
         }
     }
 }

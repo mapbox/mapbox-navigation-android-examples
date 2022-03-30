@@ -8,6 +8,7 @@ import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.ui.maneuver.model.Maneuver
 import com.mapbox.navigation.ui.maneuver.model.ManeuverError
+import com.mapbox.navigation.ui.shield.model.RouteShield
 
 /**
  * Observe MapboxNavigation properties that create NavigationInfo.
@@ -18,6 +19,7 @@ class CarNavigationInfoObserver(
     private val carActiveGuidanceCarContext: CarActiveGuidanceCarContext
 ) {
     private var onNavigationInfoChanged: (() -> Unit)? = null
+    private var currentShields = emptyList<RouteShield>()
     var navigationInfo: NavigationTemplate.NavigationInfo? = null
         private set(value) {
             if (field != value) {
@@ -28,18 +30,34 @@ class CarNavigationInfoObserver(
         }
 
     var travelEstimateInfo: TravelEstimate? = null
-    private var expectedManeuvers: Expected<ManeuverError, List<Maneuver>>? = null
-    private var routeProgress: RouteProgress? = null
 
     private val routeProgressObserver = RouteProgressObserver { routeProgress ->
-        this.routeProgress = routeProgress
-        expectedManeuvers = carActiveGuidanceCarContext.maneuverApi.getManeuvers(routeProgress)
-        updateNavigationInfo()
+        val expectedManeuvers = carActiveGuidanceCarContext.maneuverApi.getManeuvers(routeProgress)
+        updateNavigationInfo(expectedManeuvers, currentShields, routeProgress)
+
+        expectedManeuvers.onValue { maneuvers ->
+            carActiveGuidanceCarContext.maneuverApi.getRoadShields(
+                carActiveGuidanceCarContext.mapboxCarMap.userId,
+                carActiveGuidanceCarContext.mapboxCarMap.styleId,
+                carActiveGuidanceCarContext.mapboxNavigation.navigationOptions.accessToken,
+                maneuvers,
+            ) { shieldResult ->
+                val newShields = shieldResult.mapNotNull { it.value?.shield }
+                if (currentShields != newShields) {
+                    currentShields = newShields
+                    updateNavigationInfo(expectedManeuvers, newShields, routeProgress)
+                }
+            }
+        }
     }
 
-    private fun updateNavigationInfo() {
+    private fun updateNavigationInfo(
+        maneuvers: Expected<ManeuverError, List<Maneuver>>,
+        shields: List<RouteShield>,
+        routeProgress: RouteProgress,
+    ) {
         this.navigationInfo = carActiveGuidanceCarContext.navigationInfoMapper
-            .mapNavigationInfo(expectedManeuvers, routeProgress)
+            .mapNavigationInfo(maneuvers, shields, routeProgress)
 
         this.travelEstimateInfo = carActiveGuidanceCarContext.tripProgressMapper.from(routeProgress)
     }
