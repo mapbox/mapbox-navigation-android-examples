@@ -33,6 +33,9 @@ class MainCarSession : Session() {
     private var mainCarContext: MainCarContext? = null
     private lateinit var mainScreenManager: MainScreenManager
     private lateinit var mapboxCarMap: MapboxCarMap
+    private val mapboxNavigationManager: MapboxNavigationManager by lazy {
+        MapboxNavigationManager(this)
+    }
 
     init {
         MapboxNavigationApp.attach(this)
@@ -59,6 +62,7 @@ class MainCarSession : Session() {
             }
 
             override fun onStart(owner: LifecycleOwner) {
+                MapboxNavigationApp.registerObserver(mapboxNavigationManager)
                 hasLocationPermissions = hasLocationPermission()
                 logAndroidAuto("MainCarSession onStart and hasLocationPermissions $hasLocationPermissions")
                 if (hasLocationPermissions) {
@@ -82,6 +86,7 @@ class MainCarSession : Session() {
             override fun onStop(owner: LifecycleOwner) {
                 logAndroidAuto("MainCarSession onStop")
                 lifecycle.removeObserver(mainScreenManager)
+                MapboxNavigationApp.unregisterObserver(mapboxNavigationManager)
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
