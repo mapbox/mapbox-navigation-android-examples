@@ -21,7 +21,7 @@ android {
 
 dependencies {
     api("androidx.car.app:app:1.1.0")
-    api("com.mapbox.navigation:android:2.3.0-beta.2")
+    api("com.mapbox.navigation:android:2.4.0-beta.3")
     api("com.mapbox.search:mapbox-search-android:1.0.0-beta.26")
     api("com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.26")
     implementation("androidx.appcompat:appcompat:1.4.1")

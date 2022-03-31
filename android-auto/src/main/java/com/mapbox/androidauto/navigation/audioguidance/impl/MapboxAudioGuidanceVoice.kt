@@ -8,7 +8,6 @@ import com.mapbox.navigation.ui.voice.api.MapboxVoiceInstructionsPlayer
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.ui.voice.model.SpeechError
 import com.mapbox.navigation.ui.voice.model.SpeechValue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.flowOf
  * @param mapboxSpeechApi language (ISO 639)
  * @param mapboxVoiceInstructionsPlayer stream of [VoiceInstructions].
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class MapboxAudioGuidanceVoice(
     private val mapboxSpeechApi: MapboxSpeechApi,
     private val mapboxVoiceInstructionsPlayer: MapboxVoiceInstructionsPlayer

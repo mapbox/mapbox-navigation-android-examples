@@ -1,17 +1,17 @@
 package com.mapbox.androidauto.navigation.audioguidance.impl
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.androidauto.configuration.CarAppConfigOwner
 import com.mapbox.androidauto.datastore.CarAppDataStoreOwner
 import com.mapbox.androidauto.datastore.StoreAudioGuidanceMuted
 import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidance
 import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidanceServices
 import com.mapbox.api.directions.v5.models.VoiceInstructions
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
@@ -30,7 +31,6 @@ import kotlinx.coroutines.launch
 /**
  * Implementation of [MapboxAudioGuidance]. See interface for details.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class MapboxAudioGuidanceImpl(
     private val audioGuidanceServices: MapboxAudioGuidanceServices,
     private val carAppDataStore: CarAppDataStoreOwner,
@@ -43,12 +43,19 @@ class MapboxAudioGuidanceImpl(
      * When the car or app has been started, a top level lifecycle owner is attached.
      * This service will creates a hot observable which can be monitored through the [stateFlow].
      */
-    internal fun setup(lifecycleOwner: LifecycleOwner): Job =
-        lifecycleOwner.lifecycle.coroutineScope.launch {
-            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                audioGuidanceFlow().collect()
-            }
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
+    internal fun setup(scope: CoroutineScope) = object : MapboxNavigationObserver {
+        private var job: Job? = null
+
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            job = scope.launch { audioGuidanceFlow(mapboxNavigation).collect() }
         }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            job?.cancel()
+            job = null
+        }
+    }.also { MapboxNavigationApp.registerObserver(it) }
 
     /**
      * This flow gives you access to the state of mapbox audio guidance without effecting state.
@@ -94,18 +101,20 @@ class MapboxAudioGuidanceImpl(
     /**
      * Top level flow that will switch based on the language and muted state.
      */
-    private fun audioGuidanceFlow(): Flow<MapboxAudioGuidance.State> {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun audioGuidanceFlow(mapboxNavigation: MapboxNavigation): Flow<MapboxAudioGuidance.State> {
         return combine(
-            audioGuidanceServices.mapboxVoiceInstructions().voiceLanguage(),
+            audioGuidanceServices.mapboxVoiceInstructions(mapboxNavigation).voiceLanguage(),
             carAppConfigOwner.language(),
         ) { voiceLanguage, deviceLanguage -> voiceLanguage ?: deviceLanguage }
+            .distinctUntilChanged()
             .flatMapLatest { language ->
-                val audioGuidance = audioGuidanceServices.mapboxAudioGuidanceVoice(language)
+                val audioGuidance = audioGuidanceServices.mapboxAudioGuidanceVoice(mapboxNavigation, language)
                 carAppDataStore.read(StoreAudioGuidanceMuted).flatMapLatest { isMuted ->
                     if (isMuted) {
-                        silentFlow()
+                        silentFlow(mapboxNavigation)
                     } else {
-                        speechFlow(audioGuidance)
+                        speechFlow(mapboxNavigation, audioGuidance)
                     }
                 }
             }
@@ -114,8 +123,8 @@ class MapboxAudioGuidanceImpl(
     /**
      * This flow will monitor navigation state to determine if audio is available.
      */
-    private fun silentFlow(): Flow<MapboxAudioGuidance.State> {
-        return audioGuidanceServices.mapboxVoiceInstructions().voiceInstructions()
+    private fun silentFlow(mapboxNavigation: MapboxNavigation): Flow<MapboxAudioGuidance.State> {
+        return audioGuidanceServices.mapboxVoiceInstructions(mapboxNavigation).voiceInstructions()
             .map { state ->
                 internalStateFlow.updateAndGet {
                     MapboxAudioGuidanceState(
@@ -131,8 +140,11 @@ class MapboxAudioGuidanceImpl(
      * The same as the [silentFlow] except that it will speak announcements.
      */
     @OptIn(FlowPreview::class)
-    private fun speechFlow(audioGuidance: MapboxAudioGuidanceVoice): Flow<MapboxAudioGuidance.State> {
-        return audioGuidanceServices.mapboxVoiceInstructions().voiceInstructions()
+    private fun speechFlow(
+        mapboxNavigation: MapboxNavigation,
+        audioGuidance: MapboxAudioGuidanceVoice,
+    ): Flow<MapboxAudioGuidance.State> {
+        return audioGuidanceServices.mapboxVoiceInstructions(mapboxNavigation).voiceInstructions()
             .flatMapConcat { voice ->
                 internalStateFlow.updateAndGet {
                     MapboxAudioGuidanceState(

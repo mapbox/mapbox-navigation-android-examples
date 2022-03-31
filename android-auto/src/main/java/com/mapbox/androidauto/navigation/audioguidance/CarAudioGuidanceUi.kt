@@ -12,6 +12,7 @@ import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainActionStrip
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class CarAudioGuidanceUi : MapboxActionProvider.ScreenActionProvider {
         }
     }
 
+    @OptIn(InternalCoroutinesApi::class)
     override fun getAction(screen: Screen): Action {
         screen.lifecycle.apply {
             coroutineScope.launch {
@@ -48,8 +50,9 @@ class CarAudioGuidanceUi : MapboxActionProvider.ScreenActionProvider {
                     MapboxCarApp.carAppServices.audioGuidance().stateFlow()
                         .distinctUntilChanged { old, new ->
                             old.isMuted != new.isMuted || old.isPlayable != new.isPlayable
+                        }.collect {
+                            screen.invalidate()
                         }
-                        .collect { screen.invalidate() }
                 }
             }
         }

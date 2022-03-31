@@ -1,39 +1,73 @@
 package com.mapbox.androidauto.car.navigation.roadlabel
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import com.mapbox.navigation.base.road.model.RoadComponent
+import com.mapbox.navigation.ui.shield.model.RouteShield
+import kotlin.math.roundToInt
 
 /**
  * This class will a road name and create a bitmap that fits the text.
  */
-class RoadLabelRenderer {
+class RoadLabelRenderer(private val resources: Resources) {
 
     /**
-     * Render the [text] to a [Bitmap]
+     * Render [road] and [shields] to a [Bitmap]
      */
     fun render(
-        text: String?,
+        road: List<RoadComponent>,
+        shields: List<RouteShield>,
         options: RoadLabelOptions = RoadLabelOptions.default
     ): Bitmap? {
-        text ?: return null
-        val bitmap = measureTextBitmap(text)
+        if (road.isEmpty()) return null
+        textPaint.color = options.textColor
+        val components = measureRoadLabel(road, shields)
+        val spaceWidth = textPaint.measureText(" ").roundToInt()
+        val width = components.sumOf { component ->
+            when (component) {
+                is Component.Text -> component.rect.width()
+                is Component.Shield -> component.bitmap.width
+            }
+        } + spaceWidth * components.lastIndex
+        val height = components.maxOf { component ->
+            when (component) {
+                is Component.Text -> component.rect.height()
+                is Component.Shield -> component.bitmap.height
+            }
+        }
+        val bitmap = Bitmap.createBitmap(width + TEXT_PADDING * 2, height + TEXT_PADDING * 2, Bitmap.Config.ARGB_8888)
+        val textBaselineY = TEXT_PADDING + (height - textPaint.descent() - textPaint.ascent()) / 2
+        val shieldCenterY = TEXT_PADDING + height / 2f
         bitmap.eraseColor(options.backgroundColor)
         Canvas(bitmap)
             .drawLabelBackground(options)
-            .drawRoadLabelText(text, options)
+            .drawRoadLabel(components, textBaselineY, shieldCenterY, spaceWidth)
 
         return bitmap
     }
 
-    private fun measureTextBitmap(text: String): Bitmap {
-        val textBounds = Rect()
-        textPaint.getTextBounds(text, 0, text.length, textBounds)
-        val width = textBounds.right - textBounds.left + TEXT_PADDING * 2
-        val height = textBounds.bottom - textBounds.top + TEXT_PADDING * 2
+    private fun measureRoadLabel(road: List<RoadComponent>, shields: List<RouteShield>): List<Component> {
+        return road.map { component ->
+            getShieldBitmap(component, shields)
+                ?.let { Component.Shield(it) }
+                ?: Component.Text(component.text, getTextBounds(component.text))
+        }
+    }
 
-        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    private fun getShieldBitmap(component: RoadComponent, shields: List<RouteShield>): Bitmap? {
+        val shield = component.shield?.let { shield ->
+            shields.find { it is RouteShield.MapboxDesignedShield && it.compareWith(shield) }
+        } ?: component.imageBaseUrl?.let { baseUrl ->
+            shields.find { it is RouteShield.MapboxLegacyShield && it.compareWith(baseUrl) }
+        } ?: return null
+        return shield.toBitmap(resources, TEXT_SIZE)
+    }
+
+    private fun getTextBounds(text: String): Rect {
+        return Rect().also { textPaint.getTextBounds(text, 0, text.length, it) }
     }
 
     private fun Canvas.drawLabelBackground(options: RoadLabelOptions) = apply {
@@ -55,19 +89,35 @@ class RoadLabelRenderer {
         )
     }
 
-    @Suppress("MagicNumber")
-    private fun Canvas.drawRoadLabelText(roadLabel: String, options: RoadLabelOptions) = apply {
-        textPaint.color = options.textColor
-        val xPos = width / 2.0f
-        val textHeightHalf = (textPaint.descent() + textPaint.ascent()) / 2.0f
-        val yPos = height / 2.0f - textHeightHalf
-        drawText(roadLabel, xPos, yPos, textPaint)
+    private fun Canvas.drawRoadLabel(
+        components: List<Component>,
+        textBaselineY: Float,
+        shieldCenterY: Float,
+        spaceWidth: Int,
+    ) = apply {
+        components.fold(TEXT_PADDING) { x, component ->
+            x + spaceWidth + when (component) {
+                is Component.Text -> {
+                    drawText(component.value, x + component.rect.width() / 2f, textBaselineY, textPaint)
+                    component.rect.width()
+                }
+                is Component.Shield -> {
+                    val shieldY = shieldCenterY - component.bitmap.height / 2f
+                    drawBitmap(component.bitmap, x.toFloat(), shieldY, null)
+                    component.bitmap.width
+                }
+            }
+        }
+    }
+
+    private sealed class Component {
+        data class Text(val value: String, val rect: Rect) : Component()
+        data class Shield(val bitmap: Bitmap) : Component()
     }
 
     private companion object {
-        private const val TEXT_SIZE = 18.0f
+        private const val TEXT_SIZE = 18
         private const val TEXT_PADDING = 20
-        private const val TEXT_COLOR = 0xFF000000.toInt()
 
         private const val LABEL_PADDING = 10f
         private const val LABEL_RADIUS = 16f
@@ -75,10 +125,9 @@ class RoadLabelRenderer {
 
         private val textPaint by lazy {
             Paint().apply {
-                textSize = TEXT_SIZE
+                textSize = TEXT_SIZE.toFloat()
                 isAntiAlias = true
                 textAlign = Paint.Align.CENTER
-                color = TEXT_COLOR
             }
         }
 

@@ -35,17 +35,23 @@ internal class CarMapLifecycleObserver internal constructor(
 
     private var mapStyleUri: String = mapInitOptions.styleUri ?: Style.MAPBOX_STREETS
 
+    var userId = retrieveUserIdFromStyleUri(mapStyleUri)
+        private set
+
+    var styleId = retrieveStyleIdFromStyleUri(mapStyleUri)
+        private set
+
     private val logMapError = object : OnMapLoadErrorListener {
         override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
             val errorData = "${eventData.type} ${eventData.message}"
-            logE(TAG, Message("updateMapStyle onMapLoadError $errorData"))
+            logE(TAG, "updateMapStyle onMapLoadError $errorData")
         }
     }
 
     /** Screen lifecycle events */
 
     override fun onCreate(owner: LifecycleOwner) {
-        logI(TAG, Message("onCreate request surface"))
+        logI(TAG, "onCreate request surface")
         carContext.getCarService(AppManager::class.java)
             .setSurfaceCallback(this)
     }
@@ -53,7 +59,7 @@ internal class CarMapLifecycleObserver internal constructor(
     /** Surface lifecycle events */
 
     override fun onSurfaceAvailable(surfaceContainer: SurfaceContainer) {
-        logI(TAG, Message("onSurfaceAvailable $surfaceContainer"))
+        logI(TAG, "onSurfaceAvailable $surfaceContainer")
         surfaceContainer.surface?.let { surface ->
             val mapSurface = MapSurfaceProvider.create(
                 carContext,
@@ -65,7 +71,7 @@ internal class CarMapLifecycleObserver internal constructor(
             mapSurface.getMapboxMap().loadStyleUri(
                 mapStyleUri,
                 onStyleLoaded = { style ->
-                    logI(TAG, Message("onSurfaceAvailable onStyleLoaded"))
+                    logI(TAG, "onSurfaceAvailable onStyleLoaded")
                     mapSurface.surfaceChanged(surfaceContainer.width, surfaceContainer.height)
                     val carMapSurface = MapboxCarMapSurface(carContext, mapSurface, surfaceContainer, style)
                     carMapSurfaceOwner.surfaceAvailable(carMapSurface)
@@ -76,7 +82,7 @@ internal class CarMapLifecycleObserver internal constructor(
     }
 
     override fun onVisibleAreaChanged(visibleArea: Rect) {
-        logI(TAG, Message("onVisibleAreaChanged visibleArea:$visibleArea"))
+        logI(TAG, "onVisibleAreaChanged visibleArea:$visibleArea")
         carMapSurfaceOwner.surfaceVisibleAreaChanged(visibleArea)
     }
 
@@ -86,22 +92,22 @@ internal class CarMapLifecycleObserver internal constructor(
     }
 
     override fun onScroll(distanceX: Float, distanceY: Float) {
-        logI(TAG, Message("onScroll $distanceX, $distanceY"))
+        logI(TAG, "onScroll $distanceX, $distanceY")
         carMapSurfaceOwner.scroll(distanceX, distanceY)
     }
 
     override fun onFling(velocityX: Float, velocityY: Float) {
-        logI(TAG, Message("onFling $velocityX, $velocityY"))
+        logI(TAG, "onFling $velocityX, $velocityY")
         carMapSurfaceOwner.fling(velocityX, velocityY)
     }
 
     override fun onScale(focusX: Float, focusY: Float, scaleFactor: Float) {
-        logI(TAG, Message("onScroll $focusX, $focusY, $scaleFactor"))
+        logI(TAG, "onScroll $focusX, $focusY, $scaleFactor")
         carMapSurfaceOwner.scale(focusX, focusY, scaleFactor)
     }
 
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) {
-        logI(TAG, Message("onSurfaceDestroyed"))
+        logI(TAG, "onSurfaceDestroyed")
         carMapSurfaceOwner.surfaceDestroyed()
     }
 
@@ -111,13 +117,13 @@ internal class CarMapLifecycleObserver internal constructor(
         if (this.mapStyleUri == mapStyle) return
         this.mapStyleUri = mapStyle
 
-        logI(TAG, Message("updateMapStyle $mapStyle"))
+        logI(TAG, "updateMapStyle $mapStyle")
         val previousCarMapSurface = carMapSurfaceOwner.mapboxCarMapSurface
         val mapSurface = previousCarMapSurface?.mapSurface
         mapSurface?.getMapboxMap()?.loadStyleUri(
             mapStyle,
             onStyleLoaded = { style ->
-                logI(TAG, Message("updateMapStyle styleAvailable ${style.styleURI}"))
+                logI(TAG, "updateMapStyle styleAvailable ${style.styleURI}")
                 val carMapSurface = MapboxCarMapSurface(
                     carContext,
                     mapSurface,
@@ -128,9 +134,19 @@ internal class CarMapLifecycleObserver internal constructor(
             },
             onMapLoadErrorListener = logMapError
         )
+        userId = retrieveUserIdFromStyleUri(mapStyleUri)
+        styleId = retrieveStyleIdFromStyleUri(mapStyleUri)
+    }
+
+    private fun retrieveUserIdFromStyleUri(styleUri: String): String {
+        return styleUri.substringAfter("mapbox://styles/").split("/", limit = 2)[0]
+    }
+
+    private fun retrieveStyleIdFromStyleUri(styleUri: String): String {
+        return styleUri.substringAfter("mapbox://styles/").split("/", limit = 2)[1]
     }
 
     private companion object {
-        private val TAG = Tag("CarMapSurfaceLifecycle")
+        private const val TAG = "CarMapSurfaceLifecycle"
     }
 }

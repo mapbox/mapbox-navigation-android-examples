@@ -10,11 +10,12 @@ import com.mapbox.androidauto.logAndroidAutoFailure
 import com.mapbox.androidauto.surfacelayer.CarSurfaceLayer
 import com.mapbox.androidauto.surfacelayer.textview.CarTextLayerHost
 import com.mapbox.maps.LayerPosition
-import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentConstants
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.base.trip.model.eh.RoadName
+import com.mapbox.navigation.base.road.model.RoadComponent
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.ui.shield.api.MapboxRouteShieldApi
+import com.mapbox.navigation.ui.shield.model.RouteShield
 
 /**
  * This will show the current road name at the bottom center of the screen.
@@ -23,26 +24,27 @@ import com.mapbox.navigation.core.MapboxNavigation
  * registering it to the [MapboxCarMap.registerObserver]. Disable by
  * removing the listener with [MapboxCarMap.unregisterObserver].
  */
-@OptIn(MapboxExperimental::class)
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class RoadLabelSurfaceLayer(
     val carContext: CarContext,
-    val mapboxNavigation: MapboxNavigation
+    val mapboxNavigation: MapboxNavigation,
+    private val mapboxCarMap: MapboxCarMap,
 ) : CarSurfaceLayer() {
 
-    private val roadLabelRenderer = RoadLabelRenderer()
+    private val roadLabelRenderer = RoadLabelRenderer(carContext.resources)
     private val carTextLayerHost = CarTextLayerHost()
+    private val routeShieldApi = MapboxRouteShieldApi()
 
-    private val roadNameObserver = object : RoadNameObserver(mapboxNavigation) {
+    private val roadNameObserver = object : RoadNameObserver(mapboxNavigation, routeShieldApi, mapboxCarMap) {
 
-        override fun onRoadUpdate(currentRoadName: RoadName?) {
-            val bitmap = roadLabelRenderer.render(currentRoadName?.name, roadLabelOptions())
+        override fun onRoadUpdate(road: List<RoadComponent>, shields: List<RouteShield>) {
+            val bitmap = roadLabelRenderer.render(road, shields, roadLabelOptions())
             carTextLayerHost.offerBitmap(bitmap)
         }
     }
 
     override fun children() = listOf(carTextLayerHost.mapScene)
 
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("RoadLabelSurfaceLayer carMapSurface loaded")
         super.loaded(mapboxCarMapSurface)
@@ -62,18 +64,19 @@ class RoadLabelSurfaceLayer(
         }
 
         val bitmap = roadLabelRenderer.render(
-            roadNameObserver.currentRoadName?.name,
+            roadNameObserver.currentRoad,
+            roadNameObserver.currentShields,
             roadLabelOptions()
         )
         carTextLayerHost.offerBitmap(bitmap)
-        mapboxNavigation.registerEHorizonObserver(roadNameObserver)
+        mapboxNavigation.registerLocationObserver(roadNameObserver)
     }
 
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("RoadLabelSurfaceLayer carMapSurface detached")
         mapboxCarMapSurface.style.removeStyleLayer(CAR_NAVIGATION_VIEW_LAYER_ID)
-        mapboxNavigation.unregisterEHorizonObserver(roadNameObserver)
+        mapboxNavigation.unregisterLocationObserver(roadNameObserver)
+        routeShieldApi.cancel()
         super.detached(mapboxCarMapSurface)
     }
 

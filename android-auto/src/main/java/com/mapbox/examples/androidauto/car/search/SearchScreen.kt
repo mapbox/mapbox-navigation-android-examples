@@ -11,14 +11,14 @@ import androidx.car.app.model.SearchTemplate
 import androidx.car.app.model.Template
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.logAndroidAutoFailure
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.R
-import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.examples.androidauto.car.feedback.ui.CarFeedbackAction
 import com.mapbox.examples.androidauto.car.feedback.ui.buildSearchPlacesCarFeedbackProvider
 import com.mapbox.examples.androidauto.car.preview.CarRoutePreviewScreen
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
 import com.mapbox.examples.androidauto.car.preview.RoutePreviewCarContext
+import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.search.result.SearchSuggestion
 
 /**
@@ -36,7 +36,7 @@ class SearchScreen(
 
     private val carRouteRequestCallback = object : CarRouteRequestCallback {
 
-        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<DirectionsRoute>) {
+        override fun onRoutesReady(placeRecord: PlaceRecord, routes: List<NavigationRoute>) {
             val routePreviewCarContext = RoutePreviewCarContext(searchCarContext.mainCarContext)
 
             screenManager.push(CarRoutePreviewScreen(routePreviewCarContext, placeRecord, routes))

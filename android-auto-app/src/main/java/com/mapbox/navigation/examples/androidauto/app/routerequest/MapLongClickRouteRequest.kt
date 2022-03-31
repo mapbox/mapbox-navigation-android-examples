@@ -5,7 +5,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequest
 import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
@@ -13,6 +12,7 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import java.util.UUID
 
@@ -49,9 +49,9 @@ class MapLongClickRouteRequest {
             object : CarRouteRequestCallback {
                 override fun onRoutesReady(
                     placeRecord: PlaceRecord,
-                    routes: List<DirectionsRoute>
+                    routes: List<NavigationRoute>
                 ) {
-                    MapboxNavigationProvider.retrieve().setRoutes(routes)
+                    MapboxNavigationProvider.retrieve().setNavigationRoutes(routes)
                     MapboxCarApp.updateCarAppState(RoutePreviewState)
                 }
 

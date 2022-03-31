@@ -9,11 +9,10 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.mapbox.androidauto.car.RendererUtils.dpToPx
 import com.mapbox.androidauto.logAndroidAutoFailure
-import com.mapbox.navigation.base.internal.maneuver.ManeuverTurnIcon
 import com.mapbox.navigation.ui.maneuver.api.MapboxTurnIconsApi
 import com.mapbox.navigation.ui.maneuver.model.PrimaryManeuver
+import com.mapbox.navigation.ui.maneuver.model.SubManeuver
 import com.mapbox.navigation.ui.maneuver.model.TurnIconResources
-import com.mapbox.navigation.utils.internal.ifNonNull
 
 /**
  * Create icons from the Mapbox navigation maneuvers.
@@ -25,16 +24,20 @@ class CarManeuverIconRenderer(
     private val turnIconsApi = MapboxTurnIconsApi(turnIconResources)
 
     fun renderManeuverIcon(maneuver: PrimaryManeuver): CarIcon? {
-        val maneuverTurnIcon: ManeuverTurnIcon? = turnIconsApi.generateTurnIcon(
-            maneuver.type, maneuver.degrees?.toFloat(), maneuver.modifier, maneuver.drivingSide
-        ).onError {
-            logAndroidAutoFailure("CarManeuverIconRenderer renderManeuverIcon error ${it.errorMessage}")
-        }.value
-        return ifNonNull(maneuverTurnIcon?.icon, maneuverTurnIcon?.shouldFlipIcon) { turnIconRes, shouldFlip ->
-            CarIcon.Builder(
-                IconCompat.createWithBitmap(renderBitmap(turnIconRes, shouldFlip))
-            ).build()
-        }
+        return renderManeuverIcon(maneuver.type, maneuver.degrees, maneuver.modifier, maneuver.drivingSide)
+    }
+
+    fun renderManeuverIcon(maneuver: SubManeuver): CarIcon? {
+        return renderManeuverIcon(maneuver.type, maneuver.degrees, maneuver.modifier, maneuver.drivingSide)
+    }
+
+    private fun renderManeuverIcon(type: String?, degrees: Double?, modifier: String?, drivingSide: String?): CarIcon? {
+        val maneuverTurnIcon = turnIconsApi.generateTurnIcon(type, degrees?.toFloat(), modifier, drivingSide)
+            .onError { logAndroidAutoFailure("CarManeuverIconRenderer renderManeuverIcon error ${it.errorMessage}") }
+            .value
+        val turnIconRes = maneuverTurnIcon?.icon ?: return null
+        val bitmap = renderBitmap(turnIconRes, maneuverTurnIcon.shouldFlipIcon)
+        return CarIcon.Builder(IconCompat.createWithBitmap(bitmap)).build()
     }
 
     private fun renderBitmap(@DrawableRes drawableId: Int, shouldFlip: Boolean): Bitmap {

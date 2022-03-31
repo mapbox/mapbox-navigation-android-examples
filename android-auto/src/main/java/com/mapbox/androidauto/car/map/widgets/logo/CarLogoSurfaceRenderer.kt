@@ -1,11 +1,9 @@
 package com.mapbox.androidauto.car.map.widgets.logo
 
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.maps.LayerPosition
-import com.mapbox.maps.MapboxExperimental
 
-@OptIn(MapboxExperimental::class)
 class CarLogoSurfaceRenderer(
     private val layerPosition: LayerPosition? = null
 ) : MapboxCarMapObserver {

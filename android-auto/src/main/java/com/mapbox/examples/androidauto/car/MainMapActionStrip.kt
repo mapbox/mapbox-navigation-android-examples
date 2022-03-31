@@ -1,35 +1,42 @@
 package com.mapbox.examples.androidauto.car
 
+import androidx.annotation.DrawableRes
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainMapActionStrip(
     private val screen: Screen,
     private val carNavigationCamera: CarNavigationCamera
 ) {
     init {
-        carNavigationCamera.customCameraMode.observe(screen) {
-            screen.invalidate()
+        screen.lifecycleScope.launch {
+            screen.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                carNavigationCamera.nextCameraMode.collect {
+                    screen.invalidate()
+                }
+            }
         }
     }
 
     fun build(): ActionStrip {
         val mapActionStripBuilder = ActionStrip.Builder()
             .addAction(buildPanAction())
-        if (carNavigationCamera.customCameraMode.value != null) {
-            mapActionStripBuilder.addAction(
-                buildRecenterAction(carNavigationCamera)
-            )
-        } else if (!carNavigationCamera.zoomUpdatesAllowed()) {
-            mapActionStripBuilder.addAction(
-                buildRecenterAction(carNavigationCamera)
-            )
+        val nextCameraMode = carNavigationCamera.nextCameraMode.value
+        when {
+            nextCameraMode == CarCameraMode.FOLLOWING -> mapActionStripBuilder.addAction(buildRecenterAction())
+            nextCameraMode == CarCameraMode.OVERVIEW -> mapActionStripBuilder.addAction(buildOverviewAction())
+            !carNavigationCamera.followingZoomUpdatesAllowed() -> mapActionStripBuilder.addAction(buildRecenterAction())
         }
 
         return mapActionStripBuilder
@@ -59,7 +66,7 @@ class MainMapActionStrip(
             ).build()
         )
         .setOnClickListener {
-            carNavigationCamera.zoomUpdatesAllowed(true)
+            carNavigationCamera.zoomUpdatesAllowed(false)
             carNavigationCamera.zoomInAction()
         }
         .build()
@@ -79,19 +86,23 @@ class MainMapActionStrip(
         }
         .build()
 
-    private fun buildRecenterAction(carNavigationCamera: CarNavigationCamera): Action {
+    private fun buildRecenterAction() = buildCameraAction(R.drawable.ic_recenter_24, CarCameraMode.FOLLOWING)
+
+    private fun buildOverviewAction() = buildCameraAction(R.drawable.ic_route_overview, CarCameraMode.OVERVIEW)
+
+    private fun buildCameraAction(@DrawableRes iconId: Int, carCameraMode: CarCameraMode): Action {
         return Action.Builder()
             .setIcon(
                 CarIcon.Builder(
                     IconCompat.createWithResource(
                         screen.carContext,
-                        R.drawable.ic_recenter_24
+                        iconId,
                     )
                 ).build()
             )
             .setOnClickListener {
                 carNavigationCamera.zoomUpdatesAllowed(true)
-                carNavigationCamera.updateCameraMode(CarCameraMode.FOLLOWING)
+                carNavigationCamera.updateCameraMode(carCameraMode)
             }
             .build()
     }

@@ -1,28 +1,34 @@
 package com.mapbox.androidauto.navigation.audioguidance
 
-import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.navigation.ui.voice.view.MapboxSoundButton
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 fun Fragment.attachAudioGuidance(
     mapboxSoundButton: MapboxSoundButton
 ) {
-    MapboxCarApp.carAppServices.audioGuidance().stateFlow().asLiveData()
-        .observe(viewLifecycleOwner) { state ->
-            when (state.isMuted) {
-                true -> mapboxSoundButton.mute()
-                else -> mapboxSoundButton.unmute()
-            }
-            when (state.isPlayable) {
-                true -> mapboxSoundButton.visibility = View.VISIBLE
-                else -> mapboxSoundButton.visibility = View.GONE
+    val lifecycleOwner = viewLifecycleOwner
+    val flow = MapboxCarApp.carAppServices.audioGuidance().stateFlow()
+    lifecycleOwner.lifecycleScope.launch {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            flow.collect { state ->
+                if (state.isMuted) {
+                    mapboxSoundButton.mute()
+                } else {
+                    mapboxSoundButton.unmute()
+                }
+                mapboxSoundButton.isVisible = state.isPlayable
             }
         }
+    }
     mapboxSoundButton.setOnClickListener {
         MapboxCarApp.carAppServices.audioGuidance().toggle()
     }

@@ -2,40 +2,42 @@ package com.mapbox.androidauto.car.navigation.speedlimit
 
 import android.graphics.Rect
 import android.location.Location
-import androidx.car.app.CarContext
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.MapboxCarMapObserver
+import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.examples.androidauto.car.MainCarContext
 import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.MapboxExperimental
-import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.ui.speedlimit.api.MapboxSpeedLimitApi
-import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
+import kotlin.math.roundToInt
 
 /**
  * Create a speed limit sign. This class is demonstrating how to
  * create a renderer. To Create a new speed limit sign experience, try creating a new class.
  */
-@OptIn(MapboxExperimental::class)
 class CarSpeedLimitRenderer(
-    private val carContext: CarContext
+    private val mainCarContext: MainCarContext,
 ) : MapboxCarMapObserver {
     private val speedLimitWidget by lazy { SpeedLimitWidget() }
 
-    private val speedLimitFormatter: SpeedLimitFormatter by lazy {
-        SpeedLimitFormatter(carContext)
-    }
-    private val speedLimitApi: MapboxSpeedLimitApi by lazy {
-        MapboxSpeedLimitApi(speedLimitFormatter)
-    }
-
     private val locationObserver = object : LocationObserver {
 
+        @Suppress("MagicNumber")
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            val value = speedLimitApi.updateSpeedLimit(locationMatcherResult.speedLimit)
-            speedLimitWidget.update(value)
+            val speedKmph = locationMatcherResult.enhancedLocation.speed / METERS_IN_KILOMETER * SECONDS_IN_HOUR
+            when (mainCarContext.mapboxNavigation.navigationOptions.distanceFormatterOptions.unitType) {
+                UnitType.IMPERIAL -> {
+                    val speedLimit = locationMatcherResult.speedLimit?.speedKmph?.let { speedLimitKmph ->
+                        5 * (speedLimitKmph / KILOMETERS_IN_MILE / 5).roundToInt()
+                    }
+                    val speed = speedKmph / KILOMETERS_IN_MILE
+                    speedLimitWidget.update(speedLimit, speed.roundToInt())
+                }
+                UnitType.METRIC -> {
+                    speedLimitWidget.update(locationMatcherResult.speedLimit?.speedKmph, speedKmph.roundToInt())
+                }
+            }
         }
 
         override fun onNewRawLocation(rawLocation: Location) {
@@ -50,22 +52,24 @@ class CarSpeedLimitRenderer(
             speedLimitWidget.viewWidgetHost,
             null
         )
-        MapboxNavigationProvider.retrieve().registerLocationObserver(locationObserver)
+        mainCarContext.mapboxNavigation.registerLocationObserver(locationObserver)
     }
 
     override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
         logAndroidAuto("CarSpeedLimitRenderer carMapSurface detached")
-        MapboxNavigationProvider.retrieve().unregisterLocationObserver(locationObserver)
+        mainCarContext.mapboxNavigation.unregisterLocationObserver(locationObserver)
         mapboxCarMapSurface.style.removeStyleLayer(SpeedLimitWidget.SPEED_LIMIT_WIDGET_LAYER_ID)
         speedLimitWidget.clear()
     }
 
     override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
         super.visibleAreaChanged(visibleArea, edgeInsets)
-        if (edgeInsets.right > 0) {
-            speedLimitWidget.setVisible(false)
-        } else {
-            speedLimitWidget.setVisible(true)
-        }
+        speedLimitWidget.setEdgeInsets(edgeInsets)
+    }
+
+    private companion object {
+        private const val METERS_IN_KILOMETER = 1000.0
+        private const val KILOMETERS_IN_MILE = 1.609
+        private const val SECONDS_IN_HOUR = 3600
     }
 }

@@ -8,6 +8,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.mapbox.androidauto.testing.BitmapTestUtil
 import com.mapbox.api.directions.v5.models.ManeuverModifier
 import com.mapbox.api.directions.v5.models.StepManeuver
+import com.mapbox.navigation.ui.maneuver.model.PrimaryManeuver
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Rule
@@ -21,7 +22,7 @@ class CarManeuverIconRendererTest {
 
     @Rule
     @JvmField
-    var testName = TestName()
+    val testName = TestName()
 
     @get:Rule
     val permissionsRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -43,7 +44,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_straight() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.STRAIGHT
             }
@@ -56,7 +57,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_u_turn() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.UTURN
                 every { drivingSide } returns "right"
@@ -70,7 +71,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_u_turn() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.UTURN
                 every { drivingSide } returns "left"
@@ -84,7 +85,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_left() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SHARP_LEFT
             }
@@ -97,7 +98,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_right() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SHARP_RIGHT
             }
@@ -110,7 +111,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_slight_left() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SLIGHT_LEFT
             }
@@ -123,7 +124,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_slight_right() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SLIGHT_RIGHT
             }
@@ -136,7 +137,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_sharp_left() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SHARP_LEFT
             }
@@ -149,7 +150,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun turn_sharp_right() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.TURN
                 every { modifier } returns ManeuverModifier.SHARP_RIGHT
             }
@@ -162,7 +163,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_45() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 45.0
                 every { drivingSide } returns "right"
@@ -176,7 +177,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_90() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 90.0
                 every { drivingSide } returns "right"
@@ -190,7 +191,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_135() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 135.0
                 every { drivingSide } returns "right"
@@ -204,7 +205,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_180() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 180.0
                 every { drivingSide } returns "right"
@@ -218,7 +219,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_225() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 225.0
                 every { drivingSide } returns "right"
@@ -232,7 +233,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_270() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 270.0
                 every { drivingSide } returns "right"
@@ -246,7 +247,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_right_roundabout_degrees_315() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 315.0
                 every { drivingSide } returns "right"
@@ -260,7 +261,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_45() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 45.0
                 every { drivingSide } returns "left"
@@ -274,7 +275,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_90() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 90.0
                 every { drivingSide } returns "left"
@@ -288,7 +289,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_135() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 135.0
                 every { drivingSide } returns "left"
@@ -302,7 +303,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_180() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 180.0
                 every { drivingSide } returns "left"
@@ -316,7 +317,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_225() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 225.0
                 every { drivingSide } returns "left"
@@ -330,7 +331,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_270() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 270.0
                 every { drivingSide } returns "left"
@@ -344,7 +345,7 @@ class CarManeuverIconRendererTest {
     @Test
     fun driving_side_left_roundabout_degrees_315() {
         val carLanesImage = carLanesImageGenerator.renderManeuverIcon(
-            maneuver = mockk(relaxed = true) {
+            maneuver = mockk<PrimaryManeuver>(relaxed = true) {
                 every { type } returns StepManeuver.ROUNDABOUT
                 every { degrees } returns 315.0
                 every { drivingSide } returns "left"

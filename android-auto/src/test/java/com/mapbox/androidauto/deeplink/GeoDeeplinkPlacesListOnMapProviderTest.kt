@@ -28,7 +28,7 @@ import org.junit.Test
 class GeoDeeplinkPlacesListOnMapProviderTest {
 
     @get:Rule
-    var coroutineRule = MainCoroutineRule()
+    val coroutineRule = MainCoroutineRule()
 
     @Test
     fun cancel() {
@@ -43,7 +43,7 @@ class GeoDeeplinkPlacesListOnMapProviderTest {
     }
 
     @Test
-    fun getPlaces() = coroutineRule.runBlockingTest {
+    fun getPlaces() = coroutineRule.runTest {
         mockkObject(MapboxCarApp)
         val location = mockk<Location> {
             every { longitude } returns -121.8544717

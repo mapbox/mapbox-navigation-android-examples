@@ -11,6 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
@@ -35,14 +37,17 @@ class MapboxVoiceInstructions(
     }
 
     fun voiceLanguage(): Flow<String?> {
-        return routesFlow().mapLatest { it.firstOrNull()?.voiceLanguage() }.onStart { emit(value = null) }
+        return routesFlow()
+            .mapLatest { it.firstOrNull()?.voiceLanguage() }
+            .onStart { emit(value = null) }
     }
 
     private fun routesUpdatedResultToVoiceInstructions(): Flow<State> {
         return routesFlow()
+            .distinctUntilChangedBy { it.isEmpty() }
             .flatMapLatest { routes ->
                 if (routes.isNotEmpty()) {
-                    voiceInstructionsFlow()
+                    voiceInstructionsFlow().distinctUntilChanged()
                 } else {
                     flowOf(MapboxVoiceInstructionsState(false, null))
                 }

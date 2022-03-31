@@ -34,6 +34,8 @@ class MapboxCarMap(
         get() = carMapSurfaceSession.visibleArea
     val edgeInsets: EdgeInsets?
         get() = carMapSurfaceSession.edgeInsets
+    val userId get() = carMapLifecycleObserver.userId
+    val styleId get() = carMapLifecycleObserver.styleId
 
     init {
         lifecycle.addObserver(carMapLifecycleObserver)

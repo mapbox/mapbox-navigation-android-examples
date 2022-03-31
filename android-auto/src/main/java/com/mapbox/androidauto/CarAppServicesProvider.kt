@@ -1,5 +1,6 @@
 package com.mapbox.androidauto
 
+import androidx.lifecycle.lifecycleScope
 import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidance
 import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceImpl
 import com.mapbox.androidauto.navigation.audioguidance.impl.MapboxAudioGuidanceServicesImpl
@@ -25,7 +26,7 @@ class CarAppServicesProviderImpl : CarAppServicesProvider {
             MapboxAudioGuidanceServicesImpl(),
             MapboxCarApp.carAppDataStore,
             MapboxCarApp.carAppConfig
-        ).also { it.setup(MapboxNavigationApp.lifecycleOwner) }
+        ).also { it.setup(MapboxNavigationApp.lifecycleOwner.lifecycleScope) }
     }
     private val location: CarAppLocation by lazy {
         CarAppLocationImpl().also { MapboxNavigationApp.registerObserver(it) }

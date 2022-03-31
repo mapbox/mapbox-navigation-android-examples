@@ -3,22 +3,41 @@ package com.mapbox.examples.androidauto.car.navigation
 
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
+import com.mapbox.common.Logger
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapSurface
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.plugin.animation.CameraAnimationsPlugin
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.navigation.core.MapboxNavigation
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Before
 
 import org.junit.Test
 
 class CarLocationsOverviewCameraTest : MapboxRobolectricTestRunner() {
+
+    @Before
+    fun setup() {
+        mockkStatic(Logger::class)
+        every { Logger.e(any(), any()) } just Runs
+        every { Logger.i(any(), any()) } just Runs
+    }
+
+    @After
+    fun teardown() {
+        unmockkStatic(Logger::class)
+    }
 
     @Test
     fun loaded() {

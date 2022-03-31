@@ -3,9 +3,10 @@ package com.mapbox.examples.androidauto.car.navigation
 import com.mapbox.androidauto.car.navigation.lanes.CarLanesImageRenderer
 import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverIconOptions
 import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverIconRenderer
-import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverMapper
+import com.mapbox.androidauto.car.navigation.maneuver.CarManeuverInstructionRenderer
 import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
+import com.mapbox.navigation.ui.tripprogress.api.MapboxTripProgressApi
+import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
 
 class CarActiveGuidanceCarContext(
     val mainCarContext: MainCarContext
@@ -22,13 +23,15 @@ class CarActiveGuidanceCarContext(
     )
     val carLaneImageGenerator = CarLanesImageRenderer(carContext)
     val navigationInfoMapper = CarNavigationInfoMapper(
-        CarManeuverMapper(),
+        carContext.applicationContext,
+        CarManeuverInstructionRenderer(),
         CarManeuverIconRenderer(CarManeuverIconOptions.Builder(carContext).build()),
         carLaneImageGenerator,
         carDistanceFormatter
     )
-    val maneuverApi: MapboxManeuverApi by lazy {
-        MapboxManeuverApi(distanceFormatter)
-    }
-    val tripProgressMapper = CarNavigationEtaMapper(carDistanceFormatter)
+    val maneuverApi = mainCarContext.maneuverApi
+    val tripProgressMapper = CarNavigationEtaMapper(
+        carDistanceFormatter,
+        MapboxTripProgressApi(TripProgressUpdateFormatter.Builder(carContext).build()),
+    )
 }

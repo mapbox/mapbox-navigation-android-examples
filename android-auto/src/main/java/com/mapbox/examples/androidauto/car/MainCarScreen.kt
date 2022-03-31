@@ -23,14 +23,16 @@ class MainCarScreen(
 
     val carRouteLine = CarRouteLine(mainCarContext)
     val carLocationRenderer = CarLocationRenderer(mainCarContext)
-    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         mainCarContext.mapboxNavigation,
-        CarCameraMode.FOLLOWING
+        CarCameraMode.FOLLOWING,
+        alternativeCarCameraMode = null,
     )
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         mainCarContext.carContext,
-        mainCarContext.mapboxNavigation
+        mainCarContext.mapboxNavigation,
+        mainCarContext.mapboxCarMap,
     )
 
     private val mainActionStrip = MainActionStrip(this, mainCarContext)

@@ -8,7 +8,7 @@ import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.FreeDriveState
+import com.mapbox.androidauto.ArrivalState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.car.navigation.roadlabel.RoadLabelSurfaceLayer
 import com.mapbox.androidauto.car.navigation.speedlimit.CarSpeedLimitRenderer
@@ -18,7 +18,9 @@ import com.mapbox.examples.androidauto.car.MainMapActionStrip
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
-import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.base.trip.model.RouteLegProgress
+import com.mapbox.navigation.base.trip.model.RouteProgress
+import com.mapbox.navigation.core.arrival.ArrivalObserver
 
 /**
  * After a route has been selected. This view gives turn-by-turn instructions
@@ -31,22 +33,44 @@ class ActiveGuidanceScreen(
 
     val carRouteLine = CarRouteLine(carActiveGuidanceContext.mainCarContext)
     val carLocationRenderer = CarLocationRenderer(carActiveGuidanceContext.mainCarContext)
-    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carContext)
+    val carSpeedLimitRenderer = CarSpeedLimitRenderer(carActiveGuidanceContext.mainCarContext)
     val carNavigationCamera = CarNavigationCamera(
         carActiveGuidanceContext.mapboxNavigation,
-        CarCameraMode.FOLLOWING
+        CarCameraMode.FOLLOWING,
+        CarCameraMode.OVERVIEW,
     )
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         carActiveGuidanceContext.carContext,
-        carActiveGuidanceContext.mapboxNavigation
+        carActiveGuidanceContext.mapboxNavigation,
+        carActiveGuidanceContext.mapboxCarMap,
     )
 
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
     private val mapActionStripBuilder = MainMapActionStrip(this, carNavigationCamera)
 
+    private val arrivalObserver = object : ArrivalObserver {
+
+        override fun onFinalDestinationArrival(routeProgress: RouteProgress) {
+            stopNavigation()
+        }
+
+        override fun onNextRouteLegStart(routeLegProgress: RouteLegProgress) {
+            // not implemented
+        }
+
+        override fun onWaypointArrival(routeProgress: RouteProgress) {
+            // not implemented
+        }
+    }
+
     init {
         logAndroidAuto("ActiveGuidanceScreen constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
+
+            override fun onCreate(owner: LifecycleOwner) {
+                logAndroidAuto("ActiveGuidanceScreen onCreate")
+                carActiveGuidanceContext.mapboxNavigation.registerArrivalObserver(arrivalObserver)
+            }
 
             override fun onResume(owner: LifecycleOwner) {
                 logAndroidAuto("ActiveGuidanceScreen onResume")
@@ -68,6 +92,11 @@ class ActiveGuidanceScreen(
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carRouteLine)
                 carRouteProgressObserver.stop()
+            }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                logAndroidAuto("ActiveGuidanceScreen onDestroy")
+                carActiveGuidanceContext.mapboxNavigation.unregisterArrivalObserver(arrivalObserver)
             }
         })
     }
@@ -111,7 +140,6 @@ class ActiveGuidanceScreen(
 
     private fun stopNavigation() {
         logAndroidAuto("ActiveGuidanceScreen stopNavigation")
-        MapboxNavigationProvider.retrieve().setRoutes(emptyList())
-        MapboxCarApp.updateCarAppState(FreeDriveState)
+        MapboxCarApp.updateCarAppState(ArrivalState)
     }
 }

@@ -8,16 +8,17 @@ import androidx.car.app.CarContext
 import androidx.car.app.SurfaceCallback
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.car.map.MapboxCarMapSurface
+import com.mapbox.common.Logger
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapSurface
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
-import com.mapbox.navigation.utils.internal.LoggerProvider
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -33,7 +34,11 @@ class CarMapLifecycleObserverTest {
     private val carContext: CarContext = mockk(relaxed = true)
     private val carMapSurfaceOwner: CarMapSurfaceOwner = mockk()
     private val testMapSurface: MapSurface = mockk(relaxed = true)
-    private val mapInitOptions: MapInitOptions = mockk(relaxed = true)
+    private val initialUserId = "initial-user-id"
+    private val initialStyleId = "initial-style-id"
+    private val mapInitOptions = mockk<MapInitOptions>(relaxed = true) {
+        every { styleUri } returns "mapbox://styles/$initialUserId/$initialStyleId"
+    }
 
     private val carMapLifecycleObserver = CarMapLifecycleObserver(
         carContext,
@@ -43,8 +48,9 @@ class CarMapLifecycleObserverTest {
 
     @Before
     fun setup() {
-        mockkObject(LoggerProvider)
-        every { LoggerProvider.logger } returns mockk(relaxUnitFun = true)
+        mockkStatic(Logger::class)
+        every { Logger.e(any(), any()) } just Runs
+        every { Logger.i(any(), any()) } just Runs
 
         mockkObject(MapSurfaceProvider)
         every { MapSurfaceProvider.create(any(), any(), any()) } returns testMapSurface
@@ -53,6 +59,12 @@ class CarMapLifecycleObserverTest {
     @After
     fun teardown() {
         unmockkAll()
+    }
+
+    @Test
+    fun `initial user id and style id are based on map init options`() {
+        assertEquals(initialUserId, carMapLifecycleObserver.userId)
+        assertEquals(initialStyleId, carMapLifecycleObserver.styleId)
     }
 
     @Test
@@ -84,14 +96,14 @@ class CarMapLifecycleObserverTest {
             testMapSurface.onStart()
             testMapSurface.surfaceCreated()
             testMapSurface.getMapboxMap()
-            mapboxMap.loadStyleUri(any(), any(), any())
+            mapboxMap.loadStyleUri(styleUri = any(), onStyleLoaded = any(), onMapLoadErrorListener = any())
         }
     }
 
     @Test
     fun `onSurfaceAvailable should notify surfaceAvailable when style is loaded`() {
         every { testMapSurface.getMapboxMap() } returns mockk(relaxed = true) {
-            every { loadStyleUri(any(), any(), any()) } answers {
+            every { loadStyleUri(styleUri = any(), onStyleLoaded = any(), onMapLoadErrorListener = any()) } answers {
                 secondArg<Style.OnStyleLoaded>().onStyleLoaded(mockk())
             }
         }
@@ -144,7 +156,13 @@ class CarMapLifecycleObserverTest {
         val previousMapSurface = mockk<MapboxCarMapSurface> {
             every { mapSurface } returns mockk {
                 every { getMapboxMap() } returns mockk(relaxed = true) {
-                    every { loadStyleUri(any(), any(), any()) } answers {
+                    every {
+                        loadStyleUri(
+                            styleUri = any(),
+                            onStyleLoaded = any(),
+                            onMapLoadErrorListener = any()
+                        )
+                    } answers {
                         secondArg<Style.OnStyleLoaded>().onStyleLoaded(
                             mockk { every { styleURI } returns "test-map-style-loaded" }
                         )
@@ -157,12 +175,16 @@ class CarMapLifecycleObserverTest {
         val carMapSurfaceSlot = slot<MapboxCarMapSurface>()
         every { carMapSurfaceOwner.surfaceAvailable(capture(carMapSurfaceSlot)) } just Runs
 
-        carMapLifecycleObserver.updateMapStyle("test-map-style")
+        val newUserId = "new-user-id"
+        val newStyleId = "new-style-id"
+        carMapLifecycleObserver.updateMapStyle("mapbox://styles/$newUserId/$newStyleId")
 
         val mapSurface = previousMapSurface.mapSurface
         verify(exactly = 0) { mapSurface.surfaceChanged(any(), any()) }
         verify(exactly = 1) { carMapSurfaceOwner.surfaceAvailable(any()) }
         assertEquals("test-map-style-loaded", carMapSurfaceSlot.captured.style.styleURI)
         assertEquals(previousMapSurface.mapSurface, carMapSurfaceSlot.captured.mapSurface)
+        assertEquals(newUserId, carMapLifecycleObserver.userId)
+        assertEquals(newStyleId, carMapLifecycleObserver.styleId)
     }
 }

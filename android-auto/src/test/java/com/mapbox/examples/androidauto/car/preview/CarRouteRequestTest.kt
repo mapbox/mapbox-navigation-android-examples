@@ -2,12 +2,14 @@
 
 package com.mapbox.examples.androidauto.car.preview
 
+import androidx.test.core.app.ApplicationProvider
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.common.Logger
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.formatter.UnitType
-import com.mapbox.navigation.base.route.RouterCallback
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import io.mockk.CapturingSlot
@@ -15,27 +17,28 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
-import org.robolectric.RuntimeEnvironment
 import java.util.Locale
 
 class CarRouteRequestTest : MapboxRobolectricTestRunner() {
 
     private val routeOptionsSlot = CapturingSlot<RouteOptions>()
-    private val routerCallbackSlot = CapturingSlot<RouterCallback>()
-    private val setRoutesSlot = CapturingSlot<List<DirectionsRoute>>()
+    private val routerCallbackSlot = CapturingSlot<NavigationRouterCallback>()
     private val navigationLocationProvider = mockk<NavigationLocationProvider>()
     private var requestCount = 0L
     private val mapboxNavigation = mockk<MapboxNavigation> {
         every {
             requestRoutes(capture(routeOptionsSlot), capture(routerCallbackSlot))
         } returns requestCount++
-        every { setRoutes(capture(setRoutesSlot)) } just Runs
         every { cancelRouteRequest(any()) } just Runs
         every { navigationOptions } returns mockk {
-            every { applicationContext } returns RuntimeEnvironment.systemContext
+            every { applicationContext } returns ApplicationProvider.getApplicationContext()
             every { distanceFormatterOptions } returns mockk {
                 every { locale } returns Locale.US
                 every { unitType } returns UnitType.METRIC
@@ -45,6 +48,18 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
     }
 
     private val carRouteRequest = CarRouteRequest(mapboxNavigation, navigationLocationProvider)
+
+    @Before
+    fun setup() {
+        mockkStatic(Logger::class)
+        every { Logger.e(any(), any()) } just Runs
+        every { Logger.i(any(), any()) } just Runs
+    }
+
+    @After
+    fun teardown() {
+        unmockkStatic(Logger::class)
+    }
 
     @Test
     fun `onRoutesReady is called after successful request`() {
@@ -61,7 +76,7 @@ class CarRouteRequestTest : MapboxRobolectricTestRunner() {
             callback
         )
 
-        val routes: List<DirectionsRoute> = listOf(mockk())
+        val routes = listOf(mockk<NavigationRoute>())
         routerCallbackSlot.captured.onRoutesReady(routes, mockk())
 
         verify(exactly = 1) { callback.onRoutesReady(any(), any()) }

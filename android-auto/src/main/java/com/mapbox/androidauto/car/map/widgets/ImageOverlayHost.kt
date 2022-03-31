@@ -10,7 +10,7 @@ import com.mapbox.common.Logger
 import com.mapbox.maps.BuildConfig
 import com.mapbox.maps.CustomLayerHost
 import com.mapbox.maps.CustomLayerRenderParameters
-import com.mapbox.navigation.utils.internal.LoggerProvider
+import com.mapbox.navigation.utils.internal.logE
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -25,7 +25,7 @@ data class Margin(
 open class ImageOverlayHost(
     private var bitmap: Bitmap,
     private val position: WidgetPosition = WidgetPosition.BOTTOM_LEFT,
-    private val margins: Margin = Margin(),
+    private var margins: Margin = Margin(),
     var shouldRender: Boolean = true
 ) : CustomLayerHost {
     private var width = 0
@@ -43,9 +43,6 @@ open class ImageOverlayHost(
     private var vertexShader = 0
     private var fragmentShader = 0
 
-    private var heightOffset: Float = 0f
-    private var widthOffset: Float = 0f
-
     private lateinit var screenMatrixData: FloatArray
     private lateinit var screenMatrixBuffer: FloatBuffer
 
@@ -53,9 +50,7 @@ open class ImageOverlayHost(
         Matrix.setIdentityM(this, 0)
     }
 
-    private val translateMatrix = FloatArray(MATRIX_SIZE).apply {
-        Matrix.setIdentityM(this, 0)
-    }
+    private val translateMatrix = FloatArray(MATRIX_SIZE)
 
     private lateinit var vertexPositionData: FloatArray
     private lateinit var vertexPositionBuffer: FloatBuffer
@@ -72,27 +67,29 @@ open class ImageOverlayHost(
         1f, 1f
     )
 
-    private fun onSizeChanged(width: Int, height: Int) {
-        if (this.width == width && this.height == height) return
+    private fun onSizeChanged(width: Int, height: Int, margins: Margin) {
+        if (this.width == width && this.height == height && this.margins == margins) return
         this.width = width
         this.height = height
-        LoggerProvider.logger.e(
-            Tag(TAG),
-            Message("onSizeChanged-> bitmap size: ${bitmap.width}, ${bitmap.height}; screen size: $width, $height"),
+        this.margins = margins
+        logE(
+            TAG,
+            "onSizeChanged-> bitmap size: ${bitmap.width}, ${bitmap.height}; screen size: $width, $height"
         )
-        heightOffset = when (position) {
+        val heightOffset = when (position) {
             WidgetPosition.BOTTOM_LEFT -> height.toFloat() - bitmap.height.toFloat() / 2f - margins.marginBottom
             WidgetPosition.BOTTOM_RIGHT -> height.toFloat() - bitmap.height.toFloat() / 2f - margins.marginBottom
             WidgetPosition.TOP_LEFT -> margins.marginTop + bitmap.height.toFloat() / 2f
             WidgetPosition.TOP_RIGHT -> margins.marginTop + bitmap.height.toFloat() / 2f
         }
-        widthOffset = when (position) {
+        val widthOffset = when (position) {
             WidgetPosition.TOP_RIGHT -> width.toFloat() - bitmap.width.toFloat() / 2f - margins.marginRight
             WidgetPosition.BOTTOM_RIGHT -> width.toFloat() - bitmap.width.toFloat() / 2f - margins.marginRight
             WidgetPosition.TOP_LEFT -> margins.marginLeft + bitmap.width.toFloat() / 2f
             WidgetPosition.BOTTOM_LEFT -> margins.marginLeft + bitmap.width.toFloat() / 2f
         }
 
+        Matrix.setIdentityM(translateMatrix, 0)
         Matrix.translateM(
             translateMatrix,
             0,
@@ -204,7 +201,7 @@ open class ImageOverlayHost(
 
     override fun render(parameters: CustomLayerRenderParameters) {
         if (!shouldRender) return
-        onSizeChanged(parameters.width.toInt(), parameters.height.toInt())
+        onSizeChanged(parameters.width.toInt(), parameters.height.toInt(), margins)
         if (program != 0) {
             // Add program to OpenGL ES environment
             GLES20.glUseProgram(program).also {
@@ -353,12 +350,16 @@ open class ImageOverlayHost(
     fun updateBitmap(bitmap: Bitmap) {
         shouldRender = true
         this.bitmap = bitmap
-        onSizeChanged(width, height)
+        onSizeChanged(width, height, margins)
     }
 
     fun rotate(bearing: Float) {
         Matrix.setIdentityM(rotationMatrix, 0)
         Matrix.rotateM(rotationMatrix, 0, bearing, 0f, 0f, 1f)
+    }
+
+    fun updateMargins(margins: Margin) {
+        onSizeChanged(width, height, margins)
     }
 
     companion object {

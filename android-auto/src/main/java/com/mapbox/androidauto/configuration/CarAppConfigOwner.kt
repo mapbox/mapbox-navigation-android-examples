@@ -18,12 +18,12 @@ import java.util.Locale
  */
 class CarAppConfigOwner internal constructor() {
 
-    private lateinit var carAppConfigLiveData: MutableStateFlow<Configuration>
+    private lateinit var carAppConfigFlow: MutableStateFlow<Configuration>
 
     private val componentCallbacks = object : ComponentCallbacks {
 
         override fun onConfigurationChanged(newConfig: Configuration) {
-            carAppConfigLiveData.value = newConfig
+            carAppConfigFlow.value = newConfig
         }
 
         override fun onLowMemory() {
@@ -32,11 +32,11 @@ class CarAppConfigOwner internal constructor() {
     }
 
     internal fun setup(application: Application) {
-        carAppConfigLiveData = MutableStateFlow(application.resources.configuration)
+        carAppConfigFlow = MutableStateFlow(application.resources.configuration)
         application.registerComponentCallbacks(componentCallbacks)
     }
 
-    fun config(): Flow<Configuration> = carAppConfigLiveData
+    fun config(): Flow<Configuration> = carAppConfigFlow
 
     fun language(): Flow<String> {
         return config()

@@ -26,6 +26,10 @@ import com.mapbox.navigation.examples.androidauto.app.routerequest.MapLongClickR
 import com.mapbox.navigation.examples.androidauto.app.search.SearchFragment
 import com.mapbox.navigation.examples.androidauto.databinding.ActivityMainBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
     private val permissionsManager = PermissionsManager(this)
@@ -68,8 +72,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             setLocationProvider(MapboxCarApp.carAppServices.location().navigationLocationProvider)
         }
 
-        MapboxCarApp.carAppState.observe(this) { carAppState ->
-            onCarAppStateChanged(carAppState)
+        CoroutineScope(Dispatchers.Main).launch {
+            MapboxCarApp.carAppState.collect { carAppState ->
+                onCarAppStateChanged(carAppState)
+            }
         }
     }
 
