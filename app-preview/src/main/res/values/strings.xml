@@ -1,0 +1,6 @@
+<resources>
+  <string name="app_name">Mapbox Navigation Examples Preview</string>
+
+  <string name="noTokenDialogTitle">Error: no mapbox access token</string>
+  <string name="noTokenDialogBody">Please put your mapbox access token to res/values/mapbox_access_token.xml</string>
+</resources>

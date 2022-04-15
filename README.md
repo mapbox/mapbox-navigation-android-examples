@@ -1,8 +1,9 @@
 # Mapbox Navigation Android SDK Examples
 
-The repository is a collection of examples showing off the [Mapbox Navigation Android SDK](https://github.com/mapbox/mapbox-navigation-android). In order to support minSdkVersion 21 and Android Auto, there are two example apps.
+The repository is a collection of examples showing off the [Mapbox Navigation Android SDK](https://github.com/mapbox/mapbox-navigation-android). In order to support minSdkVersion 21, Android Auto and preview features, there are three example apps.
 
 1. [app](app) minSdkVersion of 21
+2. [app-preview](app-preview) minSdkVersion of 21
 2. [android-auto-app](android-auto-app) minSdkVersion of 23
 
 <div align="center">

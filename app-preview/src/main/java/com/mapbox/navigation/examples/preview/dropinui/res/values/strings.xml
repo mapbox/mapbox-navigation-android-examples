@@ -1,0 +1,21 @@
+<resources>
+
+  <string name="title_navigation_view">Turn-By-Turn using NavigationView</string>
+  <string name="description_navigation_view">Render a complete turn-by-turn experience using NavigationView.</string>
+
+  <string name="title_customize_navigation_view_options">Change Navigation View Options at runtime</string>
+  <string name="description_customize_navigation_view_options">The example demonstrates how to change navigation view options at runtime</string>
+
+  <string name="title_customize_speed_limit">Customize speed limit view using NavigationView</string>
+  <string name="description_customize_speed_limit">The example demonstrates how to customize speed limit at runtime</string>
+
+  <string name="title_customize_trip_progress">Customize trip progress view using NavigationView</string>
+  <string name="description_customize_trip_progress">The example demonstrates how to customize trip progress view at runtime</string>
+
+  <string name="title_custom_view_injection">Inject a custom view into NavigationView</string>
+  <string name="description_custom_view_injection">The example demonstrates how to inject a custom view at the bottom of the info panel</string>
+
+  <string name="title_toggle_theme">Toggle theme using NavigationView</string>
+  <string name="description_toggle_theme">The example demonstrates how NavigationView observes changes to app day and night theme</string>
+
+</resources>

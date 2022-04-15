@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.mapbox.navigation.examples"
+        applicationId "com.mapbox.navigation.examples.preview"
         minSdkVersion 21
         targetSdkVersion 30
         multiDexEnabled true
@@ -55,13 +55,13 @@ android {
 
     sourceSets {
         main {
-            def srcDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples")
+            def srcDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples/preview")
                     .listFiles({ it.isDirectory() } as FileFilter)
                     .collect { it.name }
 
             res.srcDirs = ['src/main/res']
             srcDirs.forEach {
-                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/' + it + '/res'
+                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/preview/' + it + '/res'
             }
         }
     }
@@ -69,7 +69,8 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:android:2.4.0"
+    implementation "com.mapbox.navigation:ui-dropin:2.5.0-alpha.3"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-core:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31"
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "com.google.android.material:material:1.5.0"
