@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.base.common.logger.model.Message
-import com.mapbox.base.common.logger.model.Tag
 import com.mapbox.bindgen.Expected
+import com.mapbox.common.Logger
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -46,7 +45,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
-import com.mapbox.navigation.utils.internal.LoggerProvider
 
 /**
  * The example demonstrates how to extrude a building upon reaching a waypoint and final destination.
@@ -146,9 +144,9 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         MapboxNavigationConsumer<Expected<BuildingError, BuildingValue>> { expected ->
             expected.fold(
                 {
-                    LoggerProvider.logger.e(
-                        Tag("ShowBuildingExtrusionsActivity"),
-                        Message("error: ${it.errorMessage}")
+                    Logger.e(
+                        "ShowBuildingExtrusionsActivity",
+                        "error: ${it.errorMessage}"
                     )
                 },
                 { value ->
