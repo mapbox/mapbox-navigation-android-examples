@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.preview
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.dropinui.CustomNavigationViewOptionsActivity
+import com.mapbox.navigation.examples.preview.dropinui.CustomRuntimeStylingActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomTripProgressActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomViewInjectionActivity
@@ -15,6 +16,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_navigation_view),
         getString(R.string.description_navigation_view),
         NavigationViewActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_runtime_styling),
+        getString(R.string.title_custom_runtime_styling),
+        getString(R.string.description_custom_runtime_styling),
+        CustomRuntimeStylingActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(
