@@ -23,6 +23,10 @@
           android:exported="true"/>
 
       <activity
+          android:name=".dropinui.CustomRuntimeStylingActivity"
+          android:exported="true"/>
+
+      <activity
           android:name=".dropinui.CustomNavigationViewOptionsActivity"
           android:exported="true" />
 

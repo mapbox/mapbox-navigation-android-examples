@@ -3,6 +3,9 @@
   <string name="title_navigation_view">Turn-By-Turn using NavigationView</string>
   <string name="description_navigation_view">Render a complete turn-by-turn experience using NavigationView.</string>
 
+  <string name="title_custom_runtime_styling">Change styling of UI components at runtime</string>
+  <string name="description_custom_runtime_styling">The example demonstrates how to change the styling of UI components used by navigation view at runtime</string>
+
   <string name="title_customize_navigation_view_options">Change Navigation View Options at runtime</string>
   <string name="description_customize_navigation_view_options">The example demonstrates how to change navigation view options at runtime</string>
 
