@@ -46,32 +46,31 @@ class MapboxAudioGuidanceImplTest {
     private val carAppAudioGuidance = MapboxAudioGuidanceImpl(
         testMapboxAudioGuidanceServices.mapboxAudioGuidanceServices,
         testCarAppDataStoreOwner.carAppDataStoreOwner,
-        carAppConfigOwner
+        carAppConfigOwner,
+        coroutineRule.testDispatcher,
     )
 
     @Test
     fun `empty state flow by default`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
 
         val initialState = carAppAudioGuidance.stateFlow().first()
 
         assertEquals(false, initialState.isPlayable)
         assertEquals(false, initialState.isMuted)
         assertNull(initialState.speechAnnouncement)
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 
     @Test
     fun `completes full lifecycle`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
         val states = mutableListOf<MapboxAudioGuidance.State>()
         val job = launch {
             carAppAudioGuidance.stateFlow().collect { states.add(it) }
         }
 
-        observer.onAttached(mockk())
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
 
         assertEquals(1, states.size)
         job.cancelAndJoin()
@@ -79,8 +78,7 @@ class MapboxAudioGuidanceImplTest {
 
     @Test
     fun `becomes playable before voice instructions arrive`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
         val states = mutableListOf<MapboxAudioGuidance.State>()
         val job = launch {
             carAppAudioGuidance.stateFlow().collect { states.add(it) }
@@ -97,13 +95,12 @@ class MapboxAudioGuidanceImplTest {
         assertTrue(states[1].isPlayable)
         assertNull(states[1].speechAnnouncement)
         job.cancelAndJoin()
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 
     @Test
     fun `plays voice instructions`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
         val states = mutableListOf<MapboxAudioGuidance.State>()
         val job = launch {
             carAppAudioGuidance.stateFlow().collect { states.add(it) }
@@ -126,13 +123,12 @@ class MapboxAudioGuidanceImplTest {
             states[2].speechAnnouncement?.announcement
         )
         job.cancelAndJoin()
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 
     @Test
     fun `does not play when muted but provides announcement`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
         val states = mutableListOf<MapboxAudioGuidance.State>()
         val job = launch {
             carAppAudioGuidance.stateFlow().collect { states.add(it) }
@@ -157,13 +153,12 @@ class MapboxAudioGuidanceImplTest {
         )
         assertNull(states[2].speechAnnouncement)
         job.cancelAndJoin()
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 
     @Test
     fun `plays voice instructions without canceling previous`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
         val states = mutableListOf<Pair<MapboxAudioGuidance.State, Long>>()
         val job = launch {
             carAppAudioGuidance.stateFlow().collect {
@@ -199,13 +194,12 @@ class MapboxAudioGuidanceImplTest {
         assertEquals("You have arrived at your destination", secondAnnouncement)
         assertEquals(SPEECH_ANNOUNCEMENT_DELAY_MS * 2, states[4].second)
         job.cancelAndJoin()
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 
     @Test
     fun `voice language from route is preferred to device language`() = coroutineRule.runTest {
-        val observer = carAppAudioGuidance.setup(this)
-        observer.onAttached(mockk())
+        carAppAudioGuidance.onAttached(mockk())
 
         val voiceLanguage = "ru"
         testMapboxAudioGuidanceServices.emitVoiceLanguage(voiceLanguage)
@@ -219,6 +213,6 @@ class MapboxAudioGuidanceImplTest {
             mapboxAudioGuidanceServices.mapboxAudioGuidanceVoice(any(), deviceLanguage)
             mapboxAudioGuidanceServices.mapboxAudioGuidanceVoice(any(), voiceLanguage)
         }
-        observer.onDetached(mockk())
+        carAppAudioGuidance.onDetached(mockk())
     }
 }

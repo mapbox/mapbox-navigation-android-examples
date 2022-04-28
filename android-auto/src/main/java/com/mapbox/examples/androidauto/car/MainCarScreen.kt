@@ -13,10 +13,12 @@ import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
+import com.mapbox.maps.MapboxExperimental
 
 /**
  * When the app is launched from Android Auto
  */
+@OptIn(MapboxExperimental::class)
 class MainCarScreen(
     private val mainCarContext: MainCarContext
 ) : Screen(mainCarContext.carContext) {
@@ -32,7 +34,6 @@ class MainCarScreen(
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         mainCarContext.carContext,
         mainCarContext.mapboxNavigation,
-        mainCarContext.mapboxCarMap,
     )
 
     private val mainActionStrip = MainActionStrip(this, mainCarContext)
@@ -48,6 +49,7 @@ class MainCarScreen(
                 mainCarContext.mapboxCarMap.registerObserver(roadLabelSurfaceLayer)
                 mainCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
+                mainCarContext.mapboxCarMap.setGestureHandler(carNavigationCamera.gestureHandler)
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -57,6 +59,7 @@ class MainCarScreen(
                 mainCarContext.mapboxCarMap.unregisterObserver(roadLabelSurfaceLayer)
                 mainCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
                 mainCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
+                mainCarContext.mapboxCarMap.setGestureHandler(null)
             }
         })
     }

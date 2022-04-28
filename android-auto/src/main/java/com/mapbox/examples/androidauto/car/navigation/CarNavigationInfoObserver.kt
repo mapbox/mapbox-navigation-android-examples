@@ -2,8 +2,10 @@ package com.mapbox.examples.androidauto.car.navigation
 
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.TravelEstimate
+import com.mapbox.androidauto.car.navigation.MapUserStyleObserver
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.bindgen.Expected
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.ui.maneuver.model.Maneuver
@@ -15,11 +17,14 @@ import com.mapbox.navigation.ui.shield.model.RouteShield
  *
  * Attach the [start] [stop] functions to start observing navigation info.
  */
+@OptIn(MapboxExperimental::class)
 class CarNavigationInfoObserver(
     private val carActiveGuidanceCarContext: CarActiveGuidanceCarContext
 ) {
     private var onNavigationInfoChanged: (() -> Unit)? = null
     private var currentShields = emptyList<RouteShield>()
+    private val mapUserStyleObserver = MapUserStyleObserver()
+
     var navigationInfo: NavigationTemplate.NavigationInfo? = null
         private set(value) {
             if (field != value) {
@@ -37,8 +42,8 @@ class CarNavigationInfoObserver(
 
         expectedManeuvers.onValue { maneuvers ->
             carActiveGuidanceCarContext.maneuverApi.getRoadShields(
-                carActiveGuidanceCarContext.mapboxCarMap.userId,
-                carActiveGuidanceCarContext.mapboxCarMap.styleId,
+                mapUserStyleObserver.userId,
+                mapUserStyleObserver.styleId,
                 carActiveGuidanceCarContext.mapboxNavigation.navigationOptions.accessToken,
                 maneuvers,
             ) { shieldResult ->
@@ -64,6 +69,7 @@ class CarNavigationInfoObserver(
 
     fun start(onNavigationInfoChanged: () -> Unit) {
         this.onNavigationInfoChanged = onNavigationInfoChanged
+        carActiveGuidanceCarContext.mapboxCarMap.registerObserver(mapUserStyleObserver)
         logAndroidAuto("CarRouteProgressObserver onStart")
         val mapboxNavigation = carActiveGuidanceCarContext.mapboxNavigation
         mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
@@ -72,6 +78,7 @@ class CarNavigationInfoObserver(
     fun stop() {
         logAndroidAuto("CarRouteProgressObserver onStop")
         onNavigationInfoChanged = null
+        carActiveGuidanceCarContext.mapboxCarMap.unregisterObserver(mapUserStyleObserver)
         val mapboxNavigation = carActiveGuidanceCarContext.mapboxNavigation
         mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
         carActiveGuidanceCarContext.maneuverApi.cancel()

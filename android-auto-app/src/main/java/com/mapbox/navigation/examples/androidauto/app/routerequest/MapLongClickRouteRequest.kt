@@ -19,7 +19,7 @@ import java.util.UUID
 class MapLongClickRouteRequest {
     private val carRouteRequest = CarRouteRequest(
         MapboxNavigationProvider.retrieve(),
-        MapboxCarApp.carAppServices.location().navigationLocationProvider
+        MapboxCarApp.carAppLocationService().navigationLocationProvider
     )
 
     fun observeClicks(mapView: MapView, lifecycle: Lifecycle) {

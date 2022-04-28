@@ -240,8 +240,8 @@ class SearchViewBottomSheetsMediator(
         const val KEY_STATE_EXTERNAL_BACK_STACK = "SearchViewBottomSheetsMediator.state.external.back_stack"
 
         fun userDistanceTo(destination: Point): Double? {
-            val location = MapboxCarApp.carAppServices
-                .location().navigationLocationProvider.lastLocation
+            val location = MapboxCarApp.carAppLocationService()
+                .navigationLocationProvider.lastLocation
 
             return location?.let {
                 val point = Point.fromLngLat(it.longitude, it.latitude)

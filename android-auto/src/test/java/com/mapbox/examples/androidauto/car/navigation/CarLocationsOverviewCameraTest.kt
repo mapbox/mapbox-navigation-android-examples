@@ -1,12 +1,13 @@
 @file:Suppress("NoMockkVerifyImport")
 package com.mapbox.examples.androidauto.car.navigation
 
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.testing.MapboxRobolectricTestRunner
 import com.mapbox.common.Logger
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapSurface
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.maps.plugin.animation.CameraAnimationsPlugin
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.navigation.core.MapboxNavigation
@@ -25,6 +26,7 @@ import org.junit.Before
 
 import org.junit.Test
 
+@OptIn(MapboxExperimental::class)
 class CarLocationsOverviewCameraTest : MapboxRobolectricTestRunner() {
 
     @Before
@@ -53,7 +55,7 @@ class CarLocationsOverviewCameraTest : MapboxRobolectricTestRunner() {
         }
         val camera = CarLocationsOverviewCamera(mapboxNavigation)
 
-        camera.loaded(mapboxCarMapSurface)
+        camera.onAttached(mapboxCarMapSurface)
 
         verify { mapboxMap.setCamera(any<CameraOptions>()) }
         verify { mapboxNavigation.registerLocationObserver(any()) }
@@ -70,7 +72,7 @@ class CarLocationsOverviewCameraTest : MapboxRobolectricTestRunner() {
         }
         val camera = CarLocationsOverviewCamera(mapboxNavigation)
 
-        camera.detached(mapboxCarMapSurface)
+        camera.onDetached(mapboxCarMapSurface)
 
         assertNull(camera.mapboxCarMapSurface)
         assertFalse(camera.isLocationInitialized)

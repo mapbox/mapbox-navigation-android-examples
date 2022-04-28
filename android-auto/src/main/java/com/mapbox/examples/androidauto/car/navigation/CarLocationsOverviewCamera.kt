@@ -2,12 +2,13 @@ package com.mapbox.examples.androidauto.car.navigation
 
 import android.graphics.Rect
 import android.location.Location
-import com.mapbox.androidauto.car.map.MapboxCarMapObserver
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -16,6 +17,7 @@ import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
 import com.mapbox.navigation.ui.maps.camera.transition.NavigationCameraTransitionOptions
 
+@OptIn(MapboxExperimental::class)
 class CarLocationsOverviewCamera(
     val mapboxNavigation: MapboxNavigation,
     private val initialCameraOptions: CameraOptions = CameraOptions.Builder()
@@ -56,8 +58,8 @@ class CarLocationsOverviewCamera(
         }
     }
 
-    override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
-        super.loaded(mapboxCarMapSurface)
+    override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        super.onAttached(mapboxCarMapSurface)
         this.mapboxCarMapSurface = mapboxCarMapSurface
         logAndroidAuto("LocationsOverviewCamera loaded $mapboxCarMapSurface")
 
@@ -76,8 +78,8 @@ class CarLocationsOverviewCamera(
         mapboxNavigation.registerLocationObserver(locationObserver)
     }
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.onVisibleAreaChanged(visibleArea, edgeInsets)
         logAndroidAuto("LocationsOverviewCamera visibleAreaChanged $visibleArea $edgeInsets")
 
         viewportDataSource.overviewPadding = EdgeInsets(
@@ -90,8 +92,8 @@ class CarLocationsOverviewCamera(
         viewportDataSource.evaluate()
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
-        super.detached(mapboxCarMapSurface)
+    override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        super.onDetached(mapboxCarMapSurface)
         logAndroidAuto("LocationsOverviewCamera detached $mapboxCarMapSurface")
 
         mapboxNavigation.unregisterLocationObserver(locationObserver)

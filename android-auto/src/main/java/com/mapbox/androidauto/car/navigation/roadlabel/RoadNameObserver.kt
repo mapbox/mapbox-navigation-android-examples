@@ -1,7 +1,8 @@
 package com.mapbox.androidauto.car.navigation.roadlabel
 
 import android.location.Location
-import com.mapbox.androidauto.car.map.MapboxCarMap
+import com.mapbox.androidauto.car.navigation.MapUserStyleObserver
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.navigation.base.road.model.RoadComponent
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -10,10 +11,11 @@ import com.mapbox.navigation.ui.shield.api.MapboxRouteShieldApi
 import com.mapbox.navigation.ui.shield.model.RouteShield
 import com.mapbox.navigation.ui.shield.model.RouteShieldCallback
 
+@OptIn(MapboxExperimental::class)
 abstract class RoadNameObserver(
     val mapboxNavigation: MapboxNavigation,
     private val routeShieldApi: MapboxRouteShieldApi,
-    private val mapboxCarMap: MapboxCarMap,
+    private val mapUserStyleObserver: MapUserStyleObserver
 ) : LocationObserver {
 
     var currentRoad = emptyList<RoadComponent>()
@@ -40,8 +42,8 @@ abstract class RoadNameObserver(
             onRoadUpdate(newRoad, currentShields)
             routeShieldApi.getRouteShields(
                 locationMatcherResult.road,
-                mapboxCarMap.userId,
-                mapboxCarMap.styleId,
+                mapUserStyleObserver.userId,
+                mapUserStyleObserver.styleId,
                 mapboxNavigation.navigationOptions.accessToken,
                 roadNameShieldsCallback,
             )

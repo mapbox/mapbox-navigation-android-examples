@@ -14,19 +14,22 @@ import com.mapbox.examples.androidauto.car.search.PlaceRecord
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.examples.androidauto.R
 import com.mapbox.search.ui.view.place.SearchPlace
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class DropInSearchComponent(
     private val mapView: MapView,
     private val mapboxSearchBottomSheet: AppSearchBottomSheet
 ) : DefaultLifecycleObserver {
 
     private val carRouteRequest = CarRouteRequest(
-        MapboxNavigationProvider.retrieve(),
-        MapboxCarApp.carAppServices.location().navigationLocationProvider
+        MapboxNavigationApp.current()!!,
+        MapboxCarApp.carAppLocationService().navigationLocationProvider
     )
 
     private val onMapClickListener = OnMapClickListener {

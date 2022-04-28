@@ -1,3 +1,4 @@
+
 package com.mapbox.navigation.examples.androidauto
 
 import android.annotation.SuppressLint
@@ -28,9 +29,9 @@ import com.mapbox.navigation.examples.androidauto.databinding.ActivityMainBindin
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainActivity : AppCompatActivity(), PermissionsListener {
     private val permissionsManager = PermissionsManager(this)
     private lateinit var binding: ActivityMainBinding
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             locationPuck = CarLocationPuck.navigationPuck2D(this@MainActivity)
             enabled = true
             pulsingEnabled = true
-            setLocationProvider(MapboxCarApp.carAppServices.location().navigationLocationProvider)
+            setLocationProvider(MapboxCarApp.carAppLocationService().navigationLocationProvider)
         }
 
         CoroutineScope(Dispatchers.Main).launch {

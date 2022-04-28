@@ -14,7 +14,7 @@ import org.junit.runners.model.Statement
 @ExperimentalCoroutinesApi
 class MainCoroutineRule : TestRule {
 
-    private val testDispatcher = UnconfinedTestDispatcher()
+    val testDispatcher = UnconfinedTestDispatcher()
 
     override fun apply(base: Statement, description: Description?) = object : Statement() {
         @Throws(Throwable::class)

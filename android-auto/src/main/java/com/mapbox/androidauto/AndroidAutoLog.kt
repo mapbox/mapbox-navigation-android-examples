@@ -1,22 +1,23 @@
 package com.mapbox.androidauto
 
-import com.mapbox.base.common.logger.model.Message
-import com.mapbox.base.common.logger.model.Tag
 import com.mapbox.navigation.utils.internal.logE
 import com.mapbox.navigation.utils.internal.logI
 
 object AndroidAutoLog {
+
+    private const val LOG_CATEGORY = "MapboxAndroidAuto"
+
     fun logAndroidAuto(message: String) {
         logI(
-            "MapboxAndroidAuto",
-            "${Thread.currentThread().id}: $message"
+            msg = "${Thread.currentThread().id}: $message",
+            LOG_CATEGORY
         )
     }
 
     fun logAndroidAutoFailure(message: String, throwable: Throwable? = null) {
         logE(
-            "MapboxAndroidAuto",
-            "${Thread.currentThread().id}: $message"
+            msg = "${Thread.currentThread().id}: $message throwable: $throwable",
+            LOG_CATEGORY
         )
     }
 }

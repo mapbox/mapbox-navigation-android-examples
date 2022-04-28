@@ -5,7 +5,6 @@ import android.location.Location
 import android.view.ViewTreeObserver
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -23,7 +22,7 @@ import com.mapbox.navigation.ui.maps.camera.transition.NavigationCameraTransitio
 private const val DEFAULT_INITIAL_ZOOM = 15.0
 
 /**
- * Integrates the Android Auto [MapboxCarMapSurface] with the [NavigationCamera].
+ * Integrates the Android Auto MapboxCarMapSurface with the [NavigationCamera].
  */
 class AppNavigationCamera(
     val mapView: MapView,

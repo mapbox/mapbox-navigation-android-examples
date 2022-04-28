@@ -15,8 +15,8 @@ class CarScene2d : CarSurfaceLayer() {
 
     override fun children() = listOf(camera, model)
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.onVisibleAreaChanged(visibleArea, edgeInsets)
 
         Matrix.multiplyMM(
             mvpMatrix, 0,

@@ -5,15 +5,17 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.CarIcon
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.lifecycleScope
-import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackItemProvider
 import com.mapbox.examples.androidauto.car.feedback.core.CarFeedbackSender
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.core.telemetry.events.BitmapEncodeOptions
 import com.mapbox.navigation.core.telemetry.events.FeedbackHelper
 import kotlinx.coroutines.launch
 
+@OptIn(MapboxExperimental::class)
 class CarFeedbackAction(
     private val mapboxCarMap: MapboxCarMap,
     private val carFeedBackSender: CarFeedbackSender,
@@ -40,7 +42,7 @@ class CarFeedbackAction(
         )
         .setOnClickListener {
             screen.lifecycleScope.launch {
-                val mapSurface = mapboxCarMap.mapboxCarMapSurface?.mapSurface
+                val mapSurface = mapboxCarMap.carMapSurface?.mapSurface
                 val encodedSnapshot = mapSurface?.snapshot()?.let { bitmap ->
                     FeedbackHelper.encodeScreenshot(bitmap, bitmapEncodeOptions)
                 }

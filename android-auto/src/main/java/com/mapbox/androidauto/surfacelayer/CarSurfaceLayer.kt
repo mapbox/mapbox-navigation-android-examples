@@ -2,9 +2,10 @@ package com.mapbox.androidauto.surfacelayer
 
 import android.graphics.Rect
 import androidx.annotation.CallSuper
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
-import com.mapbox.androidauto.car.map.MapboxCarMapObserver
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 
 /**
  * Simplify the classes that need to extend the [MapboxCarMapObserver]
@@ -12,6 +13,7 @@ import com.mapbox.maps.EdgeInsets
  * This class is meant to have [children] so you don't
  * have to forward the calls and store surface state.
  */
+@OptIn(MapboxExperimental::class)
 open class CarSurfaceLayer : MapboxCarMapObserver {
     protected var mapboxCarMapSurface: MapboxCarMapSurface? = null
         private set
@@ -29,24 +31,24 @@ open class CarSurfaceLayer : MapboxCarMapObserver {
     open fun children(): List<MapboxCarMapObserver> = emptyList()
 
     @CallSuper
-    override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
+    override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
         this.mapboxCarMapSurface = mapboxCarMapSurface
-        notifyChildren { loaded(mapboxCarMapSurface) }
+        notifyChildren { onAttached(mapboxCarMapSurface) }
     }
 
     @CallSuper
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
         this.visibleArea = visibleArea
         this.edgeInsets = edgeInsets
-        notifyChildren { visibleAreaChanged(visibleArea, edgeInsets) }
+        notifyChildren { onVisibleAreaChanged(visibleArea, edgeInsets) }
     }
 
     @CallSuper
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
+    override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
         this.mapboxCarMapSurface = null
         this.visibleArea = null
         this.edgeInsets = null
-        notifyChildren { detached(mapboxCarMapSurface) }
+        notifyChildren { onDetached(mapboxCarMapSurface) }
     }
 
     private fun notifyChildren(

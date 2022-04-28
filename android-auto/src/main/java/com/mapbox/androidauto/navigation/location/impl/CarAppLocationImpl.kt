@@ -5,7 +5,6 @@ import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.androidauto.navigation.location.CarAppLocation
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
@@ -14,8 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-internal class CarAppLocationImpl : CarAppLocation, MapboxNavigationObserver {
+@ExperimentalPreviewMapboxNavigationAPI
+internal class CarAppLocationImpl : CarAppLocation {
 
     override val navigationLocationProvider = NavigationLocationProvider()
 

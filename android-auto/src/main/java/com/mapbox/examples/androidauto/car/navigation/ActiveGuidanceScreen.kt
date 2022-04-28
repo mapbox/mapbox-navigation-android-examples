@@ -17,18 +17,27 @@ import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainMapActionStrip
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
 import com.mapbox.examples.androidauto.car.preview.CarRouteLine
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.arrival.ArrivalObserver
+import com.mapbox.navigation.core.directions.session.RoutesObserver
 
 /**
  * After a route has been selected. This view gives turn-by-turn instructions
  * for completing the route.
  */
+@OptIn(MapboxExperimental::class)
 class ActiveGuidanceScreen(
     private val carActiveGuidanceContext: CarActiveGuidanceCarContext,
-    private val actionProviders: List<MapboxActionProvider>
+    private val actionProviders: List<MapboxActionProvider>,
+    private val placesLayerUtil: PlacesListOnMapLayerUtil = PlacesListOnMapLayerUtil(),
 ) : Screen(carActiveGuidanceContext.carContext) {
 
     val carRouteLine = CarRouteLine(carActiveGuidanceContext.mainCarContext)
@@ -42,7 +51,6 @@ class ActiveGuidanceScreen(
     private val roadLabelSurfaceLayer = RoadLabelSurfaceLayer(
         carActiveGuidanceContext.carContext,
         carActiveGuidanceContext.mapboxNavigation,
-        carActiveGuidanceContext.mapboxCarMap,
     )
 
     private val carRouteProgressObserver = CarNavigationInfoObserver(carActiveGuidanceContext)
@@ -63,6 +71,37 @@ class ActiveGuidanceScreen(
         }
     }
 
+    private val surfaceListener = object : MapboxCarMapObserver {
+
+        override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onAttached(mapboxCarMapSurface)
+            logAndroidAuto("ActiveGuidanceScreen loaded")
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+                placesLayerUtil.initializePlacesListOnMapLayer(style, carContext.resources)
+                carActiveGuidanceContext.mapboxNavigation.registerRoutesObserver(routesObserver)
+            }
+        }
+
+        override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onDetached(mapboxCarMapSurface)
+            logAndroidAuto("ActiveGuidanceScreen detached")
+            carActiveGuidanceContext.mapboxNavigation.unregisterRoutesObserver(routesObserver)
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+                placesLayerUtil.removePlacesListOnMapLayer(style)
+            }
+        }
+    }
+
+    private val routesObserver = RoutesObserver { result ->
+        val route = result.navigationRoutes.firstOrNull() ?: return@RoutesObserver
+        val coordinate = route.routeOptions.coordinatesList().lastOrNull() ?: return@RoutesObserver
+        val mapboxCarMapSurface = carActiveGuidanceContext.mapboxCarMap.carMapSurface ?: return@RoutesObserver
+        val featureCollection = FeatureCollection.fromFeature(Feature.fromGeometry(coordinate))
+        mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+            placesLayerUtil.updatePlacesListOnMapLayer(style, featureCollection)
+        }
+    }
+
     init {
         logAndroidAuto("ActiveGuidanceScreen constructor")
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -78,7 +117,11 @@ class ActiveGuidanceScreen(
                 carActiveGuidanceContext.mapboxCarMap.registerObserver(roadLabelSurfaceLayer)
                 carActiveGuidanceContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
                 carActiveGuidanceContext.mapboxCarMap.registerObserver(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.setGestureHandler(
+                    carNavigationCamera.gestureHandler
+                )
                 carActiveGuidanceContext.mapboxCarMap.registerObserver(carRouteLine)
+                carActiveGuidanceContext.mapboxCarMap.registerObserver(surfaceListener)
                 carRouteProgressObserver.start {
                     invalidate()
                 }
@@ -90,7 +133,9 @@ class ActiveGuidanceScreen(
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carLocationRenderer)
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
+                carActiveGuidanceContext.mapboxCarMap.setGestureHandler(null)
                 carActiveGuidanceContext.mapboxCarMap.unregisterObserver(carRouteLine)
+                carActiveGuidanceContext.mapboxCarMap.unregisterObserver(surfaceListener)
                 carRouteProgressObserver.stop()
             }
 

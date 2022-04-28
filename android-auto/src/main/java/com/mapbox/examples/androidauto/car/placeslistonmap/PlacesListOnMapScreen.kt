@@ -11,8 +11,6 @@ import androidx.car.app.navigation.model.PlaceListNavigationTemplate
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.MapboxCarApp
-import com.mapbox.androidauto.car.map.MapboxCarMapObserver
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainCarContext
@@ -27,6 +25,9 @@ import com.mapbox.examples.androidauto.car.search.SearchCarContext
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.navigation.base.route.NavigationRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 
+@OptIn(MapboxExperimental::class)
 class PlacesListOnMapScreen(
     private val mainCarContext: MainCarContext,
     private val placesProvider: PlacesListOnMapProvider,
@@ -53,20 +55,22 @@ class PlacesListOnMapScreen(
 
     private val surfaceListener = object : MapboxCarMapObserver {
 
-        override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
-            super.loaded(mapboxCarMapSurface)
+        override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onAttached(mapboxCarMapSurface)
             logAndroidAuto("PlacesListOnMapScreen loaded")
-            placesLayerUtil.initializePlacesListOnMapLayer(
-                mapboxCarMapSurface.style,
-                carContext.resources
-            )
-            loadPlaceRecords()
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+                placesLayerUtil.initializePlacesListOnMapLayer(
+                    style,
+                    carContext.resources
+                )
+                loadPlaceRecords()
+            }
         }
 
-        override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
-            super.detached(mapboxCarMapSurface)
+        override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onDetached(mapboxCarMapSurface)
             logAndroidAuto("PlacesListOnMapScreen detached")
-            mapboxCarMapSurface.style.let { style ->
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle()?.let { style ->
                 placesLayerUtil.removePlacesListOnMapLayer(style)
             }
         }
@@ -139,7 +143,7 @@ class PlacesListOnMapScreen(
 
     override fun onGetTemplate(): Template {
         addPlaceIconsToMap(placeRecords)
-        val locationProvider = MapboxCarApp.carAppServices.location().navigationLocationProvider
+        val locationProvider = MapboxCarApp.carAppLocationService().navigationLocationProvider
         val placesItemList = locationProvider.lastLocation?.run {
             placesListItemMapper.mapToItemList(this, placeRecords, placeClickListener)
         } ?: ItemList.Builder().build()
@@ -165,14 +169,16 @@ class PlacesListOnMapScreen(
 
     private fun addPlaceIconsToMap(places: List<PlaceRecord>) {
         logAndroidAuto("PlacesListOnMapScreen addPlaceIconsToMap with ${places.size} places.")
-        mainCarContext.mapboxCarMap.mapboxCarMapSurface?.let { mapboxCarMapSurface ->
+        mainCarContext.mapboxCarMap.carMapSurface?.let { carMapSurface ->
             val features = places.filter { it.coordinate != null }.map {
                 Feature.fromGeometry(
                     Point.fromLngLat(it.coordinate!!.longitude(), it.coordinate.latitude())
                 )
             }
             val featureCollection = FeatureCollection.fromFeatures(features)
-            placesLayerUtil.updatePlacesListOnMapLayer(mapboxCarMapSurface.style, featureCollection)
+            carMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+                placesLayerUtil.updatePlacesListOnMapLayer(style, featureCollection)
+            }
         }
         val placesWithCoordinates = places.mapNotNull { it.coordinate }
         carNavigationCamera.updateWithLocations(placesWithCoordinates)

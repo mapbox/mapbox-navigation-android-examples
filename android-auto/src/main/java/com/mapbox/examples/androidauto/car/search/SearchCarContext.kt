@@ -18,10 +18,10 @@ class SearchCarContext(
     /** SearchCarContext **/
     val carSearchEngine = CarSearchEngine(
         MapboxSearchSdk.getSearchEngine(),
-        MapboxCarApp.carAppServices.location().navigationLocationProvider
+        MapboxCarApp.carAppLocationService().navigationLocationProvider
     )
     val carRouteRequest = CarRouteRequest(
         mainCarContext.mapboxNavigation,
-        MapboxCarApp.carAppServices.location().navigationLocationProvider
+        MapboxCarApp.carAppLocationService().navigationLocationProvider
     )
 }

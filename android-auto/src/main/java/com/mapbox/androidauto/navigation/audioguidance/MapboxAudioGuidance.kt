@@ -2,6 +2,8 @@ package com.mapbox.androidauto.navigation.audioguidance
 
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.api.directions.v5.models.VoiceInstructions
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,7 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * Subscribing onto the [stateFlow] does not change the internal state.
  */
-interface MapboxAudioGuidance {
+@ExperimentalPreviewMapboxNavigationAPI
+interface MapboxAudioGuidance : MapboxNavigationObserver {
     /**
      * Monitor the voice instructions state.
      */

@@ -34,7 +34,7 @@ class PlacesListOnMapLayerUtil {
             val placesLayer = SymbolLayer(PLACES_LAYER_ID, PLACES_LAYER_SOURCE_ID)
                 .iconAllowOverlap(true)
                 .iconIgnorePlacement(true)
-                .iconRotationAlignment(IconRotationAlignment.MAP)
+                .iconRotationAlignment(IconRotationAlignment.VIEWPORT)
                 .iconImage(GENERIC_LOCATION_ICON) // todo support for different place icons?
 
             style.addLayer(placesLayer)

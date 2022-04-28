@@ -34,8 +34,8 @@ class CarTextModel2d : CarSurfaceLayer() {
         }
     }
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.onVisibleAreaChanged(visibleArea, edgeInsets)
 
         updateModelMatrix(visibleArea, edgeInsets)
     }
