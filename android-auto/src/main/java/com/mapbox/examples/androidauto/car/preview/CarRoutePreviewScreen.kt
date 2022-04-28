@@ -24,7 +24,12 @@ import com.mapbox.examples.androidauto.car.feedback.ui.routePreviewCarFeedbackPr
 import com.mapbox.examples.androidauto.car.location.CarLocationRenderer
 import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
+import com.mapbox.examples.androidauto.car.placeslistonmap.PlacesListOnMapLayerUtil
 import com.mapbox.examples.androidauto.car.search.PlaceRecord
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.navigation.base.route.NavigationRoute
 
 /**
@@ -35,6 +40,7 @@ class CarRoutePreviewScreen(
     private val routePreviewCarContext: RoutePreviewCarContext,
     private val placeRecord: PlaceRecord,
     private val navigationRoutes: List<NavigationRoute>,
+    private val placesLayerUtil: PlacesListOnMapLayerUtil = PlacesListOnMapLayerUtil(),
 ) : Screen(routePreviewCarContext.carContext) {
 
     private val routesProvider = PreviewRoutesProvider(navigationRoutes)
@@ -58,6 +64,35 @@ class CarRoutePreviewScreen(
         }
     }
 
+    private val surfaceListener = object : MapboxCarMapObserver {
+
+        override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onAttached(mapboxCarMapSurface)
+            logAndroidAuto("CarRoutePreviewScreen loaded")
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle { style ->
+                placesLayerUtil.initializePlacesListOnMapLayer(
+                    style,
+                    carContext.resources
+                )
+                val coordinate = placeRecord.coordinate ?: return@getStyle
+                val featureCollection =
+                    FeatureCollection.fromFeature(Feature.fromGeometry(coordinate))
+                placesLayerUtil.updatePlacesListOnMapLayer(
+                    style,
+                    featureCollection
+                )
+            }
+        }
+
+        override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
+            super.onDetached(mapboxCarMapSurface)
+            logAndroidAuto("CarRoutePreviewScreen detached")
+            mapboxCarMapSurface.mapSurface.getMapboxMap().getStyle()?.let { style ->
+                placesLayerUtil.removePlacesListOnMapLayer(style)
+            }
+        }
+    }
+
     init {
         logAndroidAuto("CarRoutePreviewScreen constructor")
         lifecycle.muteAudioGuidance()
@@ -69,6 +104,7 @@ class CarRoutePreviewScreen(
                 routePreviewCarContext.mapboxCarMap.registerObserver(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.registerObserver(carNavigationCamera)
                 routePreviewCarContext.mapboxCarMap.registerObserver(carRouteLine)
+                routePreviewCarContext.mapboxCarMap.registerObserver(surfaceListener)
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -78,6 +114,7 @@ class CarRoutePreviewScreen(
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carSpeedLimitRenderer)
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carNavigationCamera)
                 routePreviewCarContext.mapboxCarMap.unregisterObserver(carRouteLine)
+                routePreviewCarContext.mapboxCarMap.unregisterObserver(surfaceListener)
             }
         })
     }

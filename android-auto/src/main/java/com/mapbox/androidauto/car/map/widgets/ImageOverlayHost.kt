@@ -4,8 +4,6 @@ import android.graphics.Bitmap
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import com.mapbox.base.common.logger.model.Message
-import com.mapbox.base.common.logger.model.Tag
 import com.mapbox.common.Logger
 import com.mapbox.maps.BuildConfig
 import com.mapbox.maps.CustomLayerHost

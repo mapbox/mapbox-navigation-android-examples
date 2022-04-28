@@ -26,7 +26,7 @@ class GeoDeeplinkPlacesListOnMapProvider(
     @Suppress("ReturnCount")
     override suspend fun getPlaces(): Expected<GetPlacesError, List<PlaceRecord>> {
         // Wait for an origin location
-        val origin = MapboxCarApp.carAppServices.location().validLocation()
+        val origin = MapboxCarApp.carAppLocationService().validLocation()
             ?.run { Point.fromLngLat(longitude, latitude) }
             ?: return ExpectedFactory.createError(
                 GetPlacesError("Did not find current location.", null)

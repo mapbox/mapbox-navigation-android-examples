@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.MutableLiveData
+import com.mapbox.search.ui.view.CommonSearchViewConfiguration
 import com.mapbox.search.ui.view.SearchBottomSheetView
 import com.mapbox.search.ui.view.category.Category
 import com.mapbox.search.ui.view.category.SearchCategoriesBottomSheetView
@@ -36,6 +37,9 @@ class AppSearchBottomSheet(
     private var navigateClickListener: ((SearchPlace) -> Unit) = {}
 
     init {
+        val commonSearchViewConfiguration = CommonSearchViewConfiguration()
+        searchPlaceView.initialize(commonSearchViewConfiguration)
+        searchCategoriesView.initialize(commonSearchViewConfiguration)
         searchBottomSheetView.initializeSearch(savedInstanceState, configuration)
         searchBottomSheetView.isHideableByDrag = true
         savedInstanceState?.let {

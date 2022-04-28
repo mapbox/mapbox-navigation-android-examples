@@ -5,16 +5,18 @@ package com.mapbox.examples.androidauto.car.navigation
 import android.graphics.Rect
 import android.location.Location
 import com.mapbox.androidauto.car.RendererUtils.dpToPx
-import com.mapbox.androidauto.car.map.MapboxCarMapObserver
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.logAndroidAuto
 import com.mapbox.examples.androidauto.car.routes.NavigationRoutesProvider
 import com.mapbox.examples.androidauto.car.routes.RoutesListener
 import com.mapbox.examples.androidauto.car.routes.RoutesProvider
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.ScreenCoordinate
 import com.mapbox.maps.dsl.cameraOptions
+import com.mapbox.maps.extension.androidauto.DefaultMapboxCarMapGestureHandler
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -31,6 +33,7 @@ private const val DEFAULT_INITIAL_ZOOM = 15.0
 /**
  * Integrates the Android Auto [MapboxCarMapSurface] with the [NavigationCamera].
  */
+@OptIn(MapboxExperimental::class)
 class CarNavigationCamera internal constructor(
     private val mapboxNavigation: MapboxNavigation,
     private val initialCarCameraMode: CarCameraMode,
@@ -104,6 +107,33 @@ class CarNavigationCamera internal constructor(
         viewportDataSource.evaluate()
     }
 
+    val gestureHandler = object : DefaultMapboxCarMapGestureHandler() {
+        override fun onScroll(
+            mapboxCarMapSurface: MapboxCarMapSurface,
+            visibleCenter: ScreenCoordinate,
+            distanceX: Float,
+            distanceY: Float
+        ) {
+            updateCameraMode(CarCameraMode.IDLE)
+            super.onScroll(mapboxCarMapSurface, visibleCenter, distanceX, distanceY)
+        }
+
+        override fun onScale(
+            mapboxCarMapSurface: MapboxCarMapSurface,
+            focusX: Float,
+            focusY: Float,
+            scaleFactor: Float
+        ) {
+            updateCameraMode(CarCameraMode.IDLE)
+            val fromZoom = mapboxCarMapSurface.mapSurface.getMapboxMap().cameraState.zoom
+            val toZoom = fromZoom - (1.0 - scaleFactor.toDouble())
+            val inBounds = toZoom.coerceIn(MIN_ZOOM_OUT, MAX_ZOOM_IN) != toZoom
+            if (!inBounds) {
+                super.onScale(mapboxCarMapSurface, focusX, focusY, scaleFactor)
+            }
+        }
+    }
+
     constructor(
         mapboxNavigation: MapboxNavigation,
         initialCarCameraMode: CarCameraMode,
@@ -119,8 +149,8 @@ class CarNavigationCamera internal constructor(
         initialCameraOptions,
     )
 
-    override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
-        super.loaded(mapboxCarMapSurface)
+    override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        super.onAttached(mapboxCarMapSurface)
         this.mapboxCarMapSurface = mapboxCarMapSurface
         logAndroidAuto("CarNavigationCamera loaded $mapboxCarMapSurface")
 
@@ -140,8 +170,8 @@ class CarNavigationCamera internal constructor(
         mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
     }
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.onVisibleAreaChanged(visibleArea, edgeInsets)
         logAndroidAuto("CarNavigationCamera visibleAreaChanged $visibleArea $edgeInsets")
 
         viewportDataSource.overviewPadding = EdgeInsets(
@@ -160,28 +190,6 @@ class CarNavigationCamera internal constructor(
         )
 
         viewportDataSource.evaluate()
-    }
-
-    override fun scroll(
-        mapboxCarMapSurface: MapboxCarMapSurface,
-        distanceX: Float,
-        distanceY: Float
-    ): Boolean {
-        logAndroidAuto("CarNavigationCamera handling pan")
-        updateCameraMode(CarCameraMode.IDLE)
-
-        return false
-    }
-
-    override fun scale(
-        mapboxCarMapSurface: MapboxCarMapSurface,
-        anchor: ScreenCoordinate,
-        fromZoom: Double,
-        toZoom: Double
-    ): Boolean {
-        updateCameraMode(CarCameraMode.IDLE)
-
-        return toZoom.coerceIn(MIN_ZOOM_OUT, MAX_ZOOM_IN) != toZoom
     }
 
     fun updateCameraMode(carCameraMode: CarCameraMode) {
@@ -234,8 +242,8 @@ class CarNavigationCamera internal constructor(
         mapSurface.camera.easeTo(cameraOptions { zoom(toZoom) })
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
-        super.detached(mapboxCarMapSurface)
+    override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
+        super.onDetached(mapboxCarMapSurface)
         logAndroidAuto("CarNavigationCamera detached $mapboxCarMapSurface")
 
         routesProvider.unregisterRoutesListener(routesListener)

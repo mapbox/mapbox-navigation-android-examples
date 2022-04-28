@@ -18,8 +18,8 @@ class CarCamera2d : CarSurfaceLayer() {
      */
     val viewM = FloatArray(GLUtils.MATRIX_SIZE)
 
-    override fun visibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
-        super.visibleAreaChanged(visibleArea, edgeInsets)
+    override fun onVisibleAreaChanged(visibleArea: Rect, edgeInsets: EdgeInsets) {
+        super.onVisibleAreaChanged(visibleArea, edgeInsets)
         val (surfaceWidth, surfaceHeight) = surfaceDimensions() ?: return
 
         Matrix.setLookAtM(

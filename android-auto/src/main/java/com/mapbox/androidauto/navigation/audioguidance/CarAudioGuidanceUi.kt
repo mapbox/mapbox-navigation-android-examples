@@ -12,8 +12,7 @@ import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.MainActionStrip
 import com.mapbox.examples.androidauto.car.action.MapboxActionProvider
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.collect
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -23,13 +22,14 @@ import kotlinx.coroutines.launch
  *
  * This class creates an action for enabling and disabling audio guidance.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarAudioGuidanceUi : MapboxActionProvider.ScreenActionProvider {
     /**
      * Android auto action for enabling and disabling the car navigation.
      * Attach this to the screen while navigating.
      */
     private fun buildSoundButtonAction(screen: Screen): Action {
-        val audioGuidance = MapboxCarApp.carAppServices.audioGuidance()
+        val audioGuidance = MapboxCarApp.carAppAudioGuidanceService()
         val state = audioGuidance.stateFlow().value
         return if (!state.isMuted) {
             buildIconAction(screen, R.drawable.mapbox_car_ic_volume_on) {
@@ -42,17 +42,15 @@ class CarAudioGuidanceUi : MapboxActionProvider.ScreenActionProvider {
         }
     }
 
-    @OptIn(InternalCoroutinesApi::class)
     override fun getAction(screen: Screen): Action {
         screen.lifecycle.apply {
             coroutineScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    MapboxCarApp.carAppServices.audioGuidance().stateFlow()
+                    MapboxCarApp.carAppAudioGuidanceService().stateFlow()
                         .distinctUntilChanged { old, new ->
-                            old.isMuted != new.isMuted || old.isPlayable != new.isPlayable
-                        }.collect {
-                            screen.invalidate()
+                            old.isMuted == new.isMuted && old.isPlayable == new.isPlayable
                         }
+                        .collect { screen.invalidate() }
                 }
             }
         }

@@ -12,7 +12,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.examples.androidauto.R
 import com.mapbox.examples.androidauto.car.navigation.CarCameraMode
 import com.mapbox.examples.androidauto.car.navigation.CarNavigationCamera
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainMapActionStrip(
@@ -22,9 +21,7 @@ class MainMapActionStrip(
     init {
         screen.lifecycleScope.launch {
             screen.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                carNavigationCamera.nextCameraMode.collect {
-                    screen.invalidate()
-                }
+                carNavigationCamera.nextCameraMode.collect { screen.invalidate() }
             }
         }
     }

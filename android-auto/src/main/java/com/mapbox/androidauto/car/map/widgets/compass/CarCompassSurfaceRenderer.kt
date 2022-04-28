@@ -1,12 +1,14 @@
 package com.mapbox.androidauto.car.map.widgets.compass
 
-import com.mapbox.androidauto.car.map.MapboxCarMapObserver
-import com.mapbox.androidauto.car.map.MapboxCarMapSurface
 import com.mapbox.androidauto.car.map.widgets.logo.LogoWidget
 import com.mapbox.maps.LayerPosition
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 
+@OptIn(MapboxExperimental::class)
 class CarCompassSurfaceRenderer(
     private val layerPosition: LayerPosition? = null
 ) : MapboxCarMapObserver {
@@ -19,21 +21,23 @@ class CarCompassSurfaceRenderer(
         }
     }
 
-    override fun loaded(mapboxCarMapSurface: MapboxCarMapSurface) {
+    override fun onAttached(mapboxCarMapSurface: MapboxCarMapSurface) {
         val compassWidget = CompassWidget(mapboxCarMapSurface.carContext)
-        mapboxCarMapSurface.style.addPersistentStyleCustomLayer(
-            CompassWidget.COMPASS_WIDGET_LAYER_ID,
-            compassWidget.host,
-            layerPosition
-        )
         val mapboxMap = mapboxCarMapSurface.mapSurface.getMapboxMap().also { mapboxMap = it }
         this.compassWidget = compassWidget
+        mapboxMap.getStyle { style ->
+            style.addPersistentStyleCustomLayer(
+                CompassWidget.COMPASS_WIDGET_LAYER_ID,
+                compassWidget.host,
+                layerPosition
+            )
+        }
         mapboxMap.addOnCameraChangeListener(onCameraChangeListener)
     }
 
-    override fun detached(mapboxCarMapSurface: MapboxCarMapSurface) {
+    override fun onDetached(mapboxCarMapSurface: MapboxCarMapSurface) {
         mapboxCarMapSurface.apply {
-            style.removeStyleLayer(LogoWidget.LOGO_WIDGET_LAYER_ID)
+            mapSurface.getMapboxMap().getStyle()?.removeStyleLayer(LogoWidget.LOGO_WIDGET_LAYER_ID)
             mapSurface.getMapboxMap().removeOnCameraChangeListener(onCameraChangeListener)
         }
         compassWidget = null

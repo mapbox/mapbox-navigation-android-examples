@@ -4,7 +4,6 @@ package com.mapbox.androidauto.deeplink
 
 import android.location.Location
 import androidx.car.app.CarContext
-import com.mapbox.androidauto.CarAppServicesProvider
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.navigation.location.CarAppLocation
 import com.mapbox.androidauto.testing.MainCoroutineRule
@@ -70,10 +69,7 @@ class GeoDeeplinkPlacesListOnMapProviderTest {
         val carAppLocation = mockk<CarAppLocation> {
             coEvery { validLocation() } returns location
         }
-        val mockCarAppServices = mockk<CarAppServicesProvider> {
-            every { location() } returns carAppLocation
-        }
-        every { MapboxCarApp.carAppServices } returns mockCarAppServices
+        every { MapboxCarApp.carAppLocationService() } returns carAppLocation
         val originSlot = slot<Point>()
         val geoDeeplink = mockk<GeoDeeplink>()
         val geoDeeplinkGeocoding = mockk<GeoDeeplinkGeocoding>(relaxed = true) {

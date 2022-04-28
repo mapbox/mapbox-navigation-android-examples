@@ -38,7 +38,7 @@ class MapboxVoiceInstructions(
 
     fun voiceLanguage(): Flow<String?> {
         return routesFlow()
-            .mapLatest { it.firstOrNull()?.voiceLanguage() }
+            .mapLatest { it.firstOrNull()?.directionsRoute?.voiceLanguage() }
             .onStart { emit(value = null) }
     }
 
@@ -66,7 +66,7 @@ class MapboxVoiceInstructions(
 
     private fun routesFlow() = channelFlow {
         val routesObserver = RoutesObserver { routesUpdatedResult ->
-            trySend(routesUpdatedResult.routes)
+            trySend(routesUpdatedResult.navigationRoutes)
         }
         mapboxNavigation.registerRoutesObserver(routesObserver)
         awaitClose {

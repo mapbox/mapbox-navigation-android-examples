@@ -1,8 +1,9 @@
 package com.mapbox.examples.androidauto.car
 
 import androidx.car.app.CarContext
-import com.mapbox.androidauto.car.map.MapboxCarMap
 import com.mapbox.examples.androidauto.car.settings.CarSettingsStorage
+import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.formatter.DistanceFormatter
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
@@ -13,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
+@OptIn(MapboxExperimental::class)
 class MainCarContext(
     val carContext: CarContext,
     val mapboxCarMap: MapboxCarMap

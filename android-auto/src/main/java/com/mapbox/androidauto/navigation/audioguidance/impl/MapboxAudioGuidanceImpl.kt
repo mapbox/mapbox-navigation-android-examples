@@ -8,13 +8,14 @@ import com.mapbox.androidauto.navigation.audioguidance.MapboxAudioGuidanceServic
 import com.mapbox.api.directions.v5.models.VoiceInstructions
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,31 +32,27 @@ import kotlinx.coroutines.launch
 /**
  * Implementation of [MapboxAudioGuidance]. See interface for details.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MapboxAudioGuidanceImpl(
     private val audioGuidanceServices: MapboxAudioGuidanceServices,
     private val carAppDataStore: CarAppDataStoreOwner,
-    private val carAppConfigOwner: CarAppConfigOwner
+    private val carAppConfigOwner: CarAppConfigOwner,
+    dispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : MapboxAudioGuidance {
 
     private val internalStateFlow = MutableStateFlow(MapboxAudioGuidanceState())
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
-    /**
-     * When the car or app has been started, a top level lifecycle owner is attached.
-     * This service will creates a hot observable which can be monitored through the [stateFlow].
-     */
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-    internal fun setup(scope: CoroutineScope) = object : MapboxNavigationObserver {
-        private var job: Job? = null
+    private var job: Job? = null
 
-        override fun onAttached(mapboxNavigation: MapboxNavigation) {
-            job = scope.launch { audioGuidanceFlow(mapboxNavigation).collect() }
-        }
+    override fun onAttached(mapboxNavigation: MapboxNavigation) {
+        job = scope.launch { audioGuidanceFlow(mapboxNavigation).collect() }
+    }
 
-        override fun onDetached(mapboxNavigation: MapboxNavigation) {
-            job?.cancel()
-            job = null
-        }
-    }.also { MapboxNavigationApp.registerObserver(it) }
+    override fun onDetached(mapboxNavigation: MapboxNavigation) {
+        job?.cancel()
+        job = null
+    }
 
     /**
      * This flow gives you access to the state of mapbox audio guidance without effecting state.
@@ -161,6 +158,7 @@ class MapboxAudioGuidanceImpl(
     }
 }
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 private data class MapboxAudioGuidanceState(
     override val isPlayable: Boolean = false,
     override val isMuted: Boolean = false,
