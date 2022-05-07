@@ -15,7 +15,7 @@ import com.mapbox.androidauto.CarAppState
 import com.mapbox.androidauto.FreeDriveState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
-import com.mapbox.examples.androidauto.car.location.CarLocationPuck
+import com.mapbox.androidauto.car.location.CarLocationPuck
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigationProvider
@@ -29,6 +29,7 @@ import com.mapbox.navigation.examples.androidauto.databinding.ActivityMainBindin
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
