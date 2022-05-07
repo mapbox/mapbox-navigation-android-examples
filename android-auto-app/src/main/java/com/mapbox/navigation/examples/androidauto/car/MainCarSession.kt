@@ -14,19 +14,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.androidauto.MapboxCarNavigationManager
+import com.mapbox.androidauto.car.MainCarContext
+import com.mapbox.androidauto.car.MainScreenManager
 import com.mapbox.androidauto.car.map.widgets.compass.CarCompassSurfaceRenderer
 import com.mapbox.androidauto.car.map.widgets.logo.CarLogoSurfaceRenderer
+import com.mapbox.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
 import com.mapbox.androidauto.logAndroidAuto
-import com.mapbox.examples.androidauto.car.MainCarContext
-import com.mapbox.examples.androidauto.car.MainScreenManager
-import com.mapbox.examples.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(MapboxExperimental::class, ExperimentalPreviewMapboxNavigationAPI::class)

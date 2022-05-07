@@ -8,9 +8,9 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
-import com.mapbox.examples.androidauto.car.preview.CarRouteRequest
-import com.mapbox.examples.androidauto.car.preview.CarRouteRequestCallback
-import com.mapbox.examples.androidauto.car.search.PlaceRecord
+import com.mapbox.androidauto.car.preview.CarRouteRequest
+import com.mapbox.androidauto.car.preview.CarRouteRequestCallback
+import com.mapbox.androidauto.car.search.PlaceRecord
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
