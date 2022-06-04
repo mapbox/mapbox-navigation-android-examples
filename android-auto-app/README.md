@@ -18,8 +18,13 @@ The android-auto-app showcases the minimum integration needed to support the and
 1. Run "android-auto-app" which installs the app on your device
 1. Run the app on "Desktop Head Unit"
 
-## Integrating android-auto module into your app
+## Enable route replay (AUTO_DRIVE)
 
-1. From the terminal, cd into this repository
-1. cp -fR android-auto/ ../{your-app}/android-auto
-1. Build your app
+When testing Android Auto, it is easy to simulate a route instead of using mock locations. Follow these instructions, to enable route replay.
+https://docs.mapbox.com/android/navigation/guides/developer-tools/route-replay/
+
+```
+1. Start the desktop head unit
+2. Open your navigation app
+3. $ adb shell dumpsys activity service com.mapbox.navigation.examples.androidauto.car.MainCarAppService AUTO_DRIVE
+```

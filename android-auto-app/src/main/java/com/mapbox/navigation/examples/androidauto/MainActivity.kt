@@ -17,7 +17,6 @@ import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
 import com.mapbox.androidauto.car.location.CarLocationPuck
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.app.navigation.ActiveGuidanceFragment
@@ -32,7 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainActivity : AppCompatActivity(), PermissionsListener {
     private val permissionsManager = PermissionsManager(this)
     private lateinit var binding: ActivityMainBinding
@@ -116,20 +114,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
     }
 
     @SuppressLint("MissingPermission")
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun startTripSession() {
         val mapboxNavigation = MapboxNavigationProvider.retrieve()
         if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-            if (ReplayNavigationObserver.ENABLE_REPLAY) {
-                val mapboxReplayer = MapboxNavigationProvider.retrieve().mapboxReplayer
-                mapboxReplayer.pushRealLocation(this, 0.0)
-                mapboxNavigation.startReplayTripSession()
-                mapboxReplayer.play()
-            } else {
-                mapboxNavigation.startTripSession()
-            }
+            mapboxNavigation.startTripSession()
         }
     }
+
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
         Toast.makeText(
             this,
