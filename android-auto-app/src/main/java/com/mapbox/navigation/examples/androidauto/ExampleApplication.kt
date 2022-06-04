@@ -22,7 +22,6 @@ class ExampleApplication : Application() {
                 .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         ).attachAllActivities(this)
-        MapboxNavigationApp.registerObserver(ReplayNavigationObserver())
 
         // Setup android auto
         MapboxCarApp.setup(this)
