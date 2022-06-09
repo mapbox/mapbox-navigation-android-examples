@@ -137,7 +137,7 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun initNavigation() {
-        mapboxNavigation = MapboxNavigation(
+        mapboxNavigation = MapboxNavigationProvider.create(
             NavigationOptions.Builder(this)
                 .accessToken(getString(R.string.mapbox_access_token))
                 .build()
