@@ -91,6 +91,11 @@
     <activity android:name=".junctions.ShowJunctionsActivity"
         android:screenOrientation="portrait"
         android:exported="false" />
+
+    <activity android:name=".signboard.MapboxSignboardActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
   </application>
 
 </manifest>
