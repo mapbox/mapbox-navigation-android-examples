@@ -6,6 +6,7 @@ import com.mapbox.navigation.examples.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.fetchroute.FetchARouteActivity
+import com.mapbox.navigation.examples.junctions.ShowJunctionsActivity
 import com.mapbox.navigation.examples.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
@@ -101,5 +102,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_show_custom_status),
         getString(R.string.description_show_custom_status),
         ShowCustomStatusActivity::class.java
-    )
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_junctions),
+        getString(R.string.title_show_junctions),
+        getString(R.string.description_show_junctions),
+        ShowJunctionsActivity::class.java
+    ),
 )
