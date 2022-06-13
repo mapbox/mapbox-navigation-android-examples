@@ -87,6 +87,10 @@
         android:screenOrientation="portrait"
         android:exported="false"
         />
+
+    <activity android:name=".junctions.ShowJunctionsActivity"
+        android:screenOrientation="portrait"
+        android:exported="false" />
   </application>
 
 </manifest>
