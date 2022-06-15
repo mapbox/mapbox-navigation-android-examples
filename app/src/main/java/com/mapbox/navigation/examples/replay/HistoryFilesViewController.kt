@@ -48,8 +48,11 @@ class HistoryFilesViewController(
 
     private fun requestHistory(context: Context, connectionCallback: (Boolean) -> Unit): Job {
         return lifecycleScope.launch {
-            val drives = historyFilesApi.requestHistory().toMutableList()
+            val drives = mutableListOf<AdapterItem>(Header("Server"))
+            drives.addAll(historyFilesApi.requestHistory())
+            drives.add(Header("Disk"))
             drives.addAll(requestHistoryDisk(context))
+            drives.add(Header("Cache"))
             drives.addAll(requestHistoryCache(context))
             connectionCallback.invoke(drives.isNotEmpty())
             viewAdapter?.data = drives.toList()
