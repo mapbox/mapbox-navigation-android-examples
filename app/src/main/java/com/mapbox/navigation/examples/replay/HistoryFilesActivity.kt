@@ -51,9 +51,6 @@ class HistoryFilesActivity : AppCompatActivity() {
                     binding.recyclerView,
                     getString(R.string.history_failed_to_load_item),
                     Snackbar.LENGTH_LONG
-                ).setAction(
-                    "Action",
-                    null
                 ).show()
             } else {
                 selectedHistory = historyDataResponse
@@ -74,9 +71,6 @@ class HistoryFilesActivity : AppCompatActivity() {
                     binding.recyclerView,
                     getString(R.string.history_failed_to_load_list),
                     Snackbar.LENGTH_LONG
-                ).setAction(
-                    "Action",
-                    null
                 ).show()
                 binding.fab.visibility = View.VISIBLE
             }

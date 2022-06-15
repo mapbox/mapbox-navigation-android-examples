@@ -16,7 +16,6 @@ class HistoryFileLoader {
             .route(it.navigationRoute)
             .build()
     }.build()
-    private val historyFilesDirectory = HistoryFilesDirectory()
 
     @SuppressLint("MissingPermission")
     suspend fun loadReplayHistory(
@@ -37,7 +36,7 @@ class HistoryFileLoader {
     ): List<ReplayEventBase> = withContext(Dispatchers.IO) {
         val fileName = "replay-history-activity.json"
         val inputStream = context.resources.openRawResource(R.raw.replay_history_activity)
-        val outputFile = historyFilesDirectory.outputFile(context, fileName)
+        val outputFile = HistoryFilesDirectory.outputFile(context, fileName)
         outputFile.outputStream().use { fileOut ->
             inputStream.copyTo(fileOut)
         }

@@ -2,7 +2,6 @@ package com.mapbox.navigation.examples.replay
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.location.Location
 import android.os.Bundle
@@ -72,126 +71,12 @@ class ReplayHistoryActivity : AppCompatActivity() {
             40.0 * pixelDensity
         )
     }
-    private val landscapeOverviewPadding: EdgeInsets by lazy {
-        EdgeInsets(
-            30.0 * pixelDensity,
-            380.0 * pixelDensity,
-            20.0 * pixelDensity,
-            20.0 * pixelDensity
-        )
-    }
     private val followingPadding: EdgeInsets by lazy {
         EdgeInsets(
             180.0 * pixelDensity,
             40.0 * pixelDensity,
             150.0 * pixelDensity,
             40.0 * pixelDensity
-        )
-    }
-    private val landscapeFollowingPadding: EdgeInsets by lazy {
-        EdgeInsets(
-            30.0 * pixelDensity,
-            380.0 * pixelDensity,
-            110.0 * pixelDensity,
-            40.0 * pixelDensity
-        )
-    }
-
-    private val initialCameraOptions: CameraOptions? = CameraOptions.Builder()
-        .zoom(DEFAULT_INITIAL_ZOOM)
-        .build()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityReplayHistoryLayoutBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        initNavigation()
-        handleHistoryFileSelected()
-        initMapStyle()
-        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == HistoryFilesActivity.REQUEST_CODE) {
-                handleHistoryFileSelected()
-            }
-        }
-
-        binding.selectHistoryButton.setOnClickListener {
-            val activityIntent = Intent(this, HistoryFilesActivity::class.java)
-                .putExtra(
-                    HistoryFilesActivity.EXTRA_HISTORY_FILE_DIRECTORY,
-                    mapboxNavigation.historyRecorder.fileDirectory()
-                )
-            activityResultLauncher.launch(activityIntent)
-        }
-        setupReplayControls()
-
-        if (this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            viewportDataSource.overviewPadding = landscapeOverviewPadding
-            viewportDataSource.followingPadding = landscapeFollowingPadding
-        } else {
-            viewportDataSource.overviewPadding = overviewPadding
-            viewportDataSource.followingPadding = followingPadding
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mapboxNavigation.registerLocationObserver(locationObserver)
-        mapboxNavigation.registerRoutesObserver(routesObserver)
-        mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
-        mapboxNavigation.unregisterRoutesObserver(routesObserver)
-        mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        routeLineApi.cancel()
-        routeLineView.cancel()
-        mapboxReplayer.finish()
-        mapboxNavigation.onDestroy()
-        if (::locationComponent.isInitialized) {
-            locationComponent.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initMapStyle() {
-        viewportDataSource = MapboxNavigationViewportDataSource(
-            binding.mapView.getMapboxMap()
-        )
-        val mapboxMap = binding.mapView.getMapboxMap()
-        navigationCamera = NavigationCamera(
-            mapboxMap,
-            binding.mapView.camera,
-            viewportDataSource
-        )
-        initialCameraOptions?.let { mapboxMap.setCamera(it) }
-        mapboxMap.loadStyleUri(
-            NavigationStyles.NAVIGATION_DAY_STYLE,
-            {
-                locationComponent = binding.mapView.location.apply {
-                    this.locationPuck = LocationPuck2D(
-                        bearingImage = ContextCompat.getDrawable(
-                            this@ReplayHistoryActivity,
-                            R.drawable.mapbox_navigation_puck_icon
-                        )
-                    )
-                    setLocationProvider(navigationLocationProvider)
-                    enabled = true
-                }
-                locationComponent.addOnIndicatorPositionChangedListener(onPositionChangedListener)
-                viewportDataSource.evaluate()
-            },
-            object : OnMapLoadErrorListener {
-                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                    // intentionally blank
-                }
-            }
         )
     }
 
@@ -277,7 +162,102 @@ class ReplayHistoryActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityReplayHistoryLayoutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        initNavigation()
+        handleHistoryFileSelected()
+        initMapStyle()
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == HistoryFilesActivity.REQUEST_CODE) {
+                handleHistoryFileSelected()
+            }
+        }
+
+        binding.selectHistoryButton.setOnClickListener {
+            mapboxReplayer.clearEvents()
+            mapboxNavigation.stopTripSession()
+            val activityIntent = Intent(this, HistoryFilesActivity::class.java)
+                .putExtra(
+                    HistoryFilesActivity.EXTRA_HISTORY_FILE_DIRECTORY,
+                    mapboxNavigation.historyRecorder.fileDirectory()
+                )
+            activityResultLauncher.launch(activityIntent)
+        }
+        setupReplayControls()
+        viewportDataSource.overviewPadding = overviewPadding
+        viewportDataSource.followingPadding = followingPadding
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapboxNavigation.registerLocationObserver(locationObserver)
+        mapboxNavigation.registerRoutesObserver(routesObserver)
+        mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapboxNavigation.unregisterLocationObserver(locationObserver)
+        mapboxNavigation.unregisterRoutesObserver(routesObserver)
+        mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        routeLineApi.cancel()
+        routeLineView.cancel()
+        mapboxReplayer.finish()
+        mapboxNavigation.onDestroy()
+        if (::locationComponent.isInitialized) {
+            locationComponent.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
+        }
+    }
+
     @SuppressLint("MissingPermission")
+    private fun initMapStyle() {
+        viewportDataSource = MapboxNavigationViewportDataSource(
+            binding.mapView.getMapboxMap()
+        )
+        val mapboxMap = binding.mapView.getMapboxMap()
+        navigationCamera = NavigationCamera(
+            mapboxMap,
+            binding.mapView.camera,
+            viewportDataSource
+        )
+        mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .zoom(DEFAULT_INITIAL_ZOOM)
+                .build()
+        )
+        mapboxMap.loadStyleUri(
+            NavigationStyles.NAVIGATION_DAY_STYLE,
+            {
+                locationComponent = binding.mapView.location.apply {
+                    this.locationPuck = LocationPuck2D(
+                        bearingImage = ContextCompat.getDrawable(
+                            this@ReplayHistoryActivity,
+                            R.drawable.mapbox_navigation_puck_icon
+                        )
+                    )
+                    setLocationProvider(navigationLocationProvider)
+                    enabled = true
+                }
+                locationComponent.addOnIndicatorPositionChangedListener(onPositionChangedListener)
+                viewportDataSource.evaluate()
+            },
+            object : OnMapLoadErrorListener {
+                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                    // intentionally blank
+                }
+            }
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun initNavigation() {
         historyFileLoader = HistoryFileLoader()
         mapboxNavigation = MapboxNavigationProvider.create(
@@ -285,19 +265,11 @@ class ReplayHistoryActivity : AppCompatActivity() {
                 .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         )
-        startReplayTripSession()
-    }
-
-    /**
-     * This is showcasing a new way to replay rides at runtime.
-     */
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-    private fun startReplayTripSession() {
         mapboxReplayer = mapboxNavigation.mapboxReplayer
-        mapboxNavigation.startReplayTripSession()
     }
 
     @SuppressLint("MissingPermission")
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun handleHistoryFileSelected() {
         loadNavigationJob = lifecycleScope.launch {
             val events = historyFileLoader
@@ -305,7 +277,8 @@ class ReplayHistoryActivity : AppCompatActivity() {
             mapboxReplayer.clearEvents()
             mapboxReplayer.pushEvents(events)
             binding.playReplay.visibility = View.VISIBLE
-            mapboxNavigation.resetTripSession()
+            // This is showcasing a new way to replay rides at runtime.
+            mapboxNavigation.startReplayTripSession()
             mapboxNavigation.setNavigationRoutes(emptyList())
             isLocationInitialized = false
             mapboxReplayer.playFirstLocation()
