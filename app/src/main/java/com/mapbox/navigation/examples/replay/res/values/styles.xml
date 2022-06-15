@@ -1,0 +1,13 @@
+<resources>
+    <style name="ExpandedToolbarStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="CollapsedToolbarStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+</resources>

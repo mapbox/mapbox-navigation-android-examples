@@ -11,6 +11,7 @@ import com.mapbox.navigation.examples.junctions.ShowJunctionsActivity
 import com.mapbox.navigation.examples.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
+import com.mapbox.navigation.examples.replay.ReplayHistoryActivity
 import com.mapbox.navigation.examples.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.signboard.MapboxSignboardActivity
 import com.mapbox.navigation.examples.speedlimit.ShowSpeedLimitActivity
@@ -122,5 +123,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_show_alternative_routes),
         getString(R.string.description_show_alternative_routes),
         ShowAlternativeRoutesActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_replay),
+        getString(R.string.title_replay),
+        getString(R.string.description_replay),
+        ReplayHistoryActivity::class.java
     ),
 )
