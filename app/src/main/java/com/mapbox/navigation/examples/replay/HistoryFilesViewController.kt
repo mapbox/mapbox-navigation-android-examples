@@ -11,6 +11,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Collections
 
+private const val REPLAY_HISTORY_FILE_NAME = "replay_history_activity.json"
+
 class HistoryFilesViewController(
     private val historyFileDirectory: String?,
     private val lifecycleScope: CoroutineScope
@@ -28,8 +30,8 @@ class HistoryFilesViewController(
         this.viewAdapter = viewAdapter
         viewAdapter.itemClicked = { historyFileItem ->
             when (historyFileItem.dataSource) {
-                ReplayDataSource.ASSETS_DIRECTORY -> {
-                    requestFromAssets(context, historyFileItem, result)
+                ReplayDataSource.RAW_RES_DIRECTORY -> {
+                    requestFromRawResources(context, historyFileItem, result)
                 }
                 ReplayDataSource.FILE_DIRECTORY -> {
                     requestFromFileCache(historyFileItem, result)
@@ -59,18 +61,14 @@ class HistoryFilesViewController(
     private suspend fun requestHistoryDisk(
         context: Context
     ): List<ReplayPath> = withContext(Dispatchers.IO) {
-        val historyFiles: List<String> = context.assets.list("")?.toList()
-            ?: Collections.emptyList()
-
-        historyFiles.filter { it.endsWith(".json") }
-            .map { fileName ->
-                ReplayPath(
-                    title = context.getString(R.string.history_local_history_file),
-                    description = fileName,
-                    path = fileName,
-                    dataSource = ReplayDataSource.ASSETS_DIRECTORY
-                )
-            }
+        listOf(
+            ReplayPath(
+                title = context.getString(R.string.history_local_history_file),
+                description = REPLAY_HISTORY_FILE_NAME,
+                path = REPLAY_HISTORY_FILE_NAME,
+                dataSource = ReplayDataSource.RAW_RES_DIRECTORY
+            )
+        )
     }
 
     private suspend fun requestHistoryCache(
@@ -111,13 +109,19 @@ class HistoryFilesViewController(
         }
     }
 
-    private fun requestFromAssets(
+    private fun requestFromRawResources(
         context: Context,
         replayPath: ReplayPath,
         result: (MapboxHistoryReader?) -> Unit
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val inputStream = context.assets.open(replayPath.path)
+            val inputStream = context.resources.openRawResource(
+                context.resources.getIdentifier(
+                    replayPath.path.substringBeforeLast("."),
+                    "raw",
+                    context.packageName
+                )
+            )
             val outputFile = historyFilesRepository.outputFile(context, replayPath.path)
             outputFile.outputStream().use { fileOut ->
                 inputStream.copyTo(fileOut)

@@ -6,6 +6,7 @@ import com.mapbox.navigation.core.history.MapboxHistoryReader
 import com.mapbox.navigation.core.replay.history.ReplayEventBase
 import com.mapbox.navigation.core.replay.history.ReplayHistoryMapper
 import com.mapbox.navigation.core.replay.history.ReplaySetNavigationRoute
+import com.mapbox.navigation.examples.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -35,7 +36,7 @@ class HistoryFileLoader {
         context: Context
     ): List<ReplayEventBase> = withContext(Dispatchers.IO) {
         val fileName = "replay-history-activity.json"
-        val inputStream = context.assets.open(fileName)
+        val inputStream = context.resources.openRawResource(R.raw.replay_history_activity)
         val outputFile = historyFilesDirectory.outputFile(context, fileName)
         outputFile.outputStream().use { fileOut ->
             inputStream.copyTo(fileOut)
