@@ -1,7 +1,6 @@
 package com.mapbox.navigation.examples.replay
 
 import android.util.Log
-import androidx.annotation.Keep
 import com.mapbox.navigation.core.history.MapboxHistoryReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,7 +17,6 @@ data class ReplayPath(
     val dataSource: ReplayDataSource
 )
 
-@Keep
 enum class ReplayDataSource {
     HTTP_SERVER,
     RAW_RES_DIRECTORY,
@@ -30,8 +28,16 @@ private const val BASE_URL = "https://mapbox.github.io/mapbox-navigation-history
 private const val INDEX_JSON_URL = BASE_URL + "index.json"
 private const val HISTORY_FILE_URL = BASE_URL + "navigation-history/"
 
+/**
+ * Helper class to retrieve history files stored in [BASE_URL] repo.
+ */
 class HistoryFilesClient {
 
+    /**
+     * Requests history files kept in [BASE_URL] repo.
+     *
+     * @return list of [ReplayPath] objects corresponding to retrieved files.
+     */
     suspend fun requestHistory(): List<ReplayPath> =
         withContext(Dispatchers.IO) {
             try {
@@ -53,6 +59,14 @@ class HistoryFilesClient {
             }
         }
 
+    /**
+     * Requests a specific file kept in [BASE_URL] repo and writes its content to a file on disk.
+     *
+     * @param pathName name of the file to be requested
+     * @param outputFile file on disk to store contents
+     *
+     * @return corresponding to retrieved contents [MapboxHistoryReader] object
+     */
     suspend fun requestJsonFile(pathName: String, outputFile: File): MapboxHistoryReader? =
         withContext(Dispatchers.IO) {
             try {

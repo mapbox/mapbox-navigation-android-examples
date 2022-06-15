@@ -19,7 +19,6 @@ class HistoryFilesViewController(
 ) {
 
     private var viewAdapter: HistoryFileAdapter? = null
-    private val historyFilesRepository = HistoryFilesDirectory()
     private val historyFilesApi = HistoryFilesClient()
 
     fun attach(
@@ -103,7 +102,7 @@ class HistoryFilesViewController(
         result: (MapboxHistoryReader?) -> Unit
     ): Job {
         return lifecycleScope.launch {
-            val outputFile = historyFilesRepository.outputFile(context, replayPath.path)
+            val outputFile = HistoryFilesDirectory.outputFile(context, replayPath.path)
             val replayHistoryDTO = historyFilesApi.requestJsonFile(replayPath.path, outputFile)
             result.invoke(replayHistoryDTO)
         }
@@ -122,7 +121,7 @@ class HistoryFilesViewController(
                     context.packageName
                 )
             )
-            val outputFile = historyFilesRepository.outputFile(context, replayPath.path)
+            val outputFile = HistoryFilesDirectory.outputFile(context, replayPath.path)
             outputFile.outputStream().use { fileOut ->
                 inputStream.copyTo(fileOut)
             }

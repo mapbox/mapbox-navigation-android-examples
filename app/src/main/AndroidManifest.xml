@@ -102,6 +102,7 @@
         android:exported="false" />
 
     <activity android:name=".replay.ReplayHistoryActivity"
+        android:screenOrientation="portrait"
         android:exported="false"
         />
 
