@@ -21,7 +21,7 @@ data class ReplayPath(
 @Keep
 enum class ReplayDataSource {
     HTTP_SERVER,
-    ASSETS_DIRECTORY,
+    RAW_RES_DIRECTORY,
     FILE_DIRECTORY
 }
 
