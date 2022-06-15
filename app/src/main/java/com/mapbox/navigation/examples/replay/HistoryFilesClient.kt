@@ -10,13 +10,6 @@ import java.io.File
 import java.io.IOException
 import java.net.URL
 
-data class ReplayPath(
-    val title: String,
-    val description: String,
-    val path: String,
-    val dataSource: ReplayDataSource
-)
-
 enum class ReplayDataSource {
     HTTP_SERVER,
     RAW_RES_DIRECTORY,
