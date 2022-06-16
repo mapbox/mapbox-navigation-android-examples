@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="set_route_alternative">Set route</string>
+    <string name="request_alternative_route">Request alternative route</string>
+    <string name="title_show_alternative_routes">Show alternative routes</string>
+    <string name="description_show_alternative_routes">Use the example to show alternative routes using routes API.</string>
+
+</resources>

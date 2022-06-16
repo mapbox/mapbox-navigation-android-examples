@@ -2,6 +2,7 @@ package com.mapbox.navigation.examples
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import com.mapbox.navigation.examples.alternative.ShowAlternativeRoutesActivity
 import com.mapbox.navigation.examples.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.camera.ShowCameraTransitionsActivity
@@ -115,5 +116,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_signboard),
         getString(R.string.description_signboard),
         MapboxSignboardActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_alternative_routes),
+        getString(R.string.title_show_alternative_routes),
+        getString(R.string.description_show_alternative_routes),
+        ShowAlternativeRoutesActivity::class.java
     ),
 )
