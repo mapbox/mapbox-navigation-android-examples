@@ -13,6 +13,9 @@ import java.util.Collections
 
 private const val REPLAY_HISTORY_FILE_NAME = "replay_history_activity.json"
 
+/**
+ * Helper class to request files from different sources based on selected option.
+ */
 class HistoryFilesViewController(
     private val historyFileDirectory: String?,
     private val lifecycleScope: CoroutineScope
@@ -21,6 +24,9 @@ class HistoryFilesViewController(
     private var viewAdapter: HistoryFileAdapter? = null
     private val historyFilesApi = HistoryFilesClient()
 
+    /**
+     * Binds the corresponding listeners to view items.
+     */
     fun attach(
         context: Context,
         viewAdapter: HistoryFileAdapter,
@@ -42,10 +48,16 @@ class HistoryFilesViewController(
         }
     }
 
+    /**
+     * Requests possible files and adds the following views to the layout.
+     */
     fun requestHistoryFiles(context: Context, connectionCallback: (Boolean) -> Unit) {
         requestHistory(context, connectionCallback)
     }
 
+    /**
+     * Requests list of files from all possible sources.
+     */
     private fun requestHistory(context: Context, connectionCallback: (Boolean) -> Unit): Job {
         return lifecycleScope.launch {
             val drives = mutableListOf<AdapterItem>(Header("Server"))
@@ -60,6 +72,9 @@ class HistoryFilesViewController(
         }
     }
 
+    /**
+     * Lists history files located in res/raw directory.
+     */
     private suspend fun requestHistoryDisk(
         context: Context
     ): List<ReplayPath> = withContext(Dispatchers.IO) {
@@ -73,6 +88,9 @@ class HistoryFilesViewController(
         )
     }
 
+    /**
+     * Lists history files located on device.
+     */
     private suspend fun requestHistoryCache(
         context: Context
     ): List<ReplayPath> = withContext(Dispatchers.IO) {
@@ -89,6 +107,9 @@ class HistoryFilesViewController(
         }
     }
 
+    /**
+     * Requests contents of a file from device.
+     */
     private fun requestFromFileCache(
         historyFileItem: ReplayPath,
         result: (MapboxHistoryReader) -> Unit
@@ -99,6 +120,9 @@ class HistoryFilesViewController(
         }
     }
 
+    /**
+     * Requests contents of a file located on the server.
+     */
     private fun requestFromServer(
         context: Context,
         replayPath: ReplayPath,
@@ -111,6 +135,9 @@ class HistoryFilesViewController(
         }
     }
 
+    /**
+     * Requests contents of a file from res/raw directory.
+     */
     private fun requestFromRawResources(
         context: Context,
         replayPath: ReplayPath,
