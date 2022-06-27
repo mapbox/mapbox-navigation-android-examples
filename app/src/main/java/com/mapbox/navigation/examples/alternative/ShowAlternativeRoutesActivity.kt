@@ -15,7 +15,6 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
@@ -37,7 +36,6 @@ import com.mapbox.navigation.core.routealternatives.NavigationRouteAlternativesO
 import com.mapbox.navigation.core.routealternatives.RouteAlternativesError
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.ActivityShowAlternativeRoutesBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
@@ -155,7 +153,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
          */
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
             val enhancedLocation = locationMatcherResult.enhancedLocation
-            navigationLocationProvider.changePosition(enhancedLocation)
+            navigationLocationProvider.changePosition(enhancedLocation, locationMatcherResult.keyPoints)
             updateCamera(
                 Point.fromLngLat(
                     enhancedLocation.longitude,
@@ -170,18 +168,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
      * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
      */
     private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
-
-    /**
-     * Used to enable the vanishing route line feature. For more details see [RenderRouteLineActivity].
-     */
-    private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener { point ->
-        routeLineApi.updateTraveledRouteLine(point).let {
-            routeLineView.renderRouteLineUpdate(
-                binding.mapView.getMapboxMap().getStyle()!!,
-                it
-            )
-        }
-    }
 
     /**
      * The SDK triggers [NavigationRouteAlternativesObserver] when available alternatives change.
@@ -201,17 +187,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
 
         override fun onRouteAlternativesError(error: RouteAlternativesError) {
             // no impl
-        }
-    }
-
-    /**
-     * Gets notified with progress along the currently active route.
-     */
-    private val routeProgressObserver = RouteProgressObserver { routeProgress ->
-        routeLineApi.updateWithRouteProgress(routeProgress) { result ->
-            binding.mapView.getMapboxMap().getStyle()?.apply {
-                routeLineView.renderRouteLineUpdate(this, result)
-            }
         }
     }
 
@@ -239,20 +214,22 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
     /**
      * Click on any point of the alternative route on the map to make it primary.
      */
-    private val mapClickListener = OnMapClickListener {
+    private val mapClickListener = OnMapClickListener { point ->
         lifecycleScope.launch {
             routeLineApi.findClosestRoute(
-                it,
+                point,
                 binding.mapView.getMapboxMap(),
                 routeClickPadding
             ) {
                 val routeFound = it.value?.navigationRoute
+                // if we clicked on some route that is not primary,
+                // we make this route primary and all the others - alternative
                 if (routeFound != null && routeFound != routeLineApi.getPrimaryNavigationRoute()) {
                     val reOrderedRoutes = routeLineApi.getNavigationRoutes()
-                        .filter { it != routeFound }
+                        .filter { navigationRoute -> navigationRoute != routeFound }
                         .toMutableList()
-                        .also {
-                            it.add(0, routeFound)
+                        .also { list ->
+                            list.add(0, routeFound)
                         }
                     mapboxNavigation.setNavigationRoutes(reOrderedRoutes)
                 }
@@ -261,6 +238,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         false
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityShowAlternativeRoutesBinding.inflate(layoutInflater)
@@ -273,21 +251,34 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                 .locationEngine(ReplayLocationEngine(mapboxReplayer))
                 .routeAlternativesOptions(
                     RouteAlternativesOptions.Builder()
-                        .intervalMillis(TimeUnit.SECONDS.toMillis(30))
+                        .intervalMillis(TimeUnit.MINUTES.toMillis(3))
                         .build()
                 )
                 .build()
         )
-        initNavigation()
-        initStyle()
-        initListeners()
+
+        binding.mapView.getMapboxMap().loadStyleUri(
+            NavigationStyles.NAVIGATION_DAY_STYLE
+        ) {
+            updateCamera(originPoint)
+        }
+        binding.mapView.location.apply {
+            setLocationProvider(navigationLocationProvider)
+            enabled = true
+        }
+        binding.startNavigation.setOnClickListener {
+            binding.startNavigation.visibility = View.GONE
+            findRoute(originPoint, destinationPoint)
+        }
+
+        binding.mapView.gestures.addOnMapClickListener(mapClickListener)
+        mapboxNavigation.startTripSession()
     }
 
     override fun onStart() {
         super.onStart()
         mapboxNavigation.registerLocationObserver(locationObserver)
         mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
         mapboxNavigation.registerRoutesObserver(routesObserver)
         mapboxNavigation.registerRouteAlternativesObserver(alternativesObserver)
     }
@@ -295,7 +286,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
         mapboxNavigation.unregisterLocationObserver(locationObserver)
         mapboxNavigation.unregisterRoutesObserver(routesObserver)
         mapboxNavigation.unregisterRouteAlternativesObserver(alternativesObserver)
@@ -307,17 +297,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         routeLineView.cancel()
         mapboxReplayer.finish()
         mapboxNavigation.onDestroy()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initListeners() {
-        binding.startNavigation.setOnClickListener {
-            mapboxNavigation.startTripSession()
-            binding.startNavigation.visibility = View.GONE
-            findRoute(originPoint, destinationPoint)
-        }
-
-        binding.mapView.gestures.addOnMapClickListener(mapClickListener)
     }
 
     /**
@@ -367,15 +346,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         mapboxReplayer.play()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun initStyle() {
-        binding.mapView.getMapboxMap().loadStyleUri(
-            NavigationStyles.NAVIGATION_DAY_STYLE
-        ) {
-            updateCamera(originPoint)
-        }
-    }
-
     private fun updateCamera(point: Point, bearing: Double? = null) {
         val mapAnimationOptions = MapAnimationOptions.Builder().duration(1500L).build()
         binding.mapView.camera.easeTo(
@@ -388,17 +358,5 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                 .build(),
             mapAnimationOptions
         )
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initNavigation() {
-        binding.mapView.location.apply {
-            setLocationProvider(navigationLocationProvider)
-            addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
-            enabled = true
-        }
-        mapboxReplayer.pushRealLocation(this, 0.0)
-        mapboxReplayer.playbackSpeed(1.5)
-        mapboxReplayer.play()
     }
 }
