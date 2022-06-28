@@ -48,6 +48,7 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
 import kotlinx.coroutines.launch
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 /**
@@ -259,9 +260,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
 
         binding.mapView.getMapboxMap().loadStyleUri(
             NavigationStyles.NAVIGATION_DAY_STYLE
-        ) {
-            updateCamera(originPoint)
-        }
+        ) { }
         binding.mapView.location.apply {
             setLocationProvider(navigationLocationProvider)
             enabled = true
@@ -272,6 +271,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         }
 
         binding.mapView.gestures.addOnMapClickListener(mapClickListener)
+        replayOriginLocation()
         mapboxNavigation.startTripSession()
     }
 
@@ -319,7 +319,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                 ) {
                     if (routes.isNotEmpty()) {
                         mapboxNavigation.setNavigationRoutes(routes)
-                        startSimulation(routes.first())
                     }
                 }
 
@@ -337,15 +336,6 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         )
     }
 
-    private fun startSimulation(route: NavigationRoute) {
-        mapboxReplayer.stop()
-        mapboxReplayer.clearEvents()
-        val replayData = ReplayRouteMapper().mapDirectionsRouteGeometry(route.directionsRoute)
-        mapboxReplayer.pushEvents(replayData)
-        mapboxReplayer.seekTo(replayData[0])
-        mapboxReplayer.play()
-    }
-
     private fun updateCamera(point: Point, bearing: Double? = null) {
         val mapAnimationOptions = MapAnimationOptions.Builder().duration(1500L).build()
         binding.mapView.camera.easeTo(
@@ -358,5 +348,15 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                 .build(),
             mapAnimationOptions
         )
+    }
+
+    private fun replayOriginLocation() {
+        mapboxReplayer.pushEvents(
+            listOf(
+                ReplayRouteMapper.mapToUpdateLocation(Date().time.toDouble(), originPoint)
+            )
+        )
+        mapboxReplayer.playFirstLocation()
+        mapboxReplayer.playbackSpeed(3.0)
     }
 }
