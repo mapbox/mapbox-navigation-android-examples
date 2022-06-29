@@ -75,7 +75,7 @@ import java.util.concurrent.TimeUnit
  * How to use this example:
  * - The example uses two hardcoded points and requests routes between them.
  * - When the example starts, the camera transitions to the location where the route is.
- * - Click on Set Route to draw a route line on the map using the route between the predefined points and start navigation.
+ * - Click on Start Navigation button to draw a route line on the map using the route between the predefined points and start navigation.
  * - You should now start to navigate and see possible alternative routes throughout the trip.
  * - You can click on the alternative route to make it the primary route.
  *
