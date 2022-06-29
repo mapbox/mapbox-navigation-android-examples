@@ -96,6 +96,10 @@
         android:screenOrientation="portrait"
         android:exported="false"
         />
+
+    <activity android:name=".alternative.ShowAlternativeRoutesActivity"
+        android:screenOrientation="portrait"
+        android:exported="false" />
   </application>
 
 </manifest>
