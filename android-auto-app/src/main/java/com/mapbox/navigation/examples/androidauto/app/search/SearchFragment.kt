@@ -25,9 +25,7 @@ class SearchFragment : Fragment() {
         dropInSearchComponent = DropInSearchComponent(
             requireActivity().findViewById(R.id.mapView),
             AppSearchBottomSheet(
-                view.findViewById(R.id.search_view),
                 view.findViewById(R.id.search_place_view),
-                view.findViewById(R.id.search_categories_view),
                 view.findViewById(R.id.root),
                 savedInstanceState
             )

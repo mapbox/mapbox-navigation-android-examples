@@ -27,7 +27,10 @@ import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
-import kotlinx.coroutines.flow.collect
+import com.mapbox.navigation.examples.androidauto.R
+import com.mapbox.search.MapboxSearchSdk
+import com.mapbox.search.SearchEngine
+import com.mapbox.search.SearchEngineSettings
 import kotlinx.coroutines.launch
 
 @OptIn(MapboxExperimental::class, ExperimentalPreviewMapboxNavigationAPI::class)
@@ -37,6 +40,7 @@ class MainCarSession : Session() {
     private lateinit var mainScreenManager: MainScreenManager
     private lateinit var mapboxCarMap: MapboxCarMap
     private lateinit var navigationManager: MapboxCarNavigationManager
+    private lateinit var searchEngine: SearchEngine
     private val replayRouteTripSession = ReplayRouteTripSession()
     private val mainCarMapLoader = MainCarMapLoader()
 
@@ -55,7 +59,9 @@ class MainCarSession : Session() {
                     styleUri = mainCarMapLoader.mapStyleUri(carContext.isDarkMode)
                 )
                 mapboxCarMap = MapboxCarMap(mapInitOptions)
-                mainCarContext = MainCarContext(carContext, mapboxCarMap)
+                searchEngine = MapboxSearchSdk.createSearchEngine(
+                    SearchEngineSettings(carContext.getString(R.string.mapbox_access_token)))
+                mainCarContext = MainCarContext(carContext, mapboxCarMap, searchEngine)
                 mainScreenManager = MainScreenManager(mainCarContext!!)
                 navigationManager = MapboxCarNavigationManager(carContext)
                 observeScreenManager()
