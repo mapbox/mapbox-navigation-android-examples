@@ -138,7 +138,6 @@ class PreviewActivity : Activity() {
         )
     }
 
-
     /**
      * The observer gets notified with location updates.
      *
@@ -225,7 +224,6 @@ class PreviewActivity : Activity() {
      * Draws route lines on the map based on the data from the [routeLineApi]
      */
     private lateinit var routeLineView: MapboxRouteLineView
-
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
