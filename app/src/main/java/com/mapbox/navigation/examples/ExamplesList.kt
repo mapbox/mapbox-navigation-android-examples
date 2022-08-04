@@ -24,12 +24,6 @@ import com.mapbox.navigation.examples.voice.PlayVoiceInstructionsActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_replay),
-        getString(R.string.title_preview),
-        getString(R.string.description_preview),
-        PreviewActivity::class.java
-    ),
-    MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
         getString(R.string.title_current_location),
         getString(R.string.description_current_location),
@@ -88,6 +82,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_turn_by_turn),
         getString(R.string.description_turn_by_turn),
         TurnByTurnExperienceActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.route_preview),
+        getString(R.string.title_preview),
+        getString(R.string.description_preview),
+        PreviewActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),

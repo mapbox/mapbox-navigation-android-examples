@@ -149,7 +149,8 @@ class PreviewActivity : Activity() {
         var firstLocationUpdateReceived = false
 
         override fun onNewRawLocation(rawLocation: Location) {
-            // use raw location only for cycling and walking cases.
+            // Use raw location only for cycling and walking cases.
+            // For vehicles use map matched location.
         }
 
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
@@ -178,7 +179,7 @@ class PreviewActivity : Activity() {
     }
 
     /**
-     * Gets notified whenever the tracked routes change.
+     * The observer gets notified whenever the tracked routes change.
      * Use this observer to draw routes during active guidance or to cleanup when navigation switches to free drive.
      * The observer isn't triggered in free drive.
      */
@@ -187,6 +188,7 @@ class PreviewActivity : Activity() {
         if (navigationRoutes.isNotEmpty()) {
             routeLineApi.setNavigationRoutes(
                 navigationRoutes,
+                // alternative metadata is available only in active guidance.
                 mapboxNavigation.getAlternativeMetadataFor(navigationRoutes)
             ) { value ->
                 mapboxMap.getStyle()?.apply {
@@ -351,6 +353,7 @@ class PreviewActivity : Activity() {
                     )
                 )
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
+                .alternatives(true)
                 .build(),
             object : NavigationRouterCallback {
                 override fun onRoutesReady(
@@ -375,6 +378,8 @@ class PreviewActivity : Activity() {
     }
 
     private fun previewRoutes(routes: List<NavigationRoute>) {
+        // Mapbox navigation doesn't have a special state for route preview.
+        // Display the routes you received on the map.
         routeLineApi.setNavigationRoutes(routes) { value ->
             mapboxMap.getStyle()?.apply {
                 routeLineView.renderRouteDrawData(this, value)
