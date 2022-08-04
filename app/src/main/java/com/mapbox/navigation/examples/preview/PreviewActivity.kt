@@ -140,7 +140,7 @@ class PreviewActivity : Activity() {
 
 
     /**
-     * Gets notified with location updates.
+     * The observer gets notified with location updates.
      *
      * Exposes raw updates coming directly from the location services
      * and the updates enhanced by the Navigation SDK (cleaned up and matched to the road).
@@ -303,8 +303,9 @@ class PreviewActivity : Activity() {
         routeLineApi = MapboxRouteLineApi(mapboxRouteLineOptions)
         routeLineView = MapboxRouteLineView(mapboxRouteLineOptions)
 
-        // We recommend you running trip session for routes preview to get and
-        // display map matched location. See [PreviewActivity#locationObserver].
+        // We recommend starting a trip session for routes preview to get, display,
+        // and use for route request a map matched location.
+        // See [PreviewActivity#locationObserver].
         mapboxNavigation.startTripSession(false)
     }
 
@@ -379,6 +380,7 @@ class PreviewActivity : Activity() {
 
     private fun previewRoutes(routes: List<NavigationRoute>) {
         // Mapbox navigation doesn't have a special state for route preview.
+        // Preview state is managed by an application.
         // Display the routes you received on the map.
         routeLineApi.setNavigationRoutes(routes) { value ->
             mapboxMap.getStyle()?.apply {
