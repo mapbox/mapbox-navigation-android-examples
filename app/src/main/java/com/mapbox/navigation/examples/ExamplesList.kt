@@ -84,7 +84,7 @@ fun Context.examplesList() = listOf(
         TurnByTurnExperienceActivity::class.java
     ),
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.route_preview),
+        ContextCompat.getDrawable(this, R.drawable.mapbox_route_preview),
         getString(R.string.title_preview),
         getString(R.string.description_preview),
         PreviewActivity::class.java
