@@ -41,7 +41,6 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 
 class PreviewActivity : Activity() {
 
@@ -172,9 +171,8 @@ class PreviewActivity : Activity() {
             viewportDataSource.onRouteChanged(navigationRoutes.first())
             viewportDataSource.evaluate()
         } else {
-            // remove the route line and route arrow from the map
-            val style = mapboxMap.getStyle()
-            if (style != null) {
+            // remove route line from the map
+            mapboxMap.getStyle()?.let { style ->
                 routeLineApi.clearRouteLine { value ->
                     routeLineView.renderClearRouteLineValue(
                         style,
@@ -182,10 +180,10 @@ class PreviewActivity : Activity() {
                     )
                 }
             }
-
             // remove the route reference from camera position evaluations
             viewportDataSource.clearRouteData()
             viewportDataSource.evaluate()
+            navigationCamera.requestNavigationCameraToOverview()
         }
     }
 
@@ -282,11 +280,13 @@ class PreviewActivity : Activity() {
     override fun onStart() {
         super.onStart()
         mapboxNavigation.registerLocationObserver(locationObserver)
+        mapboxNavigation.registerRoutesObserver(routesObserver)
     }
 
     override fun onStop() {
         super.onStop()
         mapboxNavigation.unregisterLocationObserver(locationObserver)
+        mapboxNavigation.unregisterRoutesObserver(routesObserver)
     }
 
     override fun onDestroy() {
@@ -365,7 +365,6 @@ class PreviewActivity : Activity() {
 
     private fun startActiveGuidance(routes: List<NavigationRoute>) {
         binding.buttonStartActiveGuidance.visibility = View.GONE
-        mapboxNavigation.registerRoutesObserver(routesObserver)
         mapboxNavigation.setNavigationRoutes(routes)
         navigationCamera.requestNavigationCameraToFollowing()
         binding.buttonFinishActiveGuidance.apply {
@@ -373,18 +372,7 @@ class PreviewActivity : Activity() {
             setOnClickListener {
                 visibility = View.GONE
                 mapboxNavigation.setNavigationRoutes(emptyList())
-                navigationCamera.requestNavigationCameraToOverview()
-                mapboxNavigation.unregisterRoutesObserver(routesObserver)
-                mapboxMap.getStyle()?.let { style ->
-                    routeLineApi.clearRouteLine { value ->
-                        routeLineView.renderClearRouteLineValue(
-                            style,
-                            value
-                        )
-                    }
-                }
             }
         }
     }
-
 }
