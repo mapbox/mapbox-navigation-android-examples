@@ -2,13 +2,16 @@ package com.mapbox.navigation.examples.preview
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.location.Location
 import android.os.Bundle
+import android.view.View
 import androidx.core.content.ContextCompat
 import com.mapbox.api.directions.v5.models.Bearing
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
+import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
@@ -21,11 +24,11 @@ import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
-import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.R
@@ -38,6 +41,7 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
+import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 
 class PreviewActivity : Activity() {
 
@@ -75,6 +79,44 @@ class PreviewActivity : Activity() {
      */
     private lateinit var viewportDataSource: MapboxNavigationViewportDataSource
 
+    /*
+    * Below are generated camera padding values to ensure that the route fits well on screen while
+    * other elements are overlaid on top of the map (including instruction view, buttons, etc.)
+    */
+    private val pixelDensity = Resources.getSystem().displayMetrics.density
+    private val overviewPadding: EdgeInsets by lazy {
+        EdgeInsets(
+            140.0 * pixelDensity,
+            40.0 * pixelDensity,
+            120.0 * pixelDensity,
+            40.0 * pixelDensity
+        )
+    }
+    private val landscapeOverviewPadding: EdgeInsets by lazy {
+        EdgeInsets(
+            30.0 * pixelDensity,
+            380.0 * pixelDensity,
+            110.0 * pixelDensity,
+            20.0 * pixelDensity
+        )
+    }
+    private val followingPadding: EdgeInsets by lazy {
+        EdgeInsets(
+            180.0 * pixelDensity,
+            40.0 * pixelDensity,
+            150.0 * pixelDensity,
+            40.0 * pixelDensity
+        )
+    }
+    private val landscapeFollowingPadding: EdgeInsets by lazy {
+        EdgeInsets(
+            30.0 * pixelDensity,
+            380.0 * pixelDensity,
+            110.0 * pixelDensity,
+            40.0 * pixelDensity
+        )
+    }
+
 
     /**
      * Gets notified with location updates.
@@ -111,6 +153,39 @@ class PreviewActivity : Activity() {
                         .build()
                 )
             }
+        }
+    }
+
+    private val routesObserver = RoutesObserver { routeUpdateResult ->
+        val navigationRoutes = routeUpdateResult.navigationRoutes
+        if (navigationRoutes.isNotEmpty()) {
+            routeLineApi.setNavigationRoutes(
+                navigationRoutes,
+                mapboxNavigation.getAlternativeMetadataFor(navigationRoutes)
+            ) { value ->
+                mapboxMap.getStyle()?.apply {
+                    routeLineView.renderRouteDrawData(this, value)
+                }
+            }
+
+            // update the camera position to account for the new route
+            viewportDataSource.onRouteChanged(navigationRoutes.first())
+            viewportDataSource.evaluate()
+        } else {
+            // remove the route line and route arrow from the map
+            val style = mapboxMap.getStyle()
+            if (style != null) {
+                routeLineApi.clearRouteLine { value ->
+                    routeLineView.renderClearRouteLineValue(
+                        style,
+                        value
+                    )
+                }
+            }
+
+            // remove the route reference from camera position evaluations
+            viewportDataSource.clearRouteData()
+            viewportDataSource.evaluate()
         }
     }
 
@@ -163,6 +238,17 @@ class PreviewActivity : Activity() {
             binding.mapView.camera,
             viewportDataSource
         )
+        // set the padding values depending on screen orientation and visible view layout
+        if (this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            viewportDataSource.overviewPadding = landscapeOverviewPadding
+        } else {
+            viewportDataSource.overviewPadding = overviewPadding
+        }
+        if (this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            viewportDataSource.followingPadding = landscapeFollowingPadding
+        } else {
+            viewportDataSource.followingPadding = followingPadding
+        }
         // set the animations lifecycle listener to ensure the NavigationCamera stops
         // automatically following the user location when the map is interacted with
         binding.mapView.camera.addCameraAnimationsLifecycleListener(
@@ -263,13 +349,42 @@ class PreviewActivity : Activity() {
         routeLineApi.setNavigationRoutes(routes) { value ->
             mapboxMap.getStyle()?.apply {
                 routeLineView.renderRouteDrawData(this, value)
-
-
                 // update the camera position to account for the new route
                 viewportDataSource.onRouteChanged(routes.first())
                 viewportDataSource.evaluate()
                 navigationCamera.requestNavigationCameraToOverview()
             }
         }
+        binding.buttonStartActiveGuidance.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                startActiveGuidance(routes)
+            }
+        }
     }
+
+    private fun startActiveGuidance(routes: List<NavigationRoute>) {
+        binding.buttonStartActiveGuidance.visibility = View.GONE
+        mapboxNavigation.registerRoutesObserver(routesObserver)
+        mapboxNavigation.setNavigationRoutes(routes)
+        navigationCamera.requestNavigationCameraToFollowing()
+        binding.buttonFinishActiveGuidance.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                visibility = View.GONE
+                mapboxNavigation.setNavigationRoutes(emptyList())
+                navigationCamera.requestNavigationCameraToOverview()
+                mapboxNavigation.unregisterRoutesObserver(routesObserver)
+                mapboxMap.getStyle()?.let { style ->
+                    routeLineApi.clearRouteLine { value ->
+                        routeLineView.renderClearRouteLineValue(
+                            style,
+                            value
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 }
