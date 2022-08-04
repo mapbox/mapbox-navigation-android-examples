@@ -42,6 +42,28 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 
+/**
+ * This example demonstrates:
+ * - A basic route preview;
+ * - Switching between free drive, preview, and active guidance.
+ *
+ * Before running the example make sure you have put your access_token in the correct place
+ * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
+ * at the location mentioned above and add the following content to it
+ *
+ * <?xml version="1.0" encoding="utf-8"?>
+ * <resources xmlns:tools="http://schemas.android.com/tools">
+ *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
+ * </resources>
+ *
+ * The example assumes that you have granted location permissions and does not enforce it. However,
+ * the permission is essential for proper functioning of this example.
+ *
+ * How to use this example:
+ * - You can long-click the map to select a destination.
+ * - Click "Start active guidance" to start navigation.
+ * - Click "Finish active guidance" to switch back to free drive.
+ */
 class PreviewActivity : Activity() {
 
     /**
@@ -127,7 +149,7 @@ class PreviewActivity : Activity() {
         var firstLocationUpdateReceived = false
 
         override fun onNewRawLocation(rawLocation: Location) {
-            // use raw location only for cycling and walking cases. Pre
+            // use raw location only for cycling and walking cases.
         }
 
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
@@ -155,6 +177,11 @@ class PreviewActivity : Activity() {
         }
     }
 
+    /**
+     * Gets notified whenever the tracked routes change.
+     * Use this observer to draw routes during active guidance or to cleanup when navigation switches to free drive.
+     * The observer isn't triggered in free drive.
+     */
     private val routesObserver = RoutesObserver { routeUpdateResult ->
         val navigationRoutes = routeUpdateResult.navigationRoutes
         if (navigationRoutes.isNotEmpty()) {
@@ -274,6 +301,8 @@ class PreviewActivity : Activity() {
         routeLineApi = MapboxRouteLineApi(mapboxRouteLineOptions)
         routeLineView = MapboxRouteLineView(mapboxRouteLineOptions)
 
+        // We recommend you running trip session for routes preview to get and
+        // display map matched location. See [PreviewActivity#locationObserver].
         mapboxNavigation.startTripSession(false)
     }
 
@@ -365,12 +394,15 @@ class PreviewActivity : Activity() {
 
     private fun startActiveGuidance(routes: List<NavigationRoute>) {
         binding.buttonStartActiveGuidance.visibility = View.GONE
+        // Set routes to switch navigator from free drive to active guidance state.
+        // In active guidance navigator emits your route progress, voice and banner instructions, etc.
         mapboxNavigation.setNavigationRoutes(routes)
         navigationCamera.requestNavigationCameraToFollowing()
         binding.buttonFinishActiveGuidance.apply {
             visibility = View.VISIBLE
             setOnClickListener {
                 visibility = View.GONE
+                // Set an empty list to finish active guidance and switch back to free drive state.
                 mapboxNavigation.setNavigationRoutes(emptyList())
             }
         }
