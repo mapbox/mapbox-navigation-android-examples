@@ -21,4 +21,7 @@
   <string name="title_toggle_theme">Toggle theme using NavigationView</string>
   <string name="description_toggle_theme">The example demonstrates how NavigationView observes changes to app day and night theme</string>
 
+  <string name="title_customize_info_panel">Customize info panel using NavigationView</string>
+  <string name="description_customize_info_panel">The example demonstrates how to replace default info panel with a custom one</string>
+
 </resources>
