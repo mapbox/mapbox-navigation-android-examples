@@ -10,13 +10,13 @@ import androidx.transition.TransitionManager
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.speed.model.SpeedLimitUnit
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.internal.extensions.flowLocationMatcherResult
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
-import com.mapbox.navigation.dropin.binder.UIBinder
-import com.mapbox.navigation.dropin.internal.extensions.flowLocationMatcherResult
-import com.mapbox.navigation.dropin.lifecycle.UIComponent
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomizeSpeedLimitBinding
 import com.mapbox.navigation.examples.preview.databinding.MapboxSpeedLimitCustomLayoutBinding
+import com.mapbox.navigation.ui.base.lifecycle.UIBinder
+import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -47,7 +47,7 @@ class CustomSpeedLimitActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeSpeedLimitBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.isReplayEnabled = true
+        binding.navigationView.api.enableReplaySession()
 
         binding.navigationView.customizeViewBinders {
             speedLimitBinder = MySpeedLimitViewBinder()

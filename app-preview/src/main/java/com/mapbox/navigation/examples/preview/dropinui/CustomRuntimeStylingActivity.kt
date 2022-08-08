@@ -38,7 +38,7 @@ class CustomRuntimeStylingActivity : AppCompatActivity() {
         binding = MapboxActivityCustomRuntimeStylingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.isReplayEnabled = true
+        binding.navigationView.api.enableReplaySession()
 
         binding.toggleStyle.setOnClickListener {
             binding.navigationView.customizeViewStyles {
