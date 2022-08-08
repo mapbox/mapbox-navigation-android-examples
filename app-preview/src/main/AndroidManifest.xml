@@ -46,5 +46,9 @@
           android:name=".dropinui.ToggleThemeActivity"
           android:exported="true" />
 
+      <activity
+          android:name=".dropinui.CustomInfoPanelActivity"
+          android:exported="true" />
+
   </application>
 </manifest>
