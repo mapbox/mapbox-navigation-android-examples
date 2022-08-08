@@ -10,13 +10,13 @@ import androidx.transition.TransitionManager
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.formatter.DistanceFormatterOptions
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.internal.extensions.flowRouteProgress
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
-import com.mapbox.navigation.dropin.binder.UIBinder
-import com.mapbox.navigation.dropin.internal.extensions.flowRouteProgress
-import com.mapbox.navigation.dropin.lifecycle.UIComponent
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomizeTripProgressBinding
 import com.mapbox.navigation.examples.preview.databinding.MapboxTripProgressCustomLayoutBinding
+import com.mapbox.navigation.ui.base.lifecycle.UIBinder
+import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import com.mapbox.navigation.ui.tripprogress.api.MapboxTripProgressApi
 import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
@@ -50,7 +50,7 @@ class CustomTripProgressActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeTripProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.isReplayEnabled = true
+        binding.navigationView.api.enableReplaySession()
 
         binding.navigationView.customizeViewBinders {
             infoPanelTripProgressBinder = MyTripProgressViewBinder()

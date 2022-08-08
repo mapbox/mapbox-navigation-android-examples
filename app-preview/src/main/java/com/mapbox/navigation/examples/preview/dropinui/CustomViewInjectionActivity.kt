@@ -10,13 +10,13 @@ import androidx.transition.Scene
 import androidx.transition.TransitionManager
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.internal.extensions.flowRoutesUpdated
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
-import com.mapbox.navigation.dropin.binder.UIBinder
-import com.mapbox.navigation.dropin.internal.extensions.flowRoutesUpdated
-import com.mapbox.navigation.dropin.lifecycle.UIComponent
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityInjectCustomViewBinding
 import com.mapbox.navigation.examples.preview.databinding.MapboxInfoPanelContentLayoutBinding
+import com.mapbox.navigation.ui.base.lifecycle.UIBinder
+import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 
 /**
  * The example demonstrates how to inject a new custom view into the bottom of the info panel.
@@ -53,7 +53,7 @@ class CustomViewInjectionActivity : AppCompatActivity() {
         binding = MapboxActivityInjectCustomViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.isReplayEnabled = true
+        binding.navigationView.api.enableReplaySession()
 
         binding.navigationView.customizeViewBinders {
             infoPanelContentBinder = MyInfoPanelContentBinder()
