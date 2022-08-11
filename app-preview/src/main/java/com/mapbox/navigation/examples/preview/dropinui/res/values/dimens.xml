@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="mapbox_custom_infopanel_marginEnd">10dp</dimen>
+  <dimen name="mapbox_custom_infopanel_marginStart">10dp</dimen>
+  <dimen name="mapbox_custom_infopanel_peekheight">90dp</dimen>
+</resources>
