@@ -27,6 +27,9 @@ import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.examples.androidauto.R
+import com.mapbox.search.MapboxSearchSdk
+import com.mapbox.search.SearchEngineSettings
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -46,6 +49,9 @@ class MainCarSession : Session() {
         val logoSurfaceRenderer = CarLogoSurfaceRenderer()
         val compassSurfaceRenderer = CarCompassSurfaceRenderer()
         logAndroidAuto("MainCarSession constructor")
+        // TODO this is temporary https://github.com/mapbox/mapbox-navigation-android/issues/6154
+        System.setProperty("com.mapbox.mapboxsearch.enableSBS", true.toString())
+        MapboxNavigationApp.registerObserver(CarSearchLocationProvider())
         lifecycle.addObserver(object : DefaultLifecycleObserver {
 
             override fun onCreate(owner: LifecycleOwner) {
@@ -54,8 +60,15 @@ class MainCarSession : Session() {
                     context = carContext,
                     styleUri = mainCarMapLoader.mapStyleUri(carContext.isDarkMode)
                 )
+                // TODO this is temporary https://github.com/mapbox/mapbox-navigation-android/issues/6154
+                val searchEngine = MapboxSearchSdk.createSearchEngineWithBuiltInDataProviders(
+                    SearchEngineSettings(
+                        carContext.resources.getString(R.string.mapbox_access_token),
+                        MapboxNavigationApp.getObserver(CarSearchLocationProvider::class),
+                    ),
+                )
                 mapboxCarMap = MapboxCarMap(mapInitOptions)
-                mainCarContext = MainCarContext(carContext, mapboxCarMap)
+                mainCarContext = MainCarContext(carContext, mapboxCarMap, searchEngine)
                 mainScreenManager = MainScreenManager(mainCarContext!!)
                 navigationManager = MapboxCarNavigationManager(carContext)
                 observeScreenManager()

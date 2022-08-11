@@ -64,6 +64,6 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.4.1"
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigation:ui-androidauto:0.1.0")
-    implementation("com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.26")
+    implementation("com.mapbox.navigation:ui-androidauto:0.6.0")
+    implementation("com.mapbox.navigation:ui-dropin:2.7.0-rc.1")
 }
