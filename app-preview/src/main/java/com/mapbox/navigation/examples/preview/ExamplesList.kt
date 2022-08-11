@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.preview
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
+import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelAttributesActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomNavigationViewOptionsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomRuntimeStylingActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomSpeedLimitActivity
@@ -58,9 +59,18 @@ fun Context.examplesList() = listOf(
         ToggleThemeActivity::class.java
     ),
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_toggle_theme),
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_custom_info_panel),
         getString(R.string.title_customize_info_panel),
         getString(R.string.description_customize_info_panel),
         CustomInfoPanelActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_custom_info_panel_style
+        ),
+        getString(R.string.title_customize_info_panel_attributes),
+        getString(R.string.description_customize_info_panel_attributes),
+        CustomInfoPanelAttributesActivity::class.java
     ),
 )
