@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.examples.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
@@ -27,6 +28,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             showNoTokenErrorDialog()
             return
         }
+
+        // Each example needs to call MapboxNavigationApp.setup.
+        MapboxNavigationApp.disable()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -5,6 +5,8 @@ import android.location.Location
 import android.os.Bundle
 import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.bindgen.Expected
@@ -21,8 +23,10 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.toNavigationRoute
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import com.mapbox.navigation.core.lifecycle.NavigationOptionsProvider
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
@@ -30,6 +34,7 @@ import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.BannerInstructionsObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
+import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowJunctionsBinding
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
@@ -59,7 +64,6 @@ import kotlinx.coroutines.launch
 class ShowJunctionsActivity : AppCompatActivity() {
 
     private lateinit var mapboxMap: MapboxMap
-    private lateinit var mapboxNavigation: MapboxNavigation
     private lateinit var binding: MapboxActivityShowJunctionsBinding
     private lateinit var locationComponent: LocationComponentPlugin
 
@@ -139,28 +143,39 @@ class ShowJunctionsActivity : AppCompatActivity() {
         junctionApi.generateJunction(bannerInstructions, junctionCallback)
     }
 
+    @SuppressLint("MissingPermission")
+    private val sessionStarter = object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.startTripSession()
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.stopTripSession()
+        }
+    }
+
+    init {
+        mapboxNavigationInstaller()
+            .onCreated(sessionStarter)
+            .onStarted(
+                mapboxLocationObserver(locationObserver),
+                mapboxRoutesObserver(routesObserver),
+                mapboxRouteProgressObserver(replayProgressObserver),
+                mapboxBannerInstructionsObserver(bannerInstructionsObserver),
+            )
+            .install {
+                NavigationOptions.Builder(this)
+                    .accessToken(getString(R.string.mapbox_access_token))
+                    .locationEngine(ReplayLocationEngine(mapboxReplayer))
+                    .build()
+            }
+    }
+
     private fun init() {
-        initNavigation()
-        initStyle()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initNavigation() {
-        mapboxNavigation = MapboxNavigationProvider.create(
-            NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                .locationEngine(ReplayLocationEngine(mapboxReplayer))
-                .build()
-        )
-        mapboxNavigation.startTripSession()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initStyle() {
         mapboxMap.loadStyleUri(Style.MAPBOX_STREETS) { style ->
             routeLineView.initializeLayers(style)
             binding.actionButton.setOnClickListener {
-                mapboxNavigation.setNavigationRoutes(listOf(route))
+                MapboxNavigationApp.current()?.setNavigationRoutes(listOf(route))
                 binding.actionButton.visibility = GONE
             }
         }
@@ -204,28 +219,114 @@ class ShowJunctionsActivity : AppCompatActivity() {
         init()
     }
 
-    override fun onStart() {
-        super.onStart()
-        mapboxNavigation.registerRoutesObserver(routesObserver)
-        mapboxNavigation.registerLocationObserver(locationObserver)
-        mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.registerBannerInstructionsObserver(bannerInstructionsObserver)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapboxNavigation.unregisterRoutesObserver(routesObserver)
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
-        mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.unregisterBannerInstructionsObserver(bannerInstructionsObserver)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         routeLineApi.cancel()
         routeLineView.cancel()
         junctionApi.cancelAll()
         mapboxReplayer.finish()
-        mapboxNavigation.onDestroy()
+    }
+}
+
+fun AppCompatActivity.mapboxNavigationInstaller() = MapboxNavigationActivityInstaller(this)
+
+fun mapboxLocationObserver(locationObserver: LocationObserver) : MapboxNavigationObserver {
+    return object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.registerLocationObserver(locationObserver)
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.unregisterLocationObserver(locationObserver)
+        }
+    }
+}
+
+fun mapboxRoutesObserver(routesObserver: RoutesObserver) : MapboxNavigationObserver {
+    return object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.registerRoutesObserver(routesObserver)
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.unregisterRoutesObserver(routesObserver)
+        }
+    }
+}
+
+fun mapboxBannerInstructionsObserver(bannerInstructionsObserver: BannerInstructionsObserver) : MapboxNavigationObserver {
+    return object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.registerBannerInstructionsObserver(bannerInstructionsObserver)
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.unregisterBannerInstructionsObserver(bannerInstructionsObserver)
+        }
+    }
+}
+
+fun mapboxRouteProgressObserver(routeProgressObserver: RouteProgressObserver) : MapboxNavigationObserver {
+    return object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+        }
+    }
+}
+
+class MapboxNavigationActivityInstaller(
+    val activity: AppCompatActivity
+) {
+    private val onCreated = mutableSetOf<MapboxNavigationObserver>()
+    private val onStarted = mutableSetOf<MapboxNavigationObserver>()
+    private val onResumed = mutableSetOf<MapboxNavigationObserver>()
+
+    fun onCreated(vararg observers: MapboxNavigationObserver) = apply {
+        onCreated.addAll(observers)
+    }
+
+    fun onStarted(vararg observers: MapboxNavigationObserver) = apply {
+        onStarted.addAll(observers)
+    }
+
+    fun onResumed(vararg observers: MapboxNavigationObserver) = apply {
+        onResumed.addAll(observers)
+    }
+
+    fun install(
+        navigationOptionsProvider: NavigationOptionsProvider
+    ) {
+        MapboxNavigationApp.attach(activity)
+        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                val navigationOptions = navigationOptionsProvider.createNavigationOptions()
+                MapboxNavigationApp.setup(navigationOptions)
+                onCreated.forEach { MapboxNavigationApp.registerObserver(it) }
+            }
+
+            override fun onStart(owner: LifecycleOwner) {
+                onStarted.forEach { MapboxNavigationApp.registerObserver(it) }
+            }
+
+            override fun onResume(owner: LifecycleOwner) {
+                onResumed.forEach { MapboxNavigationApp.registerObserver(it) }
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                onResumed.reversed().forEach { MapboxNavigationApp.unregisterObserver(it) }
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                onStarted.reversed().forEach { MapboxNavigationApp.unregisterObserver(it) }
+            }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                onCreated.reversed().forEach { MapboxNavigationApp.unregisterObserver(it) }
+            }
+        })
     }
 }

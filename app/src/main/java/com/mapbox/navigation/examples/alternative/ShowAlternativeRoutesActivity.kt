@@ -254,7 +254,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
         }
     }
 
-    val navigationResumedObserver = object : MapboxNavigationObserver {
+    private val navigationResumedObserver = object : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             mapboxNavigation.registerLocationObserver(locationObserver)
             mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
@@ -274,7 +274,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
 
     init {
         // You can setup MapboxNavigation at any part of the app lifecycle.
-        MapboxNavigationApp.setup(
+        MapboxNavigationApp.setup {
             NavigationOptions.Builder(this)
                 .accessToken(getString(R.string.mapbox_access_token))
                 .locationEngine(ReplayLocationEngine(mapboxReplayer))
@@ -284,25 +284,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                         .build()
                 )
                 .build()
-        ).attach(this)
-
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                MapboxNavigationApp.registerObserver(navigationCreatedObserver)
-            }
-
-            override fun onResume(owner: LifecycleOwner) {
-                MapboxNavigationApp.registerObserver(navigationResumedObserver)
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                MapboxNavigationApp.unregisterObserver(navigationResumedObserver)
-            }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                MapboxNavigationApp.unregisterObserver(navigationCreatedObserver)
-            }
-        })
+        }.attach(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -322,11 +304,23 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
             findRoute(originPoint, destinationPoint)
         }
 
+        MapboxNavigationApp.registerObserver(navigationCreatedObserver)
         replayOriginLocation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        MapboxNavigationApp.registerObserver(navigationResumedObserver)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        MapboxNavigationApp.unregisterObserver(navigationResumedObserver)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        MapboxNavigationApp.unregisterObserver(navigationCreatedObserver)
         routeLineApi.cancel()
         routeLineView.cancel()
         mapboxReplayer.finish()
