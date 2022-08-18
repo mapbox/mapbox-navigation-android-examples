@@ -30,4 +30,7 @@
   <string name="title_request_route_outside_navigation_view">Request routes using MapboxNavigation</string>
   <string name="description_request_route_outside_navigation_view">The example demonstrates how to request routes using mapbox navigation and transition NavigationView to active guidance state</string>
 
+  <string name="title_position_speed_limit_bottom">Position speed limit to bottom left</string>
+  <string name="description_position_speed_limit_bottom">The example demonstrates how to change the position of speed limit view to bottom left of the screen</string>
+
 </resources>
