@@ -53,5 +53,9 @@
       <activity
           android:name=".dropinui.CustomInfoPanelAttributesActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.RequestRouteWithNavigationViewActivity"
+          android:exported="true" />
   </application>
 </manifest>

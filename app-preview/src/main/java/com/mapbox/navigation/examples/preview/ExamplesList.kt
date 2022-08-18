@@ -10,6 +10,7 @@ import com.mapbox.navigation.examples.preview.dropinui.CustomSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomTripProgressActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomViewInjectionActivity
 import com.mapbox.navigation.examples.preview.dropinui.NavigationViewActivity
+import com.mapbox.navigation.examples.preview.dropinui.RequestRouteWithNavigationViewActivity
 import com.mapbox.navigation.examples.preview.dropinui.ToggleThemeActivity
 
 fun Context.examplesList() = listOf(
@@ -72,5 +73,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_customize_info_panel_attributes),
         getString(R.string.description_customize_info_panel_attributes),
         CustomInfoPanelAttributesActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_request_routes
+        ),
+        getString(R.string.title_request_route_outside_navigation_view),
+        getString(R.string.description_request_route_outside_navigation_view),
+        RequestRouteWithNavigationViewActivity::class.java
     ),
 )
