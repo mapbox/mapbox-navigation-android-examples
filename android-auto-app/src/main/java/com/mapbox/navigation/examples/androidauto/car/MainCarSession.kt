@@ -20,16 +20,13 @@ import com.mapbox.androidauto.car.map.widgets.compass.CarCompassSurfaceRenderer
 import com.mapbox.androidauto.car.map.widgets.logo.CarLogoSurfaceRenderer
 import com.mapbox.androidauto.car.permissions.NeedsLocationPermissionsScreen
 import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
-import com.mapbox.androidauto.logAndroidAuto
+import com.mapbox.androidauto.internal.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
-import com.mapbox.navigation.examples.androidauto.R
-import com.mapbox.search.MapboxSearchSdk
-import com.mapbox.search.SearchEngineSettings
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -49,9 +46,6 @@ class MainCarSession : Session() {
         val logoSurfaceRenderer = CarLogoSurfaceRenderer()
         val compassSurfaceRenderer = CarCompassSurfaceRenderer()
         logAndroidAuto("MainCarSession constructor")
-        // TODO this is temporary https://github.com/mapbox/mapbox-navigation-android/issues/6154
-        System.setProperty("com.mapbox.mapboxsearch.enableSBS", true.toString())
-        MapboxNavigationApp.registerObserver(CarSearchLocationProvider())
         lifecycle.addObserver(object : DefaultLifecycleObserver {
 
             override fun onCreate(owner: LifecycleOwner) {
@@ -60,15 +54,8 @@ class MainCarSession : Session() {
                     context = carContext,
                     styleUri = mainCarMapLoader.mapStyleUri(carContext.isDarkMode)
                 )
-                // TODO this is temporary https://github.com/mapbox/mapbox-navigation-android/issues/6154
-                val searchEngine = MapboxSearchSdk.createSearchEngineWithBuiltInDataProviders(
-                    SearchEngineSettings(
-                        carContext.resources.getString(R.string.mapbox_access_token),
-                        MapboxNavigationApp.getObserver(CarSearchLocationProvider::class),
-                    ),
-                )
                 mapboxCarMap = MapboxCarMap(mapInitOptions)
-                mainCarContext = MainCarContext(carContext, mapboxCarMap, searchEngine)
+                mainCarContext = MainCarContext(carContext, mapboxCarMap)
                 mainScreenManager = MainScreenManager(mainCarContext!!)
                 navigationManager = MapboxCarNavigationManager(carContext)
                 observeScreenManager()
