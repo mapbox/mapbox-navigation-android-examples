@@ -1,6 +1,7 @@
 include (
         ':app',
         ':app-preview',
-        ':android-auto-app'
+        ':android-auto-app',
+        ':android-automotive-app'
 )
 rootProject.name = "Mapbox Navigation Examples"

@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.mapbox.maps.token'
+apply from: "${rootDir}/gradle/script-git-version.gradle"
+apply from: "${rootDir}/gradle/ktlint.gradle"
+
+android {
+    compileSdkVersion 31
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId "com.mapbox.navigation.examples.androidauto"
+        minSdkVersion 29
+        targetSdkVersion 31
+        multiDexEnabled true
+        versionCode gitNumberOfCommits
+        versionName gitTagDescription
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    testOptions {
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+    }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled = false
+            manifestPlaceholders = [enableCrashReporting: "false"]
+        }
+        release {
+            minifyEnabled true
+            manifestPlaceholders = [enableCrashReporting: "true"]
+        }
+    }
+
+    dexOptions {
+        maxProcessCount 8
+        javaMaxHeapSize "2g"
+        preDexLibraries true
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
+
+    // Mapbox Navigation Android Auto SDK Developer Preview
+    implementation("com.mapbox.navigation:ui-androidauto:0.8.0")
+
+    // Android Automotive library
+    // https://developer.android.com/jetpack/androidx/releases/car-app
+    implementation("androidx.car.app:app-automotive:1.1.0")
+}
