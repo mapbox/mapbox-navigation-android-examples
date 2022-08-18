@@ -57,5 +57,9 @@
       <activity
           android:name=".dropinui.RequestRouteWithNavigationViewActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.RepositionSpeedLimitActivity"
+          android:exported="true" />
   </application>
 </manifest>
