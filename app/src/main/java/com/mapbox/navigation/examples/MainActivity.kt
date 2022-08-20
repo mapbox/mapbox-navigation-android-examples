@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         setContentView(binding.root)
 
         if (areLocationPermissionsGranted(this)) {
-            requestStoragePermission()
+            maybeRequestStoragePermission()
         } else {
             permissionsManager.requestLocationPermissions(this)
         }
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-            requestStoragePermission()
+            maybeRequestStoragePermission()
         } else {
             Toast.makeText(
                 this,
@@ -69,7 +70,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun requestStoragePermission() {
+    private fun maybeRequestStoragePermission() {
+        // starting from Android R leak canary writes to Download storage without the permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return
+        }
         val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
         val permissionsNeeded: MutableList<String> = ArrayList()
         if (
