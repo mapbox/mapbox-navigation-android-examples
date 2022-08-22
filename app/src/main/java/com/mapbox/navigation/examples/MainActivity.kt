@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         setContentView(binding.root)
 
         if (areLocationPermissionsGranted(this)) {
-            maybeRequestStoragePermission()
+            requestOptionalPermissions()
         } else {
             permissionsManager.requestLocationPermissions(this)
         }
@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-            maybeRequestStoragePermission()
+            requestOptionalPermissions()
         } else {
             Toast.makeText(
                 this,
@@ -70,21 +70,25 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun maybeRequestStoragePermission() {
+    private fun requestOptionalPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
         // starting from Android R leak canary writes to Download storage without the permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return
-        }
-        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        val permissionsNeeded: MutableList<String> = ArrayList()
-        if (
-            ContextCompat.checkSelfPermission(this, permission) !=
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
             PackageManager.PERMISSION_GRANTED
         ) {
-            permissionsNeeded.add(permission)
+            permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        if (permissionsToRequest.isNotEmpty()) {
             ActivityCompat.requestPermissions(
                 this,
-                permissionsNeeded.toTypedArray(),
+                permissionsToRequest.toTypedArray(),
                 10
             )
         }
