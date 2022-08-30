@@ -6,8 +6,6 @@ import android.location.Location
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point

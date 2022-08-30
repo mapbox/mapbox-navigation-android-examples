@@ -230,7 +230,7 @@ class ShowJunctionsActivity : AppCompatActivity() {
 
 fun AppCompatActivity.mapboxNavigationInstaller() = MapboxNavigationActivityInstaller(this)
 
-fun mapboxLocationObserver(locationObserver: LocationObserver) : MapboxNavigationObserver {
+fun mapboxLocationObserver(locationObserver: LocationObserver): MapboxNavigationObserver {
     return object : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             mapboxNavigation.registerLocationObserver(locationObserver)
@@ -242,7 +242,7 @@ fun mapboxLocationObserver(locationObserver: LocationObserver) : MapboxNavigatio
     }
 }
 
-fun mapboxRoutesObserver(routesObserver: RoutesObserver) : MapboxNavigationObserver {
+fun mapboxRoutesObserver(routesObserver: RoutesObserver): MapboxNavigationObserver {
     return object : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             mapboxNavigation.registerRoutesObserver(routesObserver)
@@ -254,7 +254,7 @@ fun mapboxRoutesObserver(routesObserver: RoutesObserver) : MapboxNavigationObser
     }
 }
 
-fun mapboxBannerInstructionsObserver(bannerInstructionsObserver: BannerInstructionsObserver) : MapboxNavigationObserver {
+fun mapboxBannerInstructionsObserver(bannerInstructionsObserver: BannerInstructionsObserver): MapboxNavigationObserver {
     return object : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             mapboxNavigation.registerBannerInstructionsObserver(bannerInstructionsObserver)
@@ -266,7 +266,7 @@ fun mapboxBannerInstructionsObserver(bannerInstructionsObserver: BannerInstructi
     }
 }
 
-fun mapboxRouteProgressObserver(routeProgressObserver: RouteProgressObserver) : MapboxNavigationObserver {
+fun mapboxRouteProgressObserver(routeProgressObserver: RouteProgressObserver): MapboxNavigationObserver {
     return object : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
