@@ -29,9 +29,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             return
         }
 
-        // Each example needs to call MapboxNavigationApp.setup.
-        MapboxNavigationApp.disable()
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -42,6 +39,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         }
 
         bindExamples()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Each example is responsible for setting up their NavigationOptions.
+        MapboxNavigationApp.disable()
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
