@@ -11,6 +11,7 @@ import com.mapbox.navigation.examples.junctions.ShowJunctionsActivity
 import com.mapbox.navigation.examples.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
+import com.mapbox.navigation.examples.preview.PreviewActivity
 import com.mapbox.navigation.examples.replay.ReplayHistoryActivity
 import com.mapbox.navigation.examples.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.signboard.MapboxSignboardActivity
@@ -81,6 +82,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_turn_by_turn),
         getString(R.string.description_turn_by_turn),
         TurnByTurnExperienceActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_route_preview),
+        getString(R.string.title_preview),
+        getString(R.string.description_preview),
+        PreviewActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),

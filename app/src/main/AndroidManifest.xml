@@ -109,6 +109,10 @@
     <activity android:name=".replay.HistoryFilesActivity"
         android:exported="false"
         />
+
+    <activity android:name=".preview.PreviewActivity"
+        android:exported="false"
+        />
   </application>
 
 </manifest>
