@@ -279,7 +279,7 @@ class PreviewActivity : Activity() {
         // We recommend starting a trip session for routes preview to get, display,
         // and use for route request a map matched location.
         // See [PreviewActivity#locationObserver].
-        mapboxNavigation.startTripSession(false)
+        mapboxNavigation.startTripSession()
     }
 
     override fun onStart() {
