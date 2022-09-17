@@ -37,7 +37,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                 MapboxNavigationApp.registerObserver(appSyncComponent)
             }
             override fun onDestroy(owner: LifecycleOwner) {
-                MapboxNavigationApp.registerObserver(appSyncComponent)
+                MapboxNavigationApp.unregisterObserver(appSyncComponent)
                 this@CarAppSyncComponent.navigationView = null
             }
         })
@@ -51,7 +51,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                 MapboxNavigationApp.registerObserver(carSyncComponent)
             }
             override fun onDestroy(owner: LifecycleOwner) {
-                MapboxNavigationApp.registerObserver(carSyncComponent)
+                MapboxNavigationApp.unregisterObserver(carSyncComponent)
                 this@CarAppSyncComponent.session = null
             }
         })
@@ -69,22 +69,27 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
 
     private val appListener = object : NavigationViewListener() {
         override fun onFreeDrive() {
+            logI(LOG_TAG, "updateCarAppState onFreeDrive")
             MapboxCarApp.updateCarAppState(FreeDriveState)
         }
 
         override fun onDestinationPreview() {
+            logI(LOG_TAG, "updateCarAppState onDestinationPreview")
             MapboxCarApp.updateCarAppState(FreeDriveState)
         }
 
         override fun onRoutePreview() {
+            logI(LOG_TAG, "updateCarAppState onRoutePreview")
             MapboxCarApp.updateCarAppState(RoutePreviewState)
         }
 
         override fun onActiveNavigation() {
+            logI(LOG_TAG, "updateCarAppState onActiveNavigation")
             MapboxCarApp.updateCarAppState(ActiveGuidanceState)
         }
 
         override fun onArrival() {
+            logI(LOG_TAG, "updateCarAppState onArrival")
             MapboxCarApp.updateCarAppState(ArrivalState)
         }
     }
@@ -101,15 +106,19 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             if (carSyncComponent.isAttached) {
                 when (MapboxCarApp.carAppState.value) {
                     FreeDriveState -> {
+                        logI(LOG_TAG, "navigationView.api.startFreeDrive()")
                         navigationView.api.startFreeDrive()
                     }
                     RoutePreviewState -> {
+                        logI(LOG_TAG, "navigationView.api.startRoutePreview()")
                         navigationView.api.startRoutePreview()
                     }
                     ActiveGuidanceState -> {
+                        logI(LOG_TAG, "navigationView.api.startActiveGuidance()")
                         navigationView.api.startActiveGuidance()
                     }
                     ArrivalState -> {
+                        logI(LOG_TAG, "navigationView.api.startArrival()")
                         navigationView.api.startArrival()
                     }
                 }
@@ -150,3 +159,4 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             ?: CarAppSyncComponent().also { MapboxNavigationApp.registerObserver(it) }
     }
 }
+
