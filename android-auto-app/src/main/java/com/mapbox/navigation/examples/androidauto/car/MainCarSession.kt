@@ -27,6 +27,7 @@ import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -42,6 +43,7 @@ class MainCarSession : Session() {
 
     init {
         MapboxNavigationApp.attach(this)
+        CarAppSyncComponent.getInstance().setCarSession(this)
 
         val logoSurfaceRenderer = CarLogoSurfaceRenderer()
         val compassSurfaceRenderer = CarCompassSurfaceRenderer()
