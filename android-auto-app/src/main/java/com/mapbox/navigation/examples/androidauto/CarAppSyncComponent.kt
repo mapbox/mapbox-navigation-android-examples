@@ -15,7 +15,7 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.dropin.NavigationView
 import com.mapbox.navigation.dropin.NavigationViewListener
-import kotlin.math.log
+import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 
 /**
  * This is a temporarily solution for syncing two new libraries, Drop-in-ui and the Mapbox AA.
@@ -94,10 +94,11 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         }
     }
 
-    private val appSyncComponent = object : MapboxNavigationObserver {
+    private val appSyncComponent = object : UIComponent() {
         var isAttached = false
             private set
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            super.onAttached(mapboxNavigation)
             logI(LOG_TAG, "onAttached app")
             val navigationView = navigationView
             checkNotNull(navigationView) {
@@ -115,7 +116,8 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                     }
                     ActiveGuidanceState -> {
                         logI(LOG_TAG, "navigationView.api.startActiveGuidance()")
-                        navigationView.api.startActiveGuidance()
+                        val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
+                        navigationView.api.startActiveGuidance(routes)
                     }
                     ArrivalState -> {
                         logI(LOG_TAG, "navigationView.api.startArrival()")
@@ -128,6 +130,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         }
 
         override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            super.onDetached(mapboxNavigation)
             val navigationView = navigationView
             checkNotNull(navigationView) {
                 "NavigationView is not set for onDetached"
@@ -159,4 +162,3 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             ?: CarAppSyncComponent().also { MapboxNavigationApp.registerObserver(it) }
     }
 }
-
