@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelAttributesActivity
+import com.mapbox.navigation.examples.preview.dropinui.CustomLongClickActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomNavigationViewOptionsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomRuntimeStylingActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomSpeedLimitActivity
@@ -92,5 +93,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_position_speed_limit_bottom),
         getString(R.string.description_position_speed_limit_bottom),
         RepositionSpeedLimitActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_custom_map_long_click
+        ),
+        getString(R.string.title_long_click_on_map),
+        getString(R.string.description_long_click_on_map),
+        CustomLongClickActivity::class.java
     ),
 )

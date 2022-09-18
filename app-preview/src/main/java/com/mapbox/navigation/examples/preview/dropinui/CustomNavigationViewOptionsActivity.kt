@@ -73,7 +73,7 @@ class CustomNavigationViewOptionsActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeNavigationviewOptionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.toggleOptions.setOnClickListener {
             binding.navigationView.customizeViewOptions {

@@ -47,7 +47,7 @@ class CustomSpeedLimitActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeSpeedLimitBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.navigationView.customizeViewBinders {
             speedLimitBinder = MySpeedLimitViewBinder()

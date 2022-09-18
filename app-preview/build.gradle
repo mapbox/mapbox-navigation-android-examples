@@ -5,7 +5,7 @@ apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.preview"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
         multiDexEnabled true
         versionCode gitNumberOfCommits
         versionName gitTagDescription
@@ -69,8 +69,8 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:ui-app:2.8.0-alpha.3"
-    implementation "com.mapbox.navigation:ui-dropin:2.8.0-alpha.3"
+    implementation "com.mapbox.navigation:ui-app:2.8.0-rc.2"
+    implementation "com.mapbox.navigation:ui-dropin:2.8.0-rc.2"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31"
     implementation "androidx.core:core-ktx:1.7.0"

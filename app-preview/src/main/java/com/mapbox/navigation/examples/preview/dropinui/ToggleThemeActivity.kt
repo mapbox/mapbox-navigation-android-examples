@@ -37,7 +37,7 @@ class ToggleThemeActivity : AppCompatActivity() {
         binding = MapboxActivityToggleThemeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
 

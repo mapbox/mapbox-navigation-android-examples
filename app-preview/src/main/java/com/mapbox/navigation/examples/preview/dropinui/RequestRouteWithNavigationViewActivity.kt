@@ -20,9 +20,6 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.dropin.MapViewObserver
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityRequestRouteNavigationViewBinding
-import com.mapbox.navigation.ui.app.internal.SharedApp
-import com.mapbox.navigation.ui.app.internal.navigation.NavigationState
-import com.mapbox.navigation.ui.app.internal.navigation.NavigationStateAction
 import com.mapbox.navigation.utils.internal.ifNonNull
 
 /**
@@ -134,19 +131,8 @@ class RequestRouteWithNavigationViewActivity : AppCompatActivity(), OnMapLongCli
                     routes: List<NavigationRoute>,
                     routerOrigin: RouterOrigin
                 ) {
-                    binding.navigationView.api.enableReplaySession()
-                    // Sets the destination.
-                    binding.navigationView.api.setDestination(destination)
-                    // Sets routes to preview state.
-                    binding.navigationView.api.setPreviewRoutes(routes)
-                    // Sets routes to mapbox navigation.
-                    binding.navigationView.api.setRoutes(routes)
-                    // This is discouraged and temporary. Public API(s) will be exposed in upcoming
-                    // versions that would allow you to transition NavigationView to ActiveGuidance
-                    // state
-                    SharedApp.store.dispatch(
-                        NavigationStateAction.Update(NavigationState.ActiveNavigation)
-                    )
+                    binding.navigationView.api.routeReplayEnabled(true)
+                    binding.navigationView.api.startActiveGuidance(routes)
                 }
             }
         )

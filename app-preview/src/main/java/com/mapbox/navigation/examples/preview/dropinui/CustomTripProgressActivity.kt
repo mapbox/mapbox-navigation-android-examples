@@ -50,7 +50,7 @@ class CustomTripProgressActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeTripProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.navigationView.customizeViewBinders {
             infoPanelTripProgressBinder = MyTripProgressViewBinder()

@@ -1,8 +1,15 @@
 package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.dropin.MapboxExtendableButtonParams
 import com.mapbox.navigation.dropin.ViewStyleCustomization
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomRuntimeStylingBinding
@@ -38,7 +45,7 @@ class CustomRuntimeStylingActivity : AppCompatActivity() {
         binding = MapboxActivityCustomRuntimeStylingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.toggleStyle.setOnClickListener {
             binding.navigationView.customizeViewStyles {
@@ -47,33 +54,103 @@ class CustomRuntimeStylingActivity : AppCompatActivity() {
                     speedLimitStyle = ViewStyleCustomization.defaultSpeedLimitStyle()
                     speedLimitTextAppearance =
                         ViewStyleCustomization.defaultSpeedLimitTextAppearance()
-                    destinationMarker = ViewStyleCustomization.defaultDestinationMarker()
+                    destinationMarkerAnnotationOptions =
+                        ViewStyleCustomization.defaultMarkerAnnotationOptions(
+                            this@CustomRuntimeStylingActivity
+                        )
                     roadNameBackground = ViewStyleCustomization.defaultRoadNameBackground()
                     roadNameTextAppearance = ViewStyleCustomization.defaultRoadNameTextAppearance()
-                    audioGuidanceButtonStyle =
-                        ViewStyleCustomization.defaultAudioGuidanceButtonStyle()
-                    recenterButtonStyle = ViewStyleCustomization.defaultRecenterButtonStyle()
-                    cameraModeButtonStyle = ViewStyleCustomization.defaultCameraModeButtonStyle()
-                    routePreviewButtonStyle =
-                        ViewStyleCustomization.defaultRoutePreviewButtonStyle()
-                    endNavigationButtonStyle =
-                        ViewStyleCustomization.defaultEndNavigationButtonStyle()
-                    startNavigationButtonStyle =
-                        ViewStyleCustomization.defaultStartNavigationButtonStyle()
+                    audioGuidanceButtonParams =
+                        ViewStyleCustomization.defaultAudioGuidanceButtonParams(
+                            this@CustomRuntimeStylingActivity
+                        )
+                    recenterButtonParams = ViewStyleCustomization.defaultRecenterButtonParams(
+                        this@CustomRuntimeStylingActivity
+                    )
+                    cameraModeButtonParams = ViewStyleCustomization.defaultCameraModeButtonParams(
+                        this@CustomRuntimeStylingActivity
+                    )
+                    routePreviewButtonParams =
+                        ViewStyleCustomization.defaultRoutePreviewButtonParams(
+                            this@CustomRuntimeStylingActivity
+                        )
+                    endNavigationButtonParams =
+                        ViewStyleCustomization.defaultEndNavigationButtonParams(
+                            this@CustomRuntimeStylingActivity
+                        )
+                    startNavigationButtonParams =
+                        ViewStyleCustomization.defaultStartNavigationButtonParams(
+                            this@CustomRuntimeStylingActivity
+                        )
                     false
                 } else {
                     tripProgressStyle = R.style.MyCustomTripProgressStyle
                     speedLimitStyle = R.style.MyCustomSpeedLimitStyle
                     speedLimitTextAppearance = R.style.MyCustomSpeedLimitTextAppearance
-                    destinationMarker = R.drawable.mapbox_ic_marker
+                    destinationMarkerAnnotationOptions = PointAnnotationOptions().apply {
+                        withIconImage(
+                            ContextCompat.getDrawable(
+                                this@CustomRuntimeStylingActivity,
+                                R.drawable.mapbox_ic_marker
+                            )!!.toBitmap()
+                        )
+                    }
                     roadNameBackground = R.drawable.mapbox_bg_road_name
                     roadNameTextAppearance = R.style.MyCustomRoadNameViewTextAppearance
-                    audioGuidanceButtonStyle = R.style.MyCustomAudioGuidanceButton
-                    recenterButtonStyle = R.style.MyCustomRecenterButton
-                    cameraModeButtonStyle = R.style.MyCustomCameraModeButton
-                    routePreviewButtonStyle = R.style.MyCustomRoutePreviewButton
-                    endNavigationButtonStyle = R.style.MyCustomEndNavigationButton
-                    startNavigationButtonStyle = R.style.MyCustomStartNavigationButton
+                    val layoutParams = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    audioGuidanceButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomAudioGuidanceButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            bottomMargin = 20
+                            gravity = Gravity.START
+                        }
+                    )
+                    recenterButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomRecenterButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            topMargin = 20
+                            bottomMargin = 20
+                            gravity = Gravity.END
+                        }
+                    )
+                    cameraModeButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomCameraModeButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            topMargin = 20
+                            bottomMargin = 20
+                            gravity = Gravity.CENTER_HORIZONTAL
+                        }
+                    )
+                    endNavigationButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomEndNavigationButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            rightMargin = 20
+                            gravity = Gravity.CENTER_HORIZONTAL
+                        }
+                    )
+                    routePreviewButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomRoutePreviewButton,
+                        layoutParams,
+                    )
+                    startNavigationButtonParams = MapboxExtendableButtonParams(
+                        R.style.MyCustomStartNavigationButton,
+                        layoutParams,
+                    )
                     true
                 }
             }
