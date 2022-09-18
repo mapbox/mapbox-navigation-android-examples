@@ -61,5 +61,9 @@
       <activity
           android:name=".dropinui.RepositionSpeedLimitActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.CustomLongClickActivity"
+          android:exported="true" />
   </application>
 </manifest>

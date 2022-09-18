@@ -42,7 +42,7 @@ class CustomInfoPanelAttributesActivity : AppCompatActivity() {
         binding = MapboxActivityCustomizeInfopanelOptionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.toggleInfoPanelStyles.setOnClickListener {
             customizeInfoPanelStyles(toggleInfoPanelStyles)

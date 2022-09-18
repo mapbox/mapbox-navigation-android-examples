@@ -51,6 +51,8 @@ class RepositionSpeedLimitActivity : AppCompatActivity() {
         speedLimitBinding = MapboxCustomSpeedLimitViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.navigationView.api.routeReplayEnabled(true)
+
         binding.navigationView.customizeViewBinders {
             // The line of code hides the speed limit view on top left
             speedLimitBinder = EmptyBinder()

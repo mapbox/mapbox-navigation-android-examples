@@ -53,7 +53,7 @@ class CustomViewInjectionActivity : AppCompatActivity() {
         binding = MapboxActivityInjectCustomViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
 
         binding.navigationView.customizeViewBinders {
             infoPanelContentBinder = MyInfoPanelContentBinder()

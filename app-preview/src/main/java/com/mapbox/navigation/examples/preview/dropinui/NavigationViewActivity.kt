@@ -32,6 +32,6 @@ class NavigationViewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // This allows to simulate your location
-        binding.navigationView.api.enableReplaySession()
+        binding.navigationView.api.routeReplayEnabled(true)
     }
 }
