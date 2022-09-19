@@ -24,6 +24,9 @@
   <string name="title_customize_info_panel">Customize info panel using NavigationView</string>
   <string name="description_customize_info_panel">The example demonstrates how to replace default info panel with a custom one</string>
 
+  <string name="title_customize_info_panel_active_guidance">Customize info panel in active guidance state</string>
+  <string name="description_customize_info_panel_active_guidance">The example demonstrates how to replace default info panel with a custom one only in active guidance state</string>
+
   <string name="title_customize_info_panel_attributes">Customize info panel attributes using NavigationView</string>
   <string name="description_customize_info_panel_attributes">The example demonstrates how to change margins, background and peek height of the default info panel.</string>
 

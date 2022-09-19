@@ -65,5 +65,9 @@
       <activity
           android:name=".dropinui.CustomLongClickActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.CustomInfoPanelActiveGuidanceActivity"
+          android:exported="true" />
   </application>
 </manifest>

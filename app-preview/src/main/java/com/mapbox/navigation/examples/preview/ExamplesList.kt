@@ -2,6 +2,7 @@ package com.mapbox.navigation.examples.preview
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActiveGuidanceActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelAttributesActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomLongClickActivity
@@ -66,6 +67,15 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_customize_info_panel),
         getString(R.string.description_customize_info_panel),
         CustomInfoPanelActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_custom_infopanel_active_guidance
+        ),
+        getString(R.string.title_customize_info_panel_active_guidance),
+        getString(R.string.description_customize_info_panel_active_guidance),
+        CustomInfoPanelActiveGuidanceActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(
