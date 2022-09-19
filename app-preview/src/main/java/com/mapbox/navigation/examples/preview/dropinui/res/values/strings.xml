@@ -39,4 +39,7 @@
   <string name="title_long_click_on_map">Handle long clicks on the map</string>
   <string name="description_long_click_on_map">The example demonstrates how to handle your own long click on the map view</string>
 
+  <string name="title_hide_views_in_free_drive">Hide selected views in Free Drive state</string>
+  <string name="description_hide_views_in_free_drive">The example demonstrates how to hide Speed Limit, Action buttons and Road name label in Free Drive state</string>
+
 </resources>
