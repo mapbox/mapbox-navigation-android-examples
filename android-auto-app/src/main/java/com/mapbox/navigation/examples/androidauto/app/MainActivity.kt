@@ -16,8 +16,9 @@ class MainActivity : AppCompatActivity() {
         binding = MapboxActivityNavigationViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // TODO going to expose a public api to share a replay controller
         // This allows to simulate your location
-        binding.navigationView.api.routeReplayEnabled(true)
+//        binding.navigationView.api.routeReplayEnabled(true)
 
         CarAppSyncComponent.getInstance().setNavigationView(binding.navigationView)
     }

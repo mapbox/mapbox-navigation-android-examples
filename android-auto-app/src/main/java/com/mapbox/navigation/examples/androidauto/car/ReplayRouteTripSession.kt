@@ -4,15 +4,17 @@ import android.annotation.SuppressLint
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 
+// TODO This will be deleted in favor of a public api
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-internal class ReplayRouteTripSession {
+internal class ReplayRouteTripSession : MapboxNavigationObserver {
     private var replayProgressObserver: ReplayProgressObserver? = null
     private var routesObserver: RoutesObserver? = null
 
     @SuppressLint("MissingPermission")
-    fun start(mapboxNavigation: MapboxNavigation) {
+    override fun onAttached(mapboxNavigation: MapboxNavigation) {
         mapboxNavigation.stopTripSession()
         mapboxNavigation.startReplayTripSession()
         val context = mapboxNavigation.navigationOptions.applicationContext
@@ -35,7 +37,7 @@ internal class ReplayRouteTripSession {
         mapboxReplayer.play()
     }
 
-    fun stop(mapboxNavigation: MapboxNavigation) {
+    override fun onDetached(mapboxNavigation: MapboxNavigation) {
         replayProgressObserver?.let { mapboxNavigation.unregisterRouteProgressObserver(it) }
         routesObserver?.let { mapboxNavigation.unregisterRoutesObserver(it) }
         mapboxNavigation.mapboxReplayer.stop()

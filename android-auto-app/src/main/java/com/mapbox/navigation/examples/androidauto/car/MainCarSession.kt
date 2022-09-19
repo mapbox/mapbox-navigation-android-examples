@@ -26,6 +26,7 @@ import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import kotlinx.coroutines.flow.collect
@@ -40,6 +41,7 @@ class MainCarSession : Session() {
     private lateinit var navigationManager: MapboxCarNavigationManager
     private val replayRouteTripSession = ReplayRouteTripSession()
     private val mainCarMapLoader = MainCarMapLoader()
+    private val mapboxNavigation by requireMapboxNavigation()
 
     init {
         MapboxNavigationApp.attach(this)
@@ -107,7 +109,7 @@ class MainCarSession : Session() {
                     val hasLocationPermissions = hasLocationPermission()
                     logAndroidAuto("MainCarSession onStart and hasLocationPermissions $hasLocationPermissions")
                     if (hasLocationPermissions) {
-                        startTripSession(mainCarContext!!, isAutoDriveEnabled)
+                        startTripSession(isAutoDriveEnabled)
                     }
                 }
             }
@@ -123,16 +125,14 @@ class MainCarSession : Session() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun startTripSession(mainCarContext: MainCarContext, isAutoDriveEnabled: Boolean) {
-        mainCarContext.apply {
-            logAndroidAuto("MainCarSession startTripSession")
-            if (isAutoDriveEnabled) {
-                replayRouteTripSession.start(mainCarContext.mapboxNavigation)
-            } else {
-                replayRouteTripSession.stop(mainCarContext.mapboxNavigation)
-                if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-                    mapboxNavigation.startTripSession()
-                }
+    private fun startTripSession(isAutoDriveEnabled: Boolean) {
+        logAndroidAuto("MainCarSession startTripSession")
+        if (isAutoDriveEnabled) {
+            MapboxNavigationApp.registerObserver(replayRouteTripSession)
+        } else {
+            MapboxNavigationApp.unregisterObserver(replayRouteTripSession)
+            if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
+                mapboxNavigation.startTripSession()
             }
         }
     }
