@@ -5,6 +5,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.androidauto.ActiveGuidanceState
 import com.mapbox.androidauto.ArrivalState
+import com.mapbox.androidauto.CarAppState
 import com.mapbox.androidauto.FreeDriveState
 import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.RoutePreviewState
@@ -16,6 +17,11 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.dropin.NavigationView
 import com.mapbox.navigation.dropin.NavigationViewListener
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * This is a temporarily solution for syncing two new libraries, Drop-in-ui and the Mapbox AA.
@@ -105,25 +111,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                 "NavigationView is not set for onAttached"
             }
             if (carSyncComponent.isAttached) {
-                when (MapboxCarApp.carAppState.value) {
-                    FreeDriveState -> {
-                        logI(LOG_TAG, "navigationView.api.startFreeDrive()")
-                        navigationView.api.startFreeDrive()
-                    }
-                    RoutePreviewState -> {
-                        logI(LOG_TAG, "navigationView.api.startRoutePreview()")
-                        navigationView.api.startRoutePreview()
-                    }
-                    ActiveGuidanceState -> {
-                        logI(LOG_TAG, "navigationView.api.startActiveGuidance()")
-                        val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
-                        navigationView.api.startActiveGuidance(routes)
-                    }
-                    ArrivalState -> {
-                        logI(LOG_TAG, "navigationView.api.startArrival()")
-                        navigationView.api.startArrival()
-                    }
-                }
+                onCarAppStateUpdate(MapboxCarApp.carAppState.value)
             }
             navigationView.addListener(appListener)
             isAttached = true
@@ -144,14 +132,44 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
     private val carSyncComponent = object : MapboxNavigationObserver {
         var isAttached = false
             private set
+        var carCoroutineScope: CoroutineScope? = null
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             logI(LOG_TAG, "onAttached car")
+            carCoroutineScope = MainScope()
             isAttached = true
+            carCoroutineScope?.launch {
+                MapboxCarApp.carAppState.collect { onCarAppStateUpdate(it) }
+            }
         }
 
         override fun onDetached(mapboxNavigation: MapboxNavigation) {
             isAttached = false
+            carCoroutineScope?.cancel()
+            carCoroutineScope = null
             logI(LOG_TAG, "onDetached car")
+        }
+    }
+
+    private fun onCarAppStateUpdate(carAppState: CarAppState) {
+        val navigationView = navigationView ?: return
+        when (carAppState) {
+            FreeDriveState -> {
+                logI(LOG_TAG, "navigationView.api.startFreeDrive()")
+                navigationView.api.startFreeDrive()
+            }
+            RoutePreviewState -> {
+                logI(LOG_TAG, "navigationView.api.startRoutePreview()")
+                navigationView.api.startRoutePreview()
+            }
+            ActiveGuidanceState -> {
+                logI(LOG_TAG, "navigationView.api.startActiveGuidance()")
+                val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
+                navigationView.api.startActiveGuidance(routes)
+            }
+            ArrivalState -> {
+                logI(LOG_TAG, "navigationView.api.startArrival()")
+                navigationView.api.startArrival()
+            }
         }
     }
 
