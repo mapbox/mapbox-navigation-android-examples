@@ -11,6 +11,7 @@ import com.mapbox.navigation.examples.preview.dropinui.CustomRuntimeStylingActiv
 import com.mapbox.navigation.examples.preview.dropinui.CustomSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomTripProgressActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomViewInjectionActivity
+import com.mapbox.navigation.examples.preview.dropinui.HideViewsInFreeDriveActivity
 import com.mapbox.navigation.examples.preview.dropinui.NavigationViewActivity
 import com.mapbox.navigation.examples.preview.dropinui.RepositionSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.dropinui.RequestRouteWithNavigationViewActivity
@@ -112,5 +113,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_long_click_on_map),
         getString(R.string.description_long_click_on_map),
         CustomLongClickActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_hide_views_in_free_drive
+        ),
+        getString(R.string.title_hide_views_in_free_drive),
+        getString(R.string.description_hide_views_in_free_drive),
+        HideViewsInFreeDriveActivity::class.java
     ),
 )
