@@ -73,5 +73,9 @@
       <activity
           android:name=".dropinui.CustomInfoPanelActiveGuidanceActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.AddActionButtonsActivity"
+          android:exported="true" />
   </application>
 </manifest>

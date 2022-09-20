@@ -42,4 +42,7 @@
   <string name="title_hide_views_in_free_drive">Hide selected views in Free Drive state</string>
   <string name="description_hide_views_in_free_drive">The example demonstrates how to hide Speed Limit, Action buttons and Road name label in Free Drive state</string>
 
+  <string name="title_add_action_buttons">Add action buttons</string>
+  <string name="description_add_action_buttons">The example demonstrates how to add custom action buttons to list of action buttons available via NavigationView</string>
+
 </resources>
