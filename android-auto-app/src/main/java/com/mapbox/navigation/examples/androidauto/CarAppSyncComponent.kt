@@ -168,7 +168,8 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             }
             ArrivalState -> {
                 logI(LOG_TAG, "navigationView.api.startArrival()")
-                navigationView.api.startArrival()
+                val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
+                navigationView.api.startArrival(routes)
             }
         }
     }
