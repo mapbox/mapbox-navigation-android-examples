@@ -30,6 +30,9 @@
   <string name="title_customize_info_panel_attributes">Customize info panel attributes using NavigationView</string>
   <string name="description_customize_info_panel_attributes">The example demonstrates how to change margins, background and peek height of the default info panel.</string>
 
+  <string name="title_customize_action_buttons">Customize action buttons using NavigationView</string>
+  <string name="description_customize_action_buttons">The example demonstrates how to change the shape of action buttons provided by NavigationView</string>
+
   <string name="title_request_route_outside_navigation_view">Request routes using MapboxNavigation</string>
   <string name="description_request_route_outside_navigation_view">The example demonstrates how to request routes using mapbox navigation and transition NavigationView to active guidance state</string>
 

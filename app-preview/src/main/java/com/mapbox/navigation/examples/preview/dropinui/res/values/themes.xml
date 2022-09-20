@@ -113,14 +113,30 @@
     <item name="extendableButtonIcon">@drawable/mapbox_ic_route</item>
   </style>
 
+  <style name="MyCustomRoutePreviewButtonCircular">
+    <item name="extendableButtonIcon">@drawable/mapbox_ic_route</item>
+    <item name="extendableButtonBackground">@drawable/mapbox_bg_circular</item>
+  </style>
+
   <style name="MyCustomEndNavigationButton">
     <item name="extendableButtonIconTint">@color/primary</item>
     <item name="extendableButtonIcon">@drawable/mapbox_ic_close</item>
+  </style>
+
+  <style name="MyCustomEndNavigationButtonCircular">
+    <item name="extendableButtonIcon">@drawable/mapbox_ic_close</item>
+    <item name="extendableButtonIconTint">@color/onSecondary</item>
+    <item name="extendableButtonBackground">@drawable/mapbox_bg_circular</item>
   </style>
 
   <style name="MyCustomStartNavigationButton">
     <item name="extendableButtonIcon">@drawable/mapbox_ic_puck</item>
     <item name="extendableButtonBackground">@drawable/mapbox_bg_action_button</item>
     <item name="extendableButtonTextAppearance">@style/DropInStartButtonTextAppearance</item>
+  </style>
+
+  <style name="MyCustomStartNavigationButtonCircular">
+    <item name="extendableButtonIcon">@drawable/mapbox_ic_puck</item>
+    <item name="extendableButtonBackground">@drawable/mapbox_bg_circular</item>
   </style>
 </resources>
