@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.preview
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.dropinui.AddActionButtonsActivity
+import com.mapbox.navigation.examples.preview.dropinui.CustomActionButtonsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActiveGuidanceActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelAttributesActivity
@@ -123,6 +124,15 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_hide_views_in_free_drive),
         getString(R.string.description_hide_views_in_free_drive),
         HideViewsInFreeDriveActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_hide_views_in_free_drive
+        ),
+        getString(R.string.title_customize_action_buttons),
+        getString(R.string.description_customize_action_buttons),
+        CustomActionButtonsActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(
