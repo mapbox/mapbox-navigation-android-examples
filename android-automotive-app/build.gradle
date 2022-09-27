@@ -64,7 +64,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.4.1"
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigation:ui-androidauto:0.8.0")
+    implementation("com.mapbox.navigation:ui-androidauto:0.12.0")
 
     // Android Automotive library
     // https://developer.android.com/jetpack/androidx/releases/car-app
