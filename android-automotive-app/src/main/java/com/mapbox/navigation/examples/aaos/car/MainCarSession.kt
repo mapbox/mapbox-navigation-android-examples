@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.androidauto.MapboxCarApp
 import com.mapbox.androidauto.MapboxCarNavigationManager
 import com.mapbox.androidauto.car.MainCarContext
 import com.mapbox.androidauto.car.MainScreenManager
@@ -23,12 +24,10 @@ import com.mapbox.androidauto.internal.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
-import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import kotlinx.coroutines.launch
 
-@OptIn(MapboxExperimental::class, ExperimentalPreviewMapboxNavigationAPI::class)
+@OptIn(MapboxExperimental::class)
 class MainCarSession : Session() {
 
     private var mainCarContext: MainCarContext? = null
@@ -37,14 +36,11 @@ class MainCarSession : Session() {
     private lateinit var carStartTripSession: CarStartTripSession
     private val mainCarMapLoader = MainCarMapLoader()
     private val carLocationPermissions = CarLocationPermissions()
-    private val mapboxCarMap = mapboxMapInstaller()
-        .install {
-            MapInitOptions(carContext)
-        }
+    private val mapboxCarMap = MapboxCarMap()
 
     init {
         MapboxNavigationApp.attach(this)
-
+        MapboxCarApp.setup()
         val logoSurfaceRenderer = CarLogoSurfaceRenderer()
         val compassSurfaceRenderer = CarCompassSurfaceRenderer()
         logAndroidAuto("MainCarSession constructor")
