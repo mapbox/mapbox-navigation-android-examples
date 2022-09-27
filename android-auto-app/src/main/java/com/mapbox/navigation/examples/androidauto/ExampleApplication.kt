@@ -20,6 +20,6 @@ class ExampleApplication : Application() {
         ).attachAllActivities(this)
 
         // Setup android auto
-        MapboxCarApp.setup(this)
+        MapboxCarApp.setup()
     }
 }

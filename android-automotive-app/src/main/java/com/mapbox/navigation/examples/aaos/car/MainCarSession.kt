@@ -23,6 +23,7 @@ import com.mapbox.androidauto.internal.logAndroidAuto
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
+import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import kotlinx.coroutines.launch
@@ -32,11 +33,14 @@ class MainCarSession : Session() {
 
     private var mainCarContext: MainCarContext? = null
     private lateinit var mainScreenManager: MainScreenManager
-    private lateinit var mapboxCarMap: MapboxCarMap
     private lateinit var navigationManager: MapboxCarNavigationManager
     private lateinit var carStartTripSession: CarStartTripSession
     private val mainCarMapLoader = MainCarMapLoader()
     private val carLocationPermissions = CarLocationPermissions()
+    private val mapboxCarMap = mapboxMapInstaller()
+        .install {
+            MapInitOptions(carContext)
+        }
 
     init {
         MapboxNavigationApp.attach(this)
@@ -54,7 +58,7 @@ class MainCarSession : Session() {
                     context = carContext,
                     styleUri = mainCarMapLoader.mapStyleUri(carContext.isDarkMode)
                 )
-                mapboxCarMap = MapboxCarMap(mapInitOptions)
+                mapboxCarMap.setup(carContext, mapInitOptions)
                 mainCarContext = MainCarContext(carContext, mapboxCarMap)
                 mainScreenManager = MainScreenManager(mainCarContext!!)
                 navigationManager = MapboxCarNavigationManager(carContext)
