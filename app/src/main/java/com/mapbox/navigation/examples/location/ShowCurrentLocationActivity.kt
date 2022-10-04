@@ -7,19 +7,20 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.MapView
-import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityUserCurrentLocationBinding
+import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 
 /**
@@ -46,6 +47,7 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
  * - You should see a map view with the camera transitioning to your current location.
  * - A blue circular puck should be visible at your current location.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class ShowCurrentLocationActivity : AppCompatActivity() {
 
     /**
@@ -86,18 +88,6 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
     }
 
     /**
-     * Mapbox Maps entry point obtained from the [MapView].
-     * You need to get a new reference to this object whenever the [MapView] is recreated.
-     */
-    private lateinit var mapboxMap: MapboxMap
-
-    /**
-     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
-     * You can use [MapboxNavigationProvider] to help create and obtain that instance.
-     */
-    private lateinit var mapboxNavigation: MapboxNavigation
-
-    /**
      * Bindings to the example layout.
      */
     private lateinit var binding: MapboxActivityUserCurrentLocationBinding
@@ -107,52 +97,45 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
 
         binding = MapboxActivityUserCurrentLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mapboxMap = binding.mapView.getMapboxMap()
+
+        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE)
+    }
+
+    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
+        onResumedObserver = object : MapboxNavigationObserver {
+            @SuppressLint("MissingPermission")
+            override fun onAttached(mapboxNavigation: MapboxNavigation) {
+                mapboxNavigation.registerLocationObserver(locationObserver)
+                mapboxNavigation.startTripSession()
+            }
+
+            override fun onDetached(mapboxNavigation: MapboxNavigation) {
+                mapboxNavigation.unregisterLocationObserver(locationObserver)
+            }
+        },
+        onInitialize = this::initNavigation
+    )
+
+    private fun initNavigation() {
+        MapboxNavigationApp.setup(
+            NavigationOptions.Builder(this)
+                .accessToken(getString(R.string.mapbox_access_token))
+                .build()
+        )
         // Instantiate the location component which is the key component to fetch location updates.
         binding.mapView.location.apply {
             setLocationProvider(navigationLocationProvider)
-
             // Uncomment this block of code if you want to see a circular puck with arrow.
-            /*
-            locationPuck = LocationPuck2D(
+            /*locationPuck = LocationPuck2D(
                 bearingImage = ContextCompat.getDrawable(
                     this@ShowCurrentLocationActivity,
                     R.drawable.mapbox_navigation_puck_icon
                 )
-            )
-            */
-
+            )*/
             // When true, the blue circular puck is shown on the map. If set to false, user
             // location in the form of puck will not be shown on the map.
             enabled = true
         }
-
-        init()
-    }
-
-    private fun init() {
-        initStyle()
-        initNavigation()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initNavigation() {
-        mapboxNavigation = MapboxNavigationProvider.create(
-            NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                .build()
-        ).apply {
-            // This is important to call as the [LocationProvider] will only start sending
-            // location updates when the trip session has started.
-            startTripSession()
-            // Register the location observer to listen to location updates received from the
-            // location provider
-            registerLocationObserver(locationObserver)
-        }
-    }
-
-    private fun initStyle() {
-        mapboxMap.loadStyleUri(Style.MAPBOX_STREETS)
     }
 
     private fun updateCamera(location: Location) {
@@ -168,13 +151,5 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
                 .build(),
             mapAnimationOptions
         )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // make sure to stop the trip session. In this case it is being called inside `onDestroy`.
-        mapboxNavigation.stopTripSession()
-        // make sure to unregister the observer you have registered.
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
     }
 }

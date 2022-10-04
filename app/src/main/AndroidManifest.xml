@@ -92,7 +92,7 @@
         android:screenOrientation="portrait"
         android:exported="false" />
 
-    <activity android:name=".signboard.MapboxSignboardActivity"
+    <activity android:name=".signboard.ShowSignboardActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />

@@ -14,18 +14,18 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentPlugin
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.history.ReplayEventBase
 import com.mapbox.navigation.core.replay.history.ReplaySetNavigationRoute
@@ -49,12 +49,12 @@ import kotlinx.coroutines.launch
 
 private const val DEFAULT_INITIAL_ZOOM = 15.0
 
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class ReplayHistoryActivity : AppCompatActivity() {
 
     private var loadNavigationJob: Job? = null
     private val navigationLocationProvider = NavigationLocationProvider()
     private lateinit var historyFileLoader: HistoryFileLoader
-    private lateinit var mapboxNavigation: MapboxNavigation
     private lateinit var mapboxReplayer: MapboxReplayer
     private lateinit var locationComponent: LocationComponentPlugin
     private lateinit var navigationCamera: NavigationCamera
@@ -162,14 +162,51 @@ class ReplayHistoryActivity : AppCompatActivity() {
         }
     }
 
+    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
+        onResumedObserver = object : MapboxNavigationObserver {
+            @SuppressLint("MissingPermission")
+            override fun onAttached(mapboxNavigation: MapboxNavigation) {
+                mapboxNavigation.registerRoutesObserver(routesObserver)
+                mapboxNavigation.registerLocationObserver(locationObserver)
+                mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+                mapboxNavigation.startTripSession()
+            }
+
+            override fun onDetached(mapboxNavigation: MapboxNavigation) {
+                mapboxNavigation.unregisterRoutesObserver(routesObserver)
+                mapboxNavigation.unregisterLocationObserver(locationObserver)
+                mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+            }
+        },
+        onInitialize = this::initNavigation
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReplayHistoryLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initNavigation()
+        historyFileLoader = HistoryFileLoader()
         handleHistoryFileSelected()
-        initMapStyle()
+
+        viewportDataSource = MapboxNavigationViewportDataSource(
+            binding.mapView.getMapboxMap()
+        )
+        val mapboxMap = binding.mapView.getMapboxMap()
+        navigationCamera = NavigationCamera(
+            mapboxMap,
+            binding.mapView.camera,
+            viewportDataSource
+        )
+        mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .zoom(DEFAULT_INITIAL_ZOOM)
+                .build()
+        )
+        mapboxMap.loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+            viewportDataSource.evaluate()
+        }
+
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == HistoryFilesActivity.REQUEST_CODE) {
                 handleHistoryFileSelected()
@@ -186,23 +223,9 @@ class ReplayHistoryActivity : AppCompatActivity() {
                 )
             activityResultLauncher.launch(activityIntent)
         }
-        setupReplayControls()
+
         viewportDataSource.overviewPadding = overviewPadding
         viewportDataSource.followingPadding = followingPadding
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mapboxNavigation.registerLocationObserver(locationObserver)
-        mapboxNavigation.registerRoutesObserver(routesObserver)
-        mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
-        mapboxNavigation.unregisterRoutesObserver(routesObserver)
-        mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
     }
 
     override fun onDestroy() {
@@ -210,66 +233,34 @@ class ReplayHistoryActivity : AppCompatActivity() {
         routeLineApi.cancel()
         routeLineView.cancel()
         mapboxReplayer.finish()
-        mapboxNavigation.onDestroy()
         if (::locationComponent.isInitialized) {
             locationComponent.removeOnIndicatorPositionChangedListener(onPositionChangedListener)
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun initMapStyle() {
-        viewportDataSource = MapboxNavigationViewportDataSource(
-            binding.mapView.getMapboxMap()
-        )
-        val mapboxMap = binding.mapView.getMapboxMap()
-        navigationCamera = NavigationCamera(
-            mapboxMap,
-            binding.mapView.camera,
-            viewportDataSource
-        )
-        mapboxMap.setCamera(
-            CameraOptions.Builder()
-                .zoom(DEFAULT_INITIAL_ZOOM)
-                .build()
-        )
-        mapboxMap.loadStyleUri(
-            NavigationStyles.NAVIGATION_DAY_STYLE,
-            {
-                locationComponent = binding.mapView.location.apply {
-                    this.locationPuck = LocationPuck2D(
-                        bearingImage = ContextCompat.getDrawable(
-                            this@ReplayHistoryActivity,
-                            R.drawable.mapbox_navigation_puck_icon
-                        )
-                    )
-                    setLocationProvider(navigationLocationProvider)
-                    enabled = true
-                }
-                locationComponent.addOnIndicatorPositionChangedListener(onPositionChangedListener)
-                viewportDataSource.evaluate()
-            },
-            object : OnMapLoadErrorListener {
-                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                    // intentionally blank
-                }
-            }
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun initNavigation() {
-        historyFileLoader = HistoryFileLoader()
-        mapboxNavigation = MapboxNavigationProvider.create(
+        MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
                 .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         )
+
         mapboxReplayer = mapboxNavigation.mapboxReplayer
+
+        locationComponent = binding.mapView.location.apply {
+            this.locationPuck = LocationPuck2D(
+                bearingImage = ContextCompat.getDrawable(
+                    this@ReplayHistoryActivity,
+                    R.drawable.mapbox_navigation_puck_icon
+                )
+            )
+            addOnIndicatorPositionChangedListener(onPositionChangedListener)
+            setLocationProvider(navigationLocationProvider)
+            enabled = true
+        }
+        setupReplayControls()
     }
 
-    @SuppressLint("MissingPermission")
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     private fun handleHistoryFileSelected() {
         loadNavigationJob = lifecycleScope.launch {
             val events = historyFileLoader
