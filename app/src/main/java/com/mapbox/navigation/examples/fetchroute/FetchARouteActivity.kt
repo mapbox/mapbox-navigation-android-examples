@@ -10,18 +10,22 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.mapbox.api.directions.v5.models.Bearing
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
-import com.mapbox.navigation.base.route.RouterCallback
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
+import com.mapbox.navigation.examples.location.ShowCurrentLocationActivity
 
 /**
  * The example demonstrates given a pair of coordinates how to fetch a route.
@@ -51,26 +55,11 @@ import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBindi
  * Note: The aim of this example is to only show how to request a route. Once the route is
  * requested, neither it is drawn nor any after affects are reflected on the map.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class FetchARouteActivity : AppCompatActivity() {
 
     private companion object {
         private const val LOG_TAG = "FetchARouteActivity"
-    }
-
-    /**
-     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
-     * You can use [MapboxNavigationProvider] to help create and obtain that instance.
-     */
-    private val mapboxNavigation by lazy {
-        if (MapboxNavigationProvider.isCreated()) {
-            MapboxNavigationProvider.retrieve()
-        } else {
-            MapboxNavigationProvider.create(
-                NavigationOptions.Builder(this)
-                    .accessToken(getString(R.string.mapbox_access_token))
-                    .build()
-            )
-        }
     }
 
     /**
@@ -87,6 +76,13 @@ class FetchARouteActivity : AppCompatActivity() {
     }
     private val destination = Point.fromLngLat(-122.4106, 37.7676)
 
+    /**
+     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
+     */
+    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
+        onInitialize = this::initNavigation
+    )
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +90,14 @@ class FetchARouteActivity : AppCompatActivity() {
 
         binding.fetchARouteButton.text = "Fetch A Route"
         binding.fetchARouteButton.setOnClickListener { fetchARoute() }
+    }
+
+    private fun initNavigation() {
+        MapboxNavigationApp.setup(
+            NavigationOptions.Builder(this)
+                .accessToken(getString(R.string.mapbox_access_token))
+                .build()
+        )
     }
 
     /**
@@ -133,26 +137,7 @@ class FetchARouteActivity : AppCompatActivity() {
             .build()
         mapboxNavigation.requestRoutes(
             routeOptions,
-            object : RouterCallback {
-                /**
-                 * The callback is triggered when the routes are ready to be displayed.
-                 */
-                override fun onRoutesReady(
-                    routes: List<DirectionsRoute>,
-                    routerOrigin: RouterOrigin
-                ) {
-                    // GSON instance used only to print the response prettily
-                    val gson = GsonBuilder().setPrettyPrinting().create()
-                    binding.responseTextView.text =
-                        """
-                            |routes ready (origin: ${routerOrigin::class.simpleName}):
-                            |${routes.map { gson.toJson(JsonParser.parseString(it.toJson())) }}
-                        """.trimMargin()
-                }
-
-                /**
-                 * The callback is triggered if the request to fetch a route was canceled.
-                 */
+            object : NavigationRouterCallback {
                 override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
                     // This particular callback is executed if you invoke
                     // mapboxNavigation.cancelRouteRequest()
@@ -160,9 +145,6 @@ class FetchARouteActivity : AppCompatActivity() {
                     binding.fetchARouteButton.visibility = VISIBLE
                 }
 
-                /**
-                 * The callback is triggered if the request to fetch a route failed for any reason.
-                 */
                 override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
                     binding.responseTextView.text =
                         """
@@ -172,13 +154,26 @@ class FetchARouteActivity : AppCompatActivity() {
                     Log.e(LOG_TAG, "route request failed with $reasons")
                     binding.fetchARouteButton.visibility = VISIBLE
                 }
+
+                override fun onRoutesReady(
+                    routes: List<NavigationRoute>,
+                    routerOrigin: RouterOrigin
+                ) {
+                    // GSON instance used only to print the response prettily
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val json = routes.map {
+                        gson.toJson(
+                            JsonParser.parseString(it.directionsRoute.toJson())
+                        )
+                    }
+                    binding.responseTextView.text =
+                        """
+                            |routes ready (origin: ${routerOrigin::class.simpleName}):
+                            |$json
+                        """.trimMargin()
+                }
             }
         )
         binding.fetchARouteButton.visibility = GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapboxNavigation.onDestroy()
     }
 }
