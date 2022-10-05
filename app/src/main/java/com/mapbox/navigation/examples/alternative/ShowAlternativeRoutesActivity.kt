@@ -26,8 +26,9 @@ import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
@@ -240,13 +241,38 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityShowAlternativeRoutesBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    val navigationCreatedObserver = object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            this@ShowAlternativeRoutesActivity.mapboxNavigation = mapboxNavigation
+            mapboxNavigation.startTripSession()
+        }
 
-        // initialize Mapbox Navigation
-        mapboxNavigation = MapboxNavigationProvider.create(
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            // mapboxNavigation is invalid
+        }
+    }
+
+    private val navigationResumedObserver = object : MapboxNavigationObserver {
+        override fun onAttached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.registerLocationObserver(locationObserver)
+            mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
+            mapboxNavigation.registerRoutesObserver(routesObserver)
+            mapboxNavigation.registerRouteAlternativesObserver(alternativesObserver)
+            binding.mapView.gestures.addOnMapClickListener(mapClickListener)
+        }
+
+        override fun onDetached(mapboxNavigation: MapboxNavigation) {
+            mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
+            mapboxNavigation.unregisterLocationObserver(locationObserver)
+            mapboxNavigation.unregisterRoutesObserver(routesObserver)
+            mapboxNavigation.unregisterRouteAlternativesObserver(alternativesObserver)
+            binding.mapView.gestures.removeOnMapClickListener(mapClickListener)
+        }
+    }
+
+    init {
+        // You can setup MapboxNavigation at any part of the app lifecycle.
+        MapboxNavigationApp.setup {
             NavigationOptions.Builder(this)
                 .accessToken(getString(R.string.mapbox_access_token))
                 .locationEngine(ReplayLocationEngine(mapboxReplayer))
@@ -256,7 +282,13 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                         .build()
                 )
                 .build()
-        )
+        }.attach(this)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityShowAlternativeRoutesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         binding.mapView.getMapboxMap().loadStyleUri(
             NavigationStyles.NAVIGATION_DAY_STYLE
@@ -270,33 +302,26 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
             findRoute(originPoint, destinationPoint)
         }
 
-        binding.mapView.gestures.addOnMapClickListener(mapClickListener)
+        MapboxNavigationApp.registerObserver(navigationCreatedObserver)
         replayOriginLocation()
-        mapboxNavigation.startTripSession()
     }
 
-    override fun onStart() {
-        super.onStart()
-        mapboxNavigation.registerLocationObserver(locationObserver)
-        mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.registerRoutesObserver(routesObserver)
-        mapboxNavigation.registerRouteAlternativesObserver(alternativesObserver)
+    override fun onResume() {
+        super.onResume()
+        MapboxNavigationApp.registerObserver(navigationResumedObserver)
     }
 
-    override fun onStop() {
-        super.onStop()
-        mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
-        mapboxNavigation.unregisterLocationObserver(locationObserver)
-        mapboxNavigation.unregisterRoutesObserver(routesObserver)
-        mapboxNavigation.unregisterRouteAlternativesObserver(alternativesObserver)
+    override fun onPause() {
+        super.onPause()
+        MapboxNavigationApp.unregisterObserver(navigationResumedObserver)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        MapboxNavigationApp.unregisterObserver(navigationCreatedObserver)
         routeLineApi.cancel()
         routeLineView.cancel()
         mapboxReplayer.finish()
-        mapboxNavigation.onDestroy()
     }
 
     /**

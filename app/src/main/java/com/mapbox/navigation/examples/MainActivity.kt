@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.examples.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
@@ -39,6 +40,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         }
 
         bindExamples()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Each example is responsible for setting up their NavigationOptions.
+        MapboxNavigationApp.disable()
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
