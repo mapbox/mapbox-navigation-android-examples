@@ -27,6 +27,7 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.replay.MapboxReplayer
+import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.history.ReplayEventBase
 import com.mapbox.navigation.core.replay.history.ReplaySetNavigationRoute
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -55,12 +56,12 @@ class ReplayHistoryActivity : AppCompatActivity() {
     private var loadNavigationJob: Job? = null
     private val navigationLocationProvider = NavigationLocationProvider()
     private lateinit var historyFileLoader: HistoryFileLoader
-    private lateinit var mapboxReplayer: MapboxReplayer
     private lateinit var locationComponent: LocationComponentPlugin
     private lateinit var navigationCamera: NavigationCamera
     private lateinit var viewportDataSource: MapboxNavigationViewportDataSource
     private lateinit var binding: ActivityReplayHistoryLayoutBinding
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private val mapboxReplayer = MapboxReplayer()
     private var isLocationInitialized = false
     private val pixelDensity = Resources.getSystem().displayMetrics.density
     private val overviewPadding: EdgeInsets by lazy {
@@ -242,10 +243,9 @@ class ReplayHistoryActivity : AppCompatActivity() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
                 .accessToken(getString(R.string.mapbox_access_token))
+                .locationEngine(ReplayLocationEngine(mapboxReplayer))
                 .build()
         )
-
-        mapboxReplayer = mapboxNavigation.mapboxReplayer
 
         locationComponent = binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
@@ -267,9 +267,10 @@ class ReplayHistoryActivity : AppCompatActivity() {
                 .loadReplayHistory(this@ReplayHistoryActivity)
             mapboxReplayer.clearEvents()
             mapboxReplayer.pushEvents(events)
+            mapboxNavigation.resetTripSession()
             binding.playReplay.visibility = View.VISIBLE
             // This is showcasing a new way to replay rides at runtime.
-            mapboxNavigation.startReplayTripSession()
+            mapboxNavigation.startTripSession()
             mapboxNavigation.setNavigationRoutes(emptyList())
             isLocationInitialized = false
             mapboxReplayer.playFirstLocation()
