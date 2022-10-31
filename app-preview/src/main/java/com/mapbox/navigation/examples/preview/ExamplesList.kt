@@ -128,7 +128,7 @@ fun Context.examplesList() = listOf(
     MapboxExample(
         ContextCompat.getDrawable(
             this,
-            R.drawable.mapbox_screenshot_hide_views_in_free_drive
+            R.drawable.mapbox_screenshot_custom_action_buttons
         ),
         getString(R.string.title_customize_action_buttons),
         getString(R.string.description_customize_action_buttons),
