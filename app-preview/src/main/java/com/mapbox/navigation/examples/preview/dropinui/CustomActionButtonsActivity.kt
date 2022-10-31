@@ -26,20 +26,21 @@ class CustomActionButtonsActivity : AppCompatActivity() {
             audioGuidanceButtonParams = MapboxExtendableButtonParams(
                 R.style.MapboxStyleAudioGuidanceButton_Circle,
                 defaultLayoutParams().apply {
+                    topMargin = 10
                     marginStart = 10
                 }
             )
             cameraModeButtonParams = MapboxExtendableButtonParams(
                 R.style.MapboxStyleCameraModeButton_Circle,
                 defaultLayoutParams().apply {
-                    topMargin = 20
+                    topMargin = 10
                     marginStart = 10
                 }
             )
             recenterButtonParams = MapboxExtendableButtonParams(
                 R.style.MapboxStyleRecenterButton_Circle,
                 defaultLayoutParams().apply {
-                    topMargin = 20
+                    topMargin = 10
                     marginStart = 10
                 }
             )
