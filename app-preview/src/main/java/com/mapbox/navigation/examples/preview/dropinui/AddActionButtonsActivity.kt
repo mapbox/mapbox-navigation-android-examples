@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.dropin.ActionButtonDescription
 import com.mapbox.navigation.dropin.ViewBinderCustomization
+import com.mapbox.navigation.dropin.actionbutton.ActionButtonDescription
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomActionButtonBinding
 import com.mapbox.navigation.ui.base.view.MapboxExtendableButton

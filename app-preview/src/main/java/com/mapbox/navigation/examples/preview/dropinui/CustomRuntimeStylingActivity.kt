@@ -55,7 +55,7 @@ class CustomRuntimeStylingActivity : AppCompatActivity() {
                     speedLimitTextAppearance =
                         ViewStyleCustomization.defaultSpeedLimitTextAppearance()
                     destinationMarkerAnnotationOptions =
-                        ViewStyleCustomization.defaultMarkerAnnotationOptions(
+                        ViewStyleCustomization.defaultDestinationMarkerAnnotationOptions(
                             this@CustomRuntimeStylingActivity
                         )
                     roadNameBackground = ViewStyleCustomization.defaultRoadNameBackground()

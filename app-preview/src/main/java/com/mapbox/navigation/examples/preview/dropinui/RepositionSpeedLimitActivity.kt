@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
-import androidx.transition.Scene
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowLocationMatcherResult
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import com.mapbox.navigation.dropin.EmptyBinder
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivitySpeedLimitRepositionBinding
 import com.mapbox.navigation.examples.preview.databinding.MapboxCustomSpeedLimitViewBinding
@@ -58,29 +58,6 @@ class RepositionSpeedLimitActivity : AppCompatActivity() {
             speedLimitBinder = EmptyBinder()
             // The line of code adds a custom speed limit view to empty LeftFrameBinder
             leftFrameBinder = CustomSpeedLimitBinder(speedLimitBinding.root)
-        }
-    }
-}
-
-/**
- * EmptyBinder that can be used to hide a view.
- */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-class EmptyBinder : UIBinder {
-    override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
-        Scene.getSceneForLayout(
-            viewGroup,
-            R.layout.mapbox_empty_layout,
-            viewGroup.context,
-        ).enter()
-        return object : MapboxNavigationObserver {
-            override fun onAttached(mapboxNavigation: MapboxNavigation) {
-                // No op for empty view binder
-            }
-
-            override fun onDetached(mapboxNavigation: MapboxNavigation) {
-                // No op for empty view binder
-            }
         }
     }
 }
