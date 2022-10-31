@@ -1,14 +1,10 @@
 package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.transition.Scene
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
-import com.mapbox.navigation.dropin.NavigationViewListener
-import com.mapbox.navigation.examples.preview.R
+import com.mapbox.navigation.dropin.EmptyBinder
+import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityHideViewsFreeDriveBinding
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 
@@ -62,29 +58,6 @@ class HideViewsInFreeDriveActivity : AppCompatActivity() {
             roadNameBinder = viewBinder
             speedLimitBinder = viewBinder
             actionButtonsBinder = viewBinder
-        }
-    }
-
-    /**
-     * EmptyBinder that can be used to hide a view.
-     */
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-    class EmptyBinder : UIBinder {
-        override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
-            Scene.getSceneForLayout(
-                viewGroup,
-                R.layout.mapbox_empty_layout,
-                viewGroup.context,
-            ).enter()
-            return object : MapboxNavigationObserver {
-                override fun onAttached(mapboxNavigation: MapboxNavigation) {
-                    // No op for empty view binder
-                }
-
-                override fun onDetached(mapboxNavigation: MapboxNavigation) {
-                    // No op for empty view binder
-                }
-            }
         }
     }
 }

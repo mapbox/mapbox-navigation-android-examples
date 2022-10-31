@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.dropin.NavigationViewListener
 import com.mapbox.navigation.dropin.ViewBinderCustomization
-import com.mapbox.navigation.dropin.binder.infopanel.InfoPanelBinder
+import com.mapbox.navigation.dropin.infopanel.InfoPanelBinder
+import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomizeInfoPanelActiveGuidanceBinding
 

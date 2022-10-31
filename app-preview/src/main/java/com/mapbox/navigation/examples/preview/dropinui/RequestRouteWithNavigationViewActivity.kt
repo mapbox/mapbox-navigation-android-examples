@@ -18,7 +18,8 @@ import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.dropin.MapViewObserver
+import com.mapbox.navigation.dropin.NavigationView
+import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityRequestRouteNavigationViewBinding
 import com.mapbox.navigation.utils.internal.ifNonNull
 

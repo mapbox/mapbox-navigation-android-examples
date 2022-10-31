@@ -17,7 +17,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomiz
 import com.mapbox.navigation.examples.preview.databinding.MapboxSpeedLimitCustomLayoutBinding
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
-import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -61,7 +60,6 @@ class MySpeedLimitComponent(private val speedLimitView: TextView) : UIComponent(
 
     override fun onAttached(mapboxNavigation: MapboxNavigation) {
         super.onAttached(mapboxNavigation)
-        val speedLimitFormatter = SpeedLimitFormatter(speedLimitView.context)
         coroutineScope.launch {
             mapboxNavigation.flowLocationMatcherResult().collect {
                 val postedSpeedLimitUnit = it.speedLimit?.speedLimitUnit
