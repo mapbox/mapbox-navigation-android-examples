@@ -48,4 +48,7 @@
   <string name="title_add_action_buttons">Add action buttons</string>
   <string name="description_add_action_buttons">The example demonstrates how to add custom action buttons to list of action buttons available via NavigationView</string>
 
+  <string name="title_play_custom_voice">Play custom voice instructions</string>
+  <string name="description_play_custom_voice">The example demonstrates how to play additional custom voice instructions via NavigationView</string>
+
 </resources>
