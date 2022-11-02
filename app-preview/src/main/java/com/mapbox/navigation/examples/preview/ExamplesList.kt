@@ -15,6 +15,7 @@ import com.mapbox.navigation.examples.preview.dropinui.CustomTripProgressActivit
 import com.mapbox.navigation.examples.preview.dropinui.CustomViewInjectionActivity
 import com.mapbox.navigation.examples.preview.dropinui.HideViewsInFreeDriveActivity
 import com.mapbox.navigation.examples.preview.dropinui.NavigationViewActivity
+import com.mapbox.navigation.examples.preview.dropinui.PlayCustomVoiceActivity
 import com.mapbox.navigation.examples.preview.dropinui.RepositionSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.dropinui.RequestRouteWithNavigationViewActivity
 import com.mapbox.navigation.examples.preview.dropinui.ToggleThemeActivity
@@ -142,5 +143,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_add_action_buttons),
         getString(R.string.description_add_action_buttons),
         AddActionButtonsActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_play_custom_voice_instruction
+        ),
+        getString(R.string.title_play_custom_voice),
+        getString(R.string.description_play_custom_voice),
+        PlayCustomVoiceActivity::class.java
     ),
 )
