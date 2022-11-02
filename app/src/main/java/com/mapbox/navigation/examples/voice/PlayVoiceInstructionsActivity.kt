@@ -127,6 +127,11 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
     /**
      * Plays the synthesized audio files with upcoming maneuver instructions
      * or uses an on-device Text-To-Speech engine to communicate the message to the driver.
+     * NOTE: do not use lazy initialization for this class since it takes some time to initialize
+     * the system services required for on-device speech synthesis. With lazy initialization
+     * there is a high risk that said services will not be available when the first instruction
+     * has to be played. [MapboxVoiceInstructionsPlayer] should be instantiated in
+     * `Activity#onCreate`.
      */
     private lateinit var voiceInstructionsPlayer: MapboxVoiceInstructionsPlayer
 
