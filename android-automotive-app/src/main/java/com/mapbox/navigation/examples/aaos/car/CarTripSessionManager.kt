@@ -1,7 +1,8 @@
 package com.mapbox.navigation.examples.aaos.car
 
 import android.annotation.SuppressLint
-import com.mapbox.androidauto.MapboxCarNavigationManager
+import androidx.car.app.CarContext
+import com.mapbox.androidauto.MapboxCarContext
 import com.mapbox.androidauto.internal.logAndroidAuto
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
@@ -11,11 +12,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-class CarStartTripSession(
-    private val carLocationPermissions: CarLocationPermissions,
-    private val carNavigationManager: MapboxCarNavigationManager
+class CarTripSessionManager(
+    private val mapboxCarContext: MapboxCarContext
 ) : UIComponent() {
 
+    private val carLocationPermissions = CarLocationPermissions()
     private var replayRouteTripSession: ReplayRouteTripSession? = null
 
     @SuppressLint("MissingPermission")
@@ -25,7 +26,7 @@ class CarStartTripSession(
         coroutineScope.launch {
             combine(
                 carLocationPermissions.grantedState,
-                carNavigationManager.autoDriveEnabledFlow,
+                mapboxCarContext.mapboxNavigationManager.autoDriveEnabledFlow,
             ) { locationPermissionGranted, autoDriveEnabled ->
                 logAndroidAuto("CarStartTripSession $locationPermissionGranted $autoDriveEnabled")
                 if (locationPermissionGranted) {
@@ -47,5 +48,9 @@ class CarStartTripSession(
     override fun onDetached(mapboxNavigation: MapboxNavigation) {
         super.onDetached(mapboxNavigation)
         replayRouteTripSession?.onDetached(mapboxNavigation)
+    }
+
+    fun requestPermissions(carContext: CarContext) {
+        carLocationPermissions.requestPermissions(carContext)
     }
 }
