@@ -3,19 +3,17 @@ package com.mapbox.navigation.examples.androidauto
 import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.androidauto.ActiveGuidanceState
-import com.mapbox.androidauto.ArrivalState
-import com.mapbox.androidauto.CarAppState
-import com.mapbox.androidauto.FreeDriveState
-import com.mapbox.androidauto.MapboxCarApp
-import com.mapbox.androidauto.RoutePreviewState
+import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.androidauto.screenmanager.MapboxScreen
+import com.mapbox.androidauto.screenmanager.MapboxScreenEvent
+import com.mapbox.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.maps.logI
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.dropin.NavigationView
-import com.mapbox.navigation.dropin.NavigationViewListener
+import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -75,28 +73,30 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
 
     private val appListener = object : NavigationViewListener() {
         override fun onFreeDrive() {
-            logI(LOG_TAG, "updateCarAppState onFreeDrive")
-            MapboxCarApp.updateCarAppState(FreeDriveState)
+            if (PermissionsManager.areLocationPermissionsGranted(navigationView!!.context)) {
+                logI(LOG_TAG, "updateCarAppState onFreeDrive")
+                MapboxScreenManager.replaceTop(MapboxScreen.FREE_DRIVE)
+            }
         }
 
         override fun onDestinationPreview() {
             logI(LOG_TAG, "updateCarAppState onDestinationPreview")
-            MapboxCarApp.updateCarAppState(FreeDriveState)
+            MapboxScreenManager.replaceTop(MapboxScreen.FREE_DRIVE)
         }
 
         override fun onRoutePreview() {
             logI(LOG_TAG, "updateCarAppState onRoutePreview")
-            MapboxCarApp.updateCarAppState(RoutePreviewState)
+            MapboxScreenManager.replaceTop(MapboxScreen.ROUTE_PREVIEW)
         }
 
         override fun onActiveNavigation() {
             logI(LOG_TAG, "updateCarAppState onActiveNavigation")
-            MapboxCarApp.updateCarAppState(ActiveGuidanceState)
+            MapboxScreenManager.replaceTop(MapboxScreen.ACTIVE_GUIDANCE)
         }
 
         override fun onArrival() {
             logI(LOG_TAG, "updateCarAppState onArrival")
-            MapboxCarApp.updateCarAppState(ArrivalState)
+            MapboxScreenManager.replaceTop(MapboxScreen.ARRIVAL)
         }
     }
 
@@ -111,7 +111,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                 "NavigationView is not set for onAttached"
             }
             if (carSyncComponent.isAttached) {
-                onCarAppStateUpdate(MapboxCarApp.carAppState.value)
+                onCarAppStateUpdate(MapboxScreenManager.current())
             }
             navigationView.addListener(appListener)
             isAttached = true
@@ -138,7 +138,7 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             carCoroutineScope = MainScope()
             isAttached = true
             carCoroutineScope?.launch {
-                MapboxCarApp.carAppState.collect { onCarAppStateUpdate(it) }
+                MapboxScreenManager.screenEvent.collect { onCarAppStateUpdate(it) }
             }
         }
 
@@ -150,23 +150,24 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         }
     }
 
-    private fun onCarAppStateUpdate(carAppState: CarAppState) {
+    private fun onCarAppStateUpdate(mapboxScreenEvent: MapboxScreenEvent?) {
+        val screenEvent = mapboxScreenEvent ?: return
         val navigationView = navigationView ?: return
-        when (carAppState) {
-            FreeDriveState -> {
+        when (screenEvent.key) {
+            MapboxScreen.FREE_DRIVE -> {
                 logI(LOG_TAG, "navigationView.api.startFreeDrive()")
                 navigationView.api.startFreeDrive()
             }
-            RoutePreviewState -> {
+            MapboxScreen.ROUTE_PREVIEW -> {
                 logI(LOG_TAG, "navigationView.api.startRoutePreview()")
                 navigationView.api.startRoutePreview()
             }
-            ActiveGuidanceState -> {
+            MapboxScreen.ACTIVE_GUIDANCE -> {
                 logI(LOG_TAG, "navigationView.api.startActiveGuidance()")
                 val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
                 navigationView.api.startActiveGuidance(routes)
             }
-            ArrivalState -> {
+            MapboxScreen.ARRIVAL -> {
                 logI(LOG_TAG, "navigationView.api.startArrival()")
                 val routes = MapboxNavigationApp.current()!!.getNavigationRoutes()
                 navigationView.api.startArrival(routes)

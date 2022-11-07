@@ -1,4 +1,4 @@
-package com.mapbox.navigation.examples.androidauto.car
+package com.mapbox.navigation.examples.androidauto
 
 import android.annotation.SuppressLint
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -9,7 +9,7 @@ import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 
 // TODO This will be deleted in favor of a public api
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-internal class ReplayRouteTripSession : MapboxNavigationObserver {
+object ReplayRouteTripSession : MapboxNavigationObserver {
     private var replayProgressObserver: ReplayProgressObserver? = null
     private var routesObserver: RoutesObserver? = null
 
