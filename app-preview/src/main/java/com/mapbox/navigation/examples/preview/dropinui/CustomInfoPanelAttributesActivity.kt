@@ -2,7 +2,6 @@ package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.ViewStyleCustomization
 import com.mapbox.navigation.dropin.ViewStyleCustomization.Companion.defaultInfoPanelBackground
 import com.mapbox.navigation.dropin.ViewStyleCustomization.Companion.defaultInfoPanelMarginEnd
@@ -31,7 +30,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomiz
  * - Grant the location permissions if not already granted
  * - Press on the floating button in the bottom right to apply custom styles
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomInfoPanelAttributesActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomizeInfopanelOptionsBinding

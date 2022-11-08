@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.transition.Fade
 import androidx.transition.Scene
 import androidx.transition.TransitionManager
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.speed.model.SpeedLimitUnit
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowLocationMatcherResult
@@ -17,7 +16,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomiz
 import com.mapbox.navigation.examples.preview.databinding.MapboxSpeedLimitCustomLayoutBinding
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -36,7 +34,6 @@ import kotlin.math.roundToInt
  *
  * The example uses replay location engine to facilitate navigation without physically moving.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomSpeedLimitActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomizeSpeedLimitBinding
@@ -54,7 +51,6 @@ class CustomSpeedLimitActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MySpeedLimitComponent(private val speedLimitView: TextView) : UIComponent() {
     private val KILO_MILES_FACTOR = 0.621371
 
@@ -84,7 +80,6 @@ class MySpeedLimitComponent(private val speedLimitView: TextView) : UIComponent(
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MySpeedLimitViewBinder : UIBinder {
     override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
         val scene = Scene.getSceneForLayout(

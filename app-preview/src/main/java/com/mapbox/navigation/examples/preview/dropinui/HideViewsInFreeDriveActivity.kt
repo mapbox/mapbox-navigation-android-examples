@@ -2,7 +2,6 @@ package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.EmptyBinder
 import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityHideViewsFreeDriveBinding
@@ -28,7 +27,6 @@ import com.mapbox.navigation.ui.base.lifecycle.UIBinder
  * - Grant the location permissions if not already granted
  * - Long press on the map to select a destination
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class HideViewsInFreeDriveActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityHideViewsFreeDriveBinding

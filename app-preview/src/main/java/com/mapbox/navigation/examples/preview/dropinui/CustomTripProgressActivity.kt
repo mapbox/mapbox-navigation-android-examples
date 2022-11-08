@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.transition.Fade
 import androidx.transition.Scene
 import androidx.transition.TransitionManager
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.formatter.DistanceFormatterOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowRouteProgress
@@ -22,7 +21,6 @@ import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -40,7 +38,6 @@ import kotlinx.coroutines.launch
  *
  * The example uses replay location engine to facilitate navigation without physically moving.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomTripProgressActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomizeTripProgressBinding
@@ -58,7 +55,6 @@ class CustomTripProgressActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MyTripProgressComponent(
     private val binding: MapboxTripProgressCustomLayoutBinding
 ) : UIComponent() {
@@ -107,7 +103,6 @@ class MyTripProgressComponent(
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MyTripProgressViewBinder : UIBinder {
     override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
         val scene = Scene.getSceneForLayout(

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.ViewBinderCustomization
 import com.mapbox.navigation.dropin.infopanel.InfoPanelBinder
 import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
@@ -33,7 +32,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomiz
  * - Press route preview button to preview the route from origin to destination
  * - Press start active navigation button to start navigating
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomInfoPanelActiveGuidanceActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomizeInfoPanelActiveGuidanceBinding
@@ -85,7 +83,6 @@ class CustomInfoPanelActiveGuidanceActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomInfoPanelBinder : InfoPanelBinder() {
     override fun onCreateLayout(
         layoutInflater: LayoutInflater,

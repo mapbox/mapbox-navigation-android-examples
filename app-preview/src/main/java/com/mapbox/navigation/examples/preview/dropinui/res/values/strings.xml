@@ -51,4 +51,7 @@
   <string name="title_play_custom_voice">Play custom voice instructions</string>
   <string name="description_play_custom_voice">The example demonstrates how to play additional custom voice instructions via NavigationView</string>
 
+  <string name="title_add_view_annotations">Add view annotations</string>
+  <string name="description_add_view_annotations">The example demonstrates how to add view annotations on top of the map via NavigationView</string>
+
 </resources>

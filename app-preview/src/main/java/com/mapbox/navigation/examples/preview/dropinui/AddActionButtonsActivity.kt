@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.ViewBinderCustomization
 import com.mapbox.navigation.dropin.actionbutton.ActionButtonDescription
 import com.mapbox.navigation.examples.preview.R
@@ -31,7 +30,6 @@ import com.mapbox.navigation.ui.base.view.MapboxExtendableButton
  * - Start the example
  * - Grant the location permissions if not already granted
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class AddActionButtonsActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomActionButtonBinding
