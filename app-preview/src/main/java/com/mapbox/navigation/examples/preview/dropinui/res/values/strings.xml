@@ -54,4 +54,7 @@
   <string name="title_add_view_annotations">Add view annotations</string>
   <string name="description_add_view_annotations">The example demonstrates how to add view annotations on top of the map via NavigationView</string>
 
+  <string name="title_customize_location_puck">Customize location puck using NavigationView</string>
+  <string name="description_customize_location_puck">The example demonstrates how to customize location puck via NavigationView</string>
+
 </resources>

@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.preview.dropinui.CustomActionButtonsActivi
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActiveGuidanceActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelAttributesActivity
+import com.mapbox.navigation.examples.preview.dropinui.CustomLocationPuckActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomLongClickActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomNavigationViewOptionsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomRuntimeStylingActivity
@@ -162,5 +163,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_add_view_annotations),
         getString(R.string.description_add_view_annotations),
         AddViewAnnotationsActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_custom_location_puck
+        ),
+        getString(R.string.title_customize_location_puck),
+        getString(R.string.description_customize_location_puck),
+        CustomLocationPuckActivity::class.java
     ),
 )

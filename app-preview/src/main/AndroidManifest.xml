@@ -89,5 +89,9 @@
       <activity
           android:name=".dropinui.AddViewAnnotationsActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".dropinui.CustomLocationPuckActivity"
+          android:exported="true" />
   </application>
 </manifest>
