@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.maps.Style
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.ViewOptionsCustomization
 import com.mapbox.navigation.dropin.ViewOptionsCustomization.Companion.defaultRouteArrowOptions
 import com.mapbox.navigation.dropin.ViewOptionsCustomization.Companion.defaultRouteLineOptions
@@ -36,7 +35,6 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
  * - Grant the location permissions if not already granted
  * - Press on the floating button in the bottom right to apply custom options
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomNavigationViewOptionsActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomizeNavigationviewOptionsBinding

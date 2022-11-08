@@ -7,7 +7,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomLongClickBinding
 
@@ -28,7 +27,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCustomLo
  * - Start the example
  * - Long click on the `MapView`
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomLongClickActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityCustomLongClickBinding

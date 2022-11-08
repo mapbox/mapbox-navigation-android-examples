@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowLocationMatcherResult
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
@@ -17,7 +16,6 @@ import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import com.mapbox.navigation.ui.speedlimit.api.MapboxSpeedLimitApi
 import com.mapbox.navigation.ui.speedlimit.model.SpeedLimitFormatter
 import com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -39,7 +37,6 @@ import kotlinx.coroutines.launch
  * - Grant the location permissions if not already granted
  * - You will see the speed limit view positioned at the bottom left of the screen
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class RepositionSpeedLimitActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivitySpeedLimitRepositionBinding
@@ -65,7 +62,6 @@ class RepositionSpeedLimitActivity : AppCompatActivity() {
 /**
  * Custom speed limit view binder
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomSpeedLimitBinder(private val view: ViewGroup) : UIBinder {
     override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
         // The empty left frame binder's height is wrap_content by default.
@@ -80,7 +76,6 @@ class CustomSpeedLimitBinder(private val view: ViewGroup) : UIBinder {
 /**
  * Custom speed limit component
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomSpeedLimitComponent(
     private val speedLimitView: MapboxSpeedLimitView,
     private val speedLimitApi: MapboxSpeedLimitApi = MapboxSpeedLimitApi(

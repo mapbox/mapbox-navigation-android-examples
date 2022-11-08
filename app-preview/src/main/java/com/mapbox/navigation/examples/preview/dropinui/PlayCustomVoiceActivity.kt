@@ -2,7 +2,6 @@ package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityPlayCustomVoiceBinding
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 
@@ -28,7 +27,6 @@ import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
  * - Start active navigation
  * - Tap on play button to play custom instructions
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class PlayCustomVoiceActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityPlayCustomVoiceBinding

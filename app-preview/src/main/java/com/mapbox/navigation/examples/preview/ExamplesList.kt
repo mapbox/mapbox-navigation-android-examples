@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.preview
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.dropinui.AddActionButtonsActivity
+import com.mapbox.navigation.examples.preview.dropinui.AddViewAnnotationsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomActionButtonsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActiveGuidanceActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomInfoPanelActivity
@@ -152,5 +153,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_play_custom_voice),
         getString(R.string.description_play_custom_voice),
         PlayCustomVoiceActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_add_view_annotations
+        ),
+        getString(R.string.title_add_view_annotations),
+        getString(R.string.description_add_view_annotations),
+        AddViewAnnotationsActivity::class.java
     ),
 )

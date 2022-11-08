@@ -8,7 +8,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.route.NavigationRoute
@@ -44,7 +43,6 @@ import com.mapbox.navigation.utils.internal.ifNonNull
  * - Long press anywhere on the map
  * - NavigationView should transition to active guidance
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class RequestRouteWithNavigationViewActivity : AppCompatActivity(), OnMapLongClickListener {
 
     private var lastLocation: Location? = null

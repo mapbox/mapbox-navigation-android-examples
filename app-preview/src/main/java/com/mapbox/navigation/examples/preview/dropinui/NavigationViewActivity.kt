@@ -2,7 +2,6 @@ package com.mapbox.navigation.examples.preview.dropinui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.NavigationView
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityNavigationViewBinding
 
@@ -21,7 +20,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityNavigati
  *
  * The example uses replay location engine to facilitate navigation without physically moving.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class NavigationViewActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityNavigationViewBinding

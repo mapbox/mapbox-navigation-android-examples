@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityToggleThemeBinding
 
 /**
@@ -26,7 +25,6 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityToggleTh
  * - Grant the location permissions if not already granted
  * - Press on the floating button in the bottom right to toggle between day and night theme
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class ToggleThemeActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityToggleThemeBinding

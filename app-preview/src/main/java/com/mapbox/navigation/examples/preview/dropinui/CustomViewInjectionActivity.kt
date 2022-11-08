@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.transition.Fade
 import androidx.transition.Scene
 import androidx.transition.TransitionManager
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowRoutesUpdated
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
@@ -43,7 +42,6 @@ import com.mapbox.navigation.ui.base.lifecycle.UIComponent
  * - Drag the info panel to see a custom view at the bottom
  * - When you go back to free drive the custom view disappears and the info panel cannot be dragged
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CustomViewInjectionActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityInjectCustomViewBinding
@@ -61,7 +59,6 @@ class CustomViewInjectionActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MyInfoPanelContentComponent(private val content: TextView) : UIComponent() {
 
     override fun onAttached(mapboxNavigation: MapboxNavigation) {
@@ -72,7 +69,6 @@ class MyInfoPanelContentComponent(private val content: TextView) : UIComponent()
     }
 }
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MyInfoPanelContentBinder : UIBinder {
     override fun bind(viewGroup: ViewGroup): MapboxNavigationObserver {
         val scene = Scene.getSceneForLayout(
