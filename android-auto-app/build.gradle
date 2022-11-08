@@ -7,7 +7,7 @@ apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 31
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.androidauto"
         minSdkVersion 23
-        targetSdkVersion 33
+        targetSdkVersion 31
         multiDexEnabled true
         versionCode gitNumberOfCommits
         versionName gitTagDescription
