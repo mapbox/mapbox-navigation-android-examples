@@ -7,7 +7,7 @@ apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -17,8 +17,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.androidauto"
         minSdkVersion 29
-        targetSdkVersion 31
-        multiDexEnabled true
+        targetSdkVersion 33
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -41,12 +40,6 @@ android {
         }
     }
 
-    dexOptions {
-        maxProcessCount 8
-        javaMaxHeapSize "2g"
-        preDexLibraries true
-    }
-
     lintOptions {
         abortOnError false
     }
@@ -57,11 +50,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation "androidx.fragment:fragment-ktx:1.4.1"
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation("androidx.appcompat:appcompat:1.5.1")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
     implementation("com.mapbox.navigation:ui-androidauto:0.16.0")
