@@ -93,5 +93,9 @@
       <activity
           android:name=".dropinui.CustomLocationPuckActivity"
           android:exported="true" />
+
+      <activity
+          android:name=".copilot.CopilotActivity"
+          android:exported="true" />
   </application>
 </manifest>
