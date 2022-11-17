@@ -32,7 +32,7 @@ import com.mapbox.navigation.examples.preview.R
 import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCopilotBinding
 
 /**
- * The example demonstrates how to integrate and work with [MapboxCopilot].
+ * This example shows how to integrate and work with [MapboxCopilot].
  * See [CopilotViewModel] to learn about [MapboxCopilot]'s lifecycle and
  * when to [MapboxCopilot.start] / [MapboxCopilot.stop].
  *
@@ -53,9 +53,9 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCopilotB
  * Data collection for Copilot is tightly coupled to the Navigation SDK Feedback, which means this is only effective
  * if the feedback events are pushed through [MapboxNavigation] Feedback APIs
  * (see [Feedback documentation](https://docs.mapbox.com/android/navigation/guides/feedback/) and
- * [MapboxNavigation.postUserFeedback] / [MapboxNavigation.provideFeedbackMetadataWrapper])
+ * [MapboxNavigation.postUserFeedback] / [MapboxNavigation.provideFeedbackMetadataWrapper]).
  *
- * If you would like to provide Search analytics into Copilot, you can send the Search events over to
+ * If you would like to provide search analytics into Copilot, you can send the Search events over to
  * Copilot (see [MapboxCopilot.push]).
  * This information would include whether a routable point for navigation was available.
  * Copilot helps understand the impact of search results to a navigation session (arrival experience, routable points).
@@ -64,37 +64,38 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCopilotB
  * as [ExperimentalPreviewMapboxNavigationAPI] and subject to change.
  * These markings will be removed when the feature is generally available.
  *
- * Copilot is a library included in the Navigation SDK that Processes full-trip-trace longitude and
- * latitude data ("**Copilot**"). Copilot is turned off by default and optionally enabled by Customer at the
- * application developer level to improve feedback resolution. If Customer enables Copilot, Customer shall obtain
- * and maintain all necessary consents and permissions, including providing notice to and obtaining End
- * Users' affirmative express consent before any access or use of Copilot.
+ * Copilot is a library included in the Navigation SDK that processes full-trip-trace longitude and
+ * latitude data ("**Copilot**"). Copilot is turned off by default, and can be enabled by you at the
+ * application-developer level to improve feedback resolution. If you enable Copilot, your organization is responsible
+ * for obtaining and maintaining all necessary consents and permissions, including providing notice to and obtaining your end
+ * users' affirmative, expressed consent before any access or use of Copilot.
  *
- * Before running the example make sure you have put your access_token in the correct place
- * inside [app-preview/src/main/res/values/mapbox_access_token.xml]. If not present then add
- * this file at the location mentioned above and add the following content to it
+ * Before running the example, insert your Mapbox access token in the correct place
+ * inside [app-preview/src/main/res/values/mapbox_access_token.xml]. If the XML file has not already been created,
+ * add the file to the mentioned location, then add the following content to it:
  *
  * <?xml version="1.0" encoding="utf-8"?>
  * <resources xmlns:tools="http://schemas.android.com/tools">
  *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
  * </resources>
  *
- * How to use the example:
+ * The following steps explain how to use the example:
  * - Start the example
  * - Look at how Navigation session state is Idle
- * - Click on Play button - starts Free Drive trip session
- * - Look at how Navigation session state changes to Free Drive and Copilot session ID is generated
- * - Click on Push Feedback button - pushes FeedbackEvent
- * - Click on Push Search button - pushes SearchResultsEvent and SearchResultUsedEvent
- * - Click on Set route button - session transitions to Active Guidance
- * - Look at how Navigation session state changes to Active Guidance and Copilot session ID is re-generated
- * - Click on Push Feedback button - pushes FeedbackEvent
- * - Click on Push Search button - pushes SearchResultsEvent and SearchResultUsedEvent
- * - Click on Stop button - session transitions to Free Drive
- * - Look at how Navigation session state changes to Active Guidance and Copilot session ID is re-generated
- * - Click on Stop button - session transitions to Idle
- * - Look at how Navigation session state changes to Idle and Copilot session ID empty
+ * - Select the Play button to start a Free Drive trip session
+ * - Look at how Navigation session state changes to Free Drive and the Copilot session ID is generated
+ * - Select the Push Feedback button to push FeedbackEvent
+ * - Select the Push Search button to push SearchResultsEvent and SearchResultUsedEvent
+ * - Select the Set Route button to transition the session to Active Guidance
+ * - Look at how Navigation session state changes to Active Guidance and the Copilot session ID is re-generated
+ * - Select the Push Feedback button to push FeedbackEvent
+ * - Select the Push Search button to push SearchResultsEvent and SearchResultUsedEvent
+ * - Select the Stop button to transition the session to Free Drive
+ * - Look at how Navigation session state changes to Active Guidance and the Copilot session ID is re-generated
+ * - Select the Stop button to transition the session to Idle
+ * - Look at how Navigation session state changes to Idle and the Copilot session ID is now empty
  */
+
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CopilotActivity : AppCompatActivity() {
 
