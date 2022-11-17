@@ -2,6 +2,7 @@ package com.mapbox.navigation.examples.preview
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import com.mapbox.navigation.examples.preview.copilot.CopilotActivity
 import com.mapbox.navigation.examples.preview.dropinui.AddActionButtonsActivity
 import com.mapbox.navigation.examples.preview.dropinui.AddViewAnnotationsActivity
 import com.mapbox.navigation.examples.preview.dropinui.CustomActionButtonsActivity
@@ -172,5 +173,14 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_customize_location_puck),
         getString(R.string.description_customize_location_puck),
         CustomLocationPuckActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_copilot
+        ),
+        getString(R.string.title_copilot),
+        getString(R.string.description_copilot),
+        CopilotActivity::class.java
     ),
 )
