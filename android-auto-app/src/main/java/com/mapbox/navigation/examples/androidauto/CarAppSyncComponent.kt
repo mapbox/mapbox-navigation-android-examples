@@ -8,7 +8,6 @@ import com.mapbox.androidauto.screenmanager.MapboxScreen
 import com.mapbox.androidauto.screenmanager.MapboxScreenEvent
 import com.mapbox.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.maps.logI
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
@@ -18,7 +17,6 @@ import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -27,7 +25,6 @@ import kotlinx.coroutines.launch
  * The libraries are defining public apis so that there can be options to determine the experience
  * while both the car and phone are displayed.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
 
     private var navigationView: NavigationView? = null

@@ -4,14 +4,12 @@ import android.annotation.SuppressLint
 import androidx.car.app.CarContext
 import com.mapbox.androidauto.MapboxCarContext
 import com.mapbox.androidauto.internal.logAndroidAuto
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarTripSessionManager(
     private val mapboxCarContext: MapboxCarContext
 ) : UIComponent() {

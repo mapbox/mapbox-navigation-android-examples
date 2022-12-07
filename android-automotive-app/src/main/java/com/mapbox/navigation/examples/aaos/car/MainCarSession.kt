@@ -10,49 +10,47 @@ import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.androidauto.MapboxCarContext
 import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
 import com.mapbox.androidauto.map.MapboxCarMapLoader
-import com.mapbox.androidauto.map.compass.CarCompassSurfaceRenderer
-import com.mapbox.androidauto.map.logo.CarLogoSurfaceRenderer
+import com.mapbox.androidauto.map.compass.CarCompassRenderer
+import com.mapbox.androidauto.map.logo.CarLogoRenderer
 import com.mapbox.androidauto.screenmanager.MapboxScreen
 import com.mapbox.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.androidauto.screenmanager.prepareScreens
-import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
-import com.mapbox.maps.extension.androidauto.MapboxCarMap
+import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 
 @OptIn(MapboxExperimental::class)
 class MainCarSession : Session() {
 
+    // The MapboxCarMapLoader will automatically load the map with night and day styles.
     private val mapboxCarMapLoader = MapboxCarMapLoader()
-    private val mapboxCarMap = MapboxCarMap().registerObserver(mapboxCarMapLoader)
-    private val mapboxCarContext = MapboxCarContext(lifecycle, mapboxCarMap).prepareScreens()
+
+    // Use the mapboxMapInstaller for installing the Session lifecycle to a MapboxCarMap.
+    // Customizations that you want to be part of any Screen with a Mapbox Map can be done here.
+    private val mapboxCarMap = mapboxMapInstaller()
+        .onCreated(mapboxCarMapLoader)
+        .onResumed(CarLogoRenderer(), CarCompassRenderer())
+        .install()
+
+    // Prepare an AndroidAuto experience with MapboxCarContext.
+    private val mapboxCarContext = MapboxCarContext(lifecycle, mapboxCarMap)
+        .prepareScreens()
+
     private val carTripSessionManager = CarTripSessionManager(mapboxCarContext)
 
     init {
         MapboxNavigationApp.attach(this)
-        val logoSurfaceRenderer = CarLogoSurfaceRenderer()
-        val compassSurfaceRenderer = CarCompassSurfaceRenderer()
         lifecycle.addObserver(object : DefaultLifecycleObserver {
 
             override fun onCreate(owner: LifecycleOwner) {
                 MapboxNavigationApp.registerObserver(carTripSessionManager)
                 carTripSessionManager.requestPermissions(carContext)
-                mapboxCarMap.setup(carContext, MapInitOptions(context = carContext))
                 checkLocationPermissions()
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
                 MapboxNavigationApp.unregisterObserver(carTripSessionManager)
-            }
-
-            override fun onResume(owner: LifecycleOwner) {
-                mapboxCarMap.registerObserver(logoSurfaceRenderer)
-                mapboxCarMap.registerObserver(compassSurfaceRenderer)
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                mapboxCarMap.unregisterObserver(logoSurfaceRenderer)
-                mapboxCarMap.unregisterObserver(compassSurfaceRenderer)
             }
         })
     }
@@ -72,6 +70,7 @@ class MainCarSession : Session() {
 
     // Handle the geo deeplink for voice activated navigation. This will handle the case when
     // you ask the head unit to "Navigate to coffee shop".
+    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (PermissionsManager.areLocationPermissionsGranted(carContext)) {

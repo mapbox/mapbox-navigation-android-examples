@@ -55,9 +55,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.5.1")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigation:ui-androidauto:0.16.0")
+    implementation("com.mapbox.navigation:ui-androidauto:0.17.1")
 
     // Android Automotive library
     // https://developer.android.com/jetpack/androidx/releases/car-app
-    implementation("androidx.car.app:app-automotive:1.1.0")
+    implementation("androidx.car.app:app-automotive:1.2.0")
 }
