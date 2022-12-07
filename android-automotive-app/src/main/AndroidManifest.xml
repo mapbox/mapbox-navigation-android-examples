@@ -22,6 +22,10 @@
             <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
 
+        <meta-data
+            android:name="com.android.automotive"
+            android:resource="@xml/automotive_app_desc" />
+
         <service
             android:name=".car.MainCarAppService"
             android:exported="true"
