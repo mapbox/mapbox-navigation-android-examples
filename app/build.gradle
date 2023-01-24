@@ -48,13 +48,24 @@ android {
 
     sourceSets {
         main {
-            def srcDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples")
+            res.srcDirs = [
+                    'src/main/res',
+                    'src/main/java/com/mapbox/navigation/examples/dropinui/res',
+                    'src/main/java/com/mapbox/navigation/examples/standalone/res',
+            ]
+
+            def standaloneDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples/standalone")
                     .listFiles({ it.isDirectory() } as FileFilter)
                     .collect { it.name }
+            standaloneDirs.forEach {
+                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/standalone/' + it + '/res'
+            }
 
-            res.srcDirs = ['src/main/res']
-            srcDirs.forEach {
-                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/' + it + '/res'
+            def dropInUIDirs = file("$projectDir/src/main/java/com/mapbox/navigation/examples/dropinui")
+                    .listFiles({ it.isDirectory() } as FileFilter)
+                    .collect { it.name }
+            dropInUIDirs.forEach {
+                res.srcDirs += 'src/main/java/com/mapbox/navigation/examples/dropinui/' + it + '/res'
             }
         }
     }
@@ -63,6 +74,7 @@ android {
 dependencies {
     // Mapbox Navigation SDK
     implementation "com.mapbox.navigation:android:2.10.1"
+    implementation "com.mapbox.navigation:ui-dropin:2.10.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21"
     implementation "androidx.core:core-ktx:1.9.0"
     implementation "com.google.android.material:material:1.7.0"
