@@ -10,17 +10,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
 import com.mapbox.navigation.examples.databinding.ActivityMainBinding
+import com.mapbox.navigation.examples.dropinui.DropInUIActivity
+import com.mapbox.navigation.examples.standalone.StandaloneActivity
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
 
     private val permissionsManager = PermissionsManager(this)
     private lateinit var binding: ActivityMainBinding
-    private lateinit var examplesAdapter: MapboxExamplesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +38,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
             permissionsManager.requestLocationPermissions(this)
         }
 
-        bindExamples()
+        binding.cardDropIn.setOnClickListener {
+            val intent = Intent(this, DropInUIActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.cardStandalone.setOnClickListener {
+            val intent = Intent(this, StandaloneActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
@@ -91,21 +99,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
                 permissionsToRequest.toTypedArray(),
                 10
             )
-        }
-    }
-
-    private fun bindExamples() {
-        val examples = examplesList()
-        examplesAdapter = MapboxExamplesAdapter(examples) {
-            startActivity(Intent(this@MainActivity, examples[it].activity))
-        }
-        binding.examplesRecycler.apply {
-            layoutManager = LinearLayoutManager(
-                this@MainActivity,
-                LinearLayoutManager.VERTICAL,
-                false
-            )
-            adapter = examplesAdapter
         }
     }
 

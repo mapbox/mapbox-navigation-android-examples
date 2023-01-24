@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="drop_in_ui_title">Drop-In UI</string>
+  <string name="drop_in_ui_description">The examples hosted under this section demonstrate the usage of Drop-In UI offered by the Mapbox Navigation SDK. Refer these examples if you want to use an in-built navigation experience, with the tools to replace and inject custom views as required by your app.</string>
+
+  <string name="standalone_components_title">Standalone Components</string>
+  <string name="standalone_components_description">The examples hosted under this section demonstrate the usage of standalone components offered by the Mapbox Navigation SDK. Refer these examples if you want to build a fully custom navigation experience from scratch using the components provided.</string>
+</resources>

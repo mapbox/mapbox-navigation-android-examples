@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="title_custom_runtime_styling">Change styling of UI components at runtime</string>
+  <string name="description_custom_runtime_styling">The example demonstrates how to change the styling of UI components used by navigation view at runtime</string>
+
+  <string name="title_customize_navigation_view_options">Change Navigation View Options at runtime</string>
+  <string name="description_customize_navigation_view_options">The example demonstrates how to change navigation view options at runtime</string>
+
+  <string name="title_toggle_theme">Toggle theme using NavigationView</string>
+  <string name="description_toggle_theme">The example demonstrates how NavigationView observes changes to app day and night theme</string>
+
+  <string name="title_customize_info_panel_attributes">Customize info panel attributes using NavigationView</string>
+  <string name="description_customize_info_panel_attributes">The example demonstrates how to change margins, background and peek height of the default info panel.</string>
+</resources>

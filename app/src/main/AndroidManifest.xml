@@ -19,52 +19,62 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".fetchroute.FetchARouteActivity"
+    <activity android:name=".dropinui.DropInUIActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".location.ShowCurrentLocationActivity"
+    <activity android:name=".standalone.StandaloneActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".routeline.RenderRouteLineActivity"
+    <activity android:name=".standalone.fetchroute.FetchARouteActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".camera.ShowCameraTransitionsActivity"
+    <activity android:name=".standalone.location.ShowCurrentLocationActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".tripprogress.ShowTripProgressActivity"
+    <activity android:name=".standalone.routeline.RenderRouteLineActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".maneuvers.ShowManeuversActivity"
+    <activity android:name=".standalone.camera.ShowCameraTransitionsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".voice.PlayVoiceInstructionsActivity"
+    <activity android:name=".standalone.tripprogress.ShowTripProgressActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".speedlimit.ShowSpeedLimitActivity"
+    <activity android:name=".standalone.maneuvers.ShowManeuversActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".building.ShowBuildingExtrusionsActivity"
+    <activity android:name=".standalone.voice.PlayVoiceInstructionsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".turnbyturn.TurnByTurnExperienceActivity"
+    <activity android:name=".standalone.speedlimit.ShowSpeedLimitActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
+
+    <activity android:name=".standalone.building.ShowBuildingExtrusionsActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
+
+    <activity android:name=".standalone.turnbyturn.TurnByTurnExperienceActivity"
         android:exported="false"
         />
 
@@ -73,46 +83,122 @@
         android:exported="false"
         />
 
-    <activity android:name=".arrival.CustomArrivalActivity"
+    <activity android:name=".standalone.arrival.CustomArrivalActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".status.ShowStatusActivity"
+    <activity android:name=".standalone.status.ShowStatusActivity"
         android:screenOrientation="portrait"
       android:exported="false"
         />
 
-    <activity android:name=".status.ShowCustomStatusActivity"
+    <activity android:name=".standalone.status.ShowCustomStatusActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".junctions.ShowJunctionsActivity"
-        android:screenOrientation="portrait"
-        android:exported="false" />
-
-    <activity android:name=".signboard.ShowSignboardActivity"
-        android:screenOrientation="portrait"
-        android:exported="false"
-        />
-
-    <activity android:name=".alternative.ShowAlternativeRoutesActivity"
+    <activity android:name=".standalone.junctions.ShowJunctionsActivity"
         android:screenOrientation="portrait"
         android:exported="false" />
 
-    <activity android:name=".replay.ReplayHistoryActivity"
+    <activity android:name=".standalone.signboard.ShowSignboardActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".replay.HistoryFilesActivity"
+    <activity android:name=".standalone.alternative.ShowAlternativeRoutesActivity"
+        android:screenOrientation="portrait"
+        android:exported="false" />
+
+    <activity android:name=".standalone.replay.ReplayHistoryActivity"
+        android:screenOrientation="portrait"
         android:exported="false"
         />
 
-    <activity android:name=".preview.PreviewActivity"
+    <activity android:name=".standalone.replay.HistoryFilesActivity"
         android:exported="false"
         />
+
+    <activity android:name=".standalone.preview.PreviewActivity"
+        android:exported="false"
+        />
+
+    <activity
+        android:name=".dropinui.basic.NavigationViewActivity"
+        android:exported="true"/>
+
+    <activity
+        android:name=".dropinui.styling.CustomRuntimeStylingActivity"
+        android:exported="true"/>
+
+    <activity
+        android:name=".dropinui.styling.CustomNavigationViewOptionsActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomSpeedLimitActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomTripProgressActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewinjection.CustomViewInjectionActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.styling.ToggleThemeActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomInfoPanelActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.styling.CustomInfoPanelAttributesActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.requestroute.RequestRouteWithNavigationViewActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.reposition.RepositionSpeedLimitActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewinjection.CustomLongClickActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.reposition.HideViewsInFreeDriveActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomInfoPanelActiveGuidanceActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomActionButtonsActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewinjection.AddActionButtonsActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.PlayCustomVoiceActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewinjection.AddViewAnnotationsActivity"
+        android:exported="true" />
+
+    <activity
+        android:name=".dropinui.viewreplacement.CustomLocationPuckActivity"
+        android:exported="true" />
   </application>
 
 </manifest>
