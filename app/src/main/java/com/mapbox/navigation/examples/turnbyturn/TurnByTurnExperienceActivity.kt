@@ -14,6 +14,7 @@ import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
 import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.utils.PolylineUtils
@@ -749,9 +750,12 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     }
 
     private fun updateWalkingLineSource(walkingPathGeometry: List<Point>) {
+        val features: FeatureCollection = if (walkingPathGeometry.isEmpty()) {
+            FeatureCollection.fromFeatures(listOf())
+        } else FeatureCollection.fromFeature(Feature.fromGeometry(LineString.fromLngLats(walkingPathGeometry)))
         binding.mapView.getMapboxMap().getStyle()?.let { style ->
             style.getSourceAs<GeoJsonSource>(WALKING_ROUTE_SOURCE_ID)
-                ?.feature(Feature.fromGeometry(LineString.fromLngLats(walkingPathGeometry)))
+                ?.featureCollection(features)
         }
     }
 }
