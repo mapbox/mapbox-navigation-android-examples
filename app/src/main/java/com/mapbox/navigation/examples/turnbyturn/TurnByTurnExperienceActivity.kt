@@ -9,11 +9,22 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import com.mapbox.geojson.utils.PolylineUtils
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.extension.style.layers.addLayer
+import com.mapbox.maps.extension.style.layers.generated.lineLayer
+import com.mapbox.maps.extension.style.layers.properties.generated.LineCap
+import com.mapbox.maps.extension.style.layers.properties.generated.LineJoin
+import com.mapbox.maps.extension.style.sources.addSource
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.gestures
@@ -29,6 +40,7 @@ import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.directions.session.RoutesExtra
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
@@ -75,6 +87,9 @@ import com.mapbox.navigation.ui.voice.model.SpeechValue
 import com.mapbox.navigation.ui.voice.model.SpeechVolume
 import java.util.Date
 import java.util.Locale
+
+
+private const val WALKING_ROUTE_SOURCE_ID = "walking-route-source"
 
 /**
  * This example demonstrates a basic turn-by-turn navigation experience by putting together some UI elements to showcase
@@ -383,6 +398,14 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             // update the camera position to account for the new route
             viewportDataSource.onRouteChanged(routeUpdateResult.navigationRoutes.first())
             viewportDataSource.evaluate()
+
+            val primaryRoute = routeUpdateResult.navigationRoutes.first()
+            if (
+                routeUpdateResult.reason == RoutesExtra.ROUTES_UPDATE_REASON_NEW
+                && primaryRoute.routeOptions.profile() != DirectionsCriteria.PROFILE_WALKING
+            ) {
+                calculateWalkingRouteFromTargetToDestination(primaryRoute)
+            }
         } else {
             // remove the route line and route arrow from the map
             val style = binding.mapView.getMapboxMap().getStyle()
@@ -399,6 +422,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             // remove the route reference from camera position evaluations
             viewportDataSource.clearRouteData()
             viewportDataSource.evaluate()
+            updateWalkingLineSource(emptyList())
         }
     }
 
@@ -526,6 +550,22 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                 findRoute(point)
                 true
             }
+            it.addSource(
+                GeoJsonSource.Builder(WALKING_ROUTE_SOURCE_ID)
+                    .feature(
+                        Feature.fromGeometry(LineString.fromLngLats(emptyList()))
+                    )
+                    .build()
+            )
+            it.addLayer(
+                lineLayer("linelayer", WALKING_ROUTE_SOURCE_ID) {
+                    lineCap(LineCap.ROUND)
+                    lineJoin(LineJoin.ROUND)
+                    lineOpacity(0.7)
+                    lineWidth(8.0)
+                    lineColor("#888")
+                }
+            )
         }
 
         // initialize view interactions
@@ -670,5 +710,48 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         binding.maneuverView.visibility = View.INVISIBLE
         binding.routeOverview.visibility = View.INVISIBLE
         binding.tripProgressCard.visibility = View.INVISIBLE
+    }
+
+    private fun calculateWalkingRouteFromTargetToDestination(drivingNavigaitonRoute: NavigationRoute) {
+        updateWalkingLineSource(emptyList())
+
+        val walkingRouteRequest = RouteOptions.builder()
+            .applyDefaultNavigationOptions(DirectionsCriteria.PROFILE_WALKING)
+            .applyLanguageAndVoiceUnitOptions(this)
+            .coordinatesList(
+                listOf(
+                    drivingNavigaitonRoute.waypoints!!.last().location(),
+                    drivingNavigaitonRoute.routeOptions.coordinatesList().last()
+                )
+            )
+            .build()
+        mapboxNavigation.requestRoutes(walkingRouteRequest, object : NavigationRouterCallback {
+            override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+
+            }
+
+            override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
+
+            }
+
+            override fun onRoutesReady(
+                routes: List<NavigationRoute>,
+                routerOrigin: RouterOrigin
+            ) {
+                // TODO: move decoding to a separate thread
+                val walkingPathGeometry = PolylineUtils.decode(
+                    routes.first().directionsRoute.geometry()!!,
+                    6
+                )
+                updateWalkingLineSource(walkingPathGeometry)
+            }
+        })
+    }
+
+    private fun updateWalkingLineSource(walkingPathGeometry: List<Point>) {
+        binding.mapView.getMapboxMap().getStyle()?.let { style ->
+            style.getSourceAs<GeoJsonSource>(WALKING_ROUTE_SOURCE_ID)
+                ?.feature(Feature.fromGeometry(LineString.fromLngLats(walkingPathGeometry)))
+        }
     }
 }
