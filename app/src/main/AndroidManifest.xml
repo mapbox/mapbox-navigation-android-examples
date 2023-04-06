@@ -78,6 +78,10 @@
         android:exported="false"
         />
 
+    <activity android:name=".standalone.customforegroundservice.CustomForegroundServiceActivity"
+        android:exported="false"
+        />
+
     <activity android:name=".multiplewaypoints.MultipleWaypointsActivity"
         android:screenOrientation="portrait"
         android:exported="false"

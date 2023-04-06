@@ -1,0 +1,6 @@
+<resources>
+
+    <string name="title_custom_foreground_service">Example of running navigation session in the background.</string>
+    <string name="description_custom_foreground_service">The example starts a foreground service which keeps the session running until a user explicitly stops it.</string>
+
+</resources>
