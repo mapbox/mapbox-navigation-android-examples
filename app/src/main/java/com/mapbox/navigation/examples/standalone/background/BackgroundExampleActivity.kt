@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
+
 package com.mapbox.navigation.examples.standalone.background
 
 import android.annotation.SuppressLint
@@ -35,10 +37,8 @@ import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.core.replay.MapboxReplayer
-import com.mapbox.navigation.core.replay.ReplayLocationEngine
-import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
+import com.mapbox.navigation.core.replay.route.ReplayRouteSession
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.NavigationSessionState
@@ -57,6 +57,7 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
+import com.mapbox.navigation.ui.voice.api.MapboxAudioGuidance
 import com.mapbox.navigation.ui.voice.api.MapboxSpeechApi
 import com.mapbox.navigation.ui.voice.api.MapboxVoiceInstructionsPlayer
 import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
@@ -91,27 +92,7 @@ import java.util.Locale
  * - At any point in time you can finish guidance or select a new destination.
  * - You can use buttons to mute/unmute voice instructions, recenter the camera, or show the route overview.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class BackgroundExampleActivity : AppCompatActivity() {
-
-    private companion object {
-        private const val BUTTON_ANIMATION_DURATION = 1500L
-    }
-
-    /**
-     * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
-     */
-    private val mapboxReplayer = MapboxReplayer()
-
-    /**
-     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
-     */
-    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
-
-    /**
-     * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
-     */
-    private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
 
     /**
      * Bindings to the example layout.
@@ -213,11 +194,19 @@ class BackgroundExampleActivity : AppCompatActivity() {
             // it's best to immediately move the camera to the current user location
             if (!firstLocationUpdateReceived) {
                 firstLocationUpdateReceived = true
-                navigationCamera.requestNavigationCameraToOverview(
-                    stateTransitionOptions = NavigationCameraTransitionOptions.Builder()
-                        .maxDuration(0) // instant transition
-                        .build()
-                )
+                val transitionOptions = NavigationCameraTransitionOptions.Builder()
+                    .maxDuration(0) // instant transition
+                    .build()
+                if (mapboxNavigation.getNavigationRoutes().isNotEmpty()) {
+                    navigationCamera.requestNavigationCameraToFollowing(
+                        stateTransitionOptions = transitionOptions
+                    )
+                } else {
+                    navigationCamera.requestNavigationCameraToOverview(
+                        stateTransitionOptions = transitionOptions
+                    )
+                }
+
             }
         }
     }
@@ -285,7 +274,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                 mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerLocationObserver(locationObserver)
                 mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
-                mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
                 mapboxNavigation.registerNavigationSessionStateObserver(navigationSessionStateObserver)
                 // start the trip session to being receiving location updates in free drive
                 // and later when a route is set also receiving route progress updates
@@ -296,7 +284,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                 mapboxNavigation.unregisterRoutesObserver(routesObserver)
                 mapboxNavigation.unregisterLocationObserver(locationObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
-                mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
                 mapboxNavigation.unregisterNavigationSessionStateObserver(navigationSessionStateObserver)
             }
         },
@@ -360,7 +347,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxReplayer.finish()
         routeLineApi.cancel()
         routeLineView.cancel()
     }
@@ -372,10 +358,9 @@ class BackgroundExampleActivity : AppCompatActivity() {
             MapboxNavigationApp.setup(
                 NavigationOptions.Builder(this)
                     .accessToken(getString(R.string.mapbox_access_token))
-                    // comment out the location engine setting block to disable simulation
-                    .locationEngine(replayLocationEngine)
                     .build()
             )
+
         }
 
         // initialize location puck
@@ -389,22 +374,21 @@ class BackgroundExampleActivity : AppCompatActivity() {
             )
             enabled = true
         }
-
-        replayOriginLocation()
     }
 
-    private fun replayOriginLocation() {
-        mapboxReplayer.pushEvents(
-            listOf(
-                ReplayRouteMapper.mapToUpdateLocation(
-                    Date().time.toDouble(),
-                    Point.fromLngLat(-122.39726512303575, 37.785128345296805)
-                )
-            )
-        )
-        mapboxReplayer.playFirstLocation()
-        mapboxReplayer.playbackSpeed(3.0)
-    }
+//    private fun replayTestLocation() {
+//        mapboxReplayer.pushEvents(
+//            listOf(
+//                ReplayRouteMapper.mapToUpdateLocation(
+//                    Date().time.toDouble(),
+//                    Point.fromLngLat(-122.39726512303575, 37.785128345296805)
+//                )
+//            )
+//        )
+//        mapboxReplayer.playFirstLocation()
+//        mapboxReplayer.playbackSpeed(3.0)
+//        mapboxNavigation.mapboxReplayer.
+//    }
 
     private fun findRoute(destination: Point) {
         val originLocation = navigationLocationProvider.lastLocation
@@ -458,17 +442,13 @@ class BackgroundExampleActivity : AppCompatActivity() {
         // set routes, where the first route in the list is the primary route that
         // will be used for active guidance
         mapboxNavigation.setNavigationRoutes(routes)
-
-        // move the camera to overview when new route is available
-        navigationCamera.requestNavigationCameraToOverview()
+        navigationCamera.requestNavigationCameraToFollowing()
     }
 
     private fun clearRouteAndStopNavigation() {
         // clear
         mapboxNavigation.setNavigationRoutes(listOf())
-
-        // stop simulation
-        mapboxReplayer.stop()
+        navigationCamera.requestNavigationCameraToOverview()
     }
 }
 
@@ -476,48 +456,31 @@ class BackgroundService : Service(), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
 
+    val mapboxAudioGuidanceComponent = MapboxAudioGuidance.create()
+
     private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
         onCreatedObserver = object : MapboxNavigationObserver {
             @SuppressLint("MissingPermission")
             override fun onAttached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.registerVoiceInstructionsObserver(voiceInstructionsObserver)
                 mapboxNavigation.registerNavigationSessionStateObserver(navigationSessionStateObserver)
+                mapboxAudioGuidanceComponent.onAttached(mapboxNavigation)
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.unregisterVoiceInstructionsObserver(voiceInstructionsObserver)
                 mapboxNavigation.unregisterNavigationSessionStateObserver(navigationSessionStateObserver)
+                mapboxAudioGuidanceComponent.onDetached(mapboxNavigation)
             }
         }
     )
 
     override fun onCreate() {
         super.onCreate()
-
-        // initialize voice instructions api and the voice instruction player
-        speechApi = MapboxSpeechApi(
-            this,
-            getString(R.string.mapbox_access_token),
-            Locale.US.language
-        )
-        voiceInstructionsPlayer = MapboxVoiceInstructionsPlayer(
-            this,
-            getString(R.string.mapbox_access_token),
-            Locale.US.language
-        )
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        return START_STICKY
     }
 
     override fun onDestroy() {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
-        speechApi.cancel()
-        voiceInstructionsPlayer.shutdown()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -527,63 +490,6 @@ class BackgroundService : Service(), LifecycleOwner {
     override fun getLifecycle(): Lifecycle {
         return lifecycleRegistry
     }
-
-    /**
-     * Extracts message that should be communicated to the driver about the upcoming maneuver.
-     * When possible, downloads a synthesized audio file that can be played back to the driver.
-     */
-    private lateinit var speechApi: MapboxSpeechApi
-
-    /**
-     * Plays the synthesized audio files with upcoming maneuver instructions
-     * or uses an on-device Text-To-Speech engine to communicate the message to the driver.
-     * NOTE: do not use lazy initialization for this class since it takes some time to initialize
-     * the system services required for on-device speech synthesis. With lazy initialization
-     * there is a high risk that said services will not be available when the first instruction
-     * has to be played. [MapboxVoiceInstructionsPlayer] should be instantiated in
-     * `Activity#onCreate`.
-     */
-    private lateinit var voiceInstructionsPlayer: MapboxVoiceInstructionsPlayer
-
-    /**
-     * Observes when a new voice instruction should be played.
-     */
-    private val voiceInstructionsObserver = VoiceInstructionsObserver { voiceInstructions ->
-        speechApi.generate(voiceInstructions, speechCallback)
-    }
-
-    /**
-     * Based on whether the synthesized audio file is available, the callback plays the file
-     * or uses the fall back which is played back using the on-device Text-To-Speech engine.
-     */
-    private val speechCallback =
-        MapboxNavigationConsumer<Expected<SpeechError, SpeechValue>> { expected ->
-            expected.fold(
-                { error ->
-                    // play the instruction via fallback text-to-speech engine
-                    voiceInstructionsPlayer.play(
-                        error.fallback,
-                        voiceInstructionsPlayerCallback
-                    )
-                },
-                { value ->
-                    // play the sound file from the external generator
-                    voiceInstructionsPlayer.play(
-                        value.announcement,
-                        voiceInstructionsPlayerCallback
-                    )
-                }
-            )
-        }
-
-    /**
-     * When a synthesized audio file was downloaded, this callback cleans up the disk after it was played.
-     */
-    private val voiceInstructionsPlayerCallback =
-        MapboxNavigationConsumer<SpeechAnnouncement> { value ->
-            // remove already consumed file to free-up space
-            speechApi.clean(value)
-        }
 
     private val navigationSessionStateObserver = NavigationSessionStateObserver { state ->
         if (state !is NavigationSessionState.ActiveGuidance) {
