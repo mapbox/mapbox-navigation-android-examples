@@ -56,7 +56,7 @@ import com.mapbox.navigation.ui.voice.api.MapboxAudioGuidance
 
 /**
  * This example demonstrates how to keep navigation session running while activity is destroyed.
- * The navigation stops only when user explicitly stop is by pressing stop button.
+ * The active guidance session stops only when user explicitly stop is by pressing the "stop" button.
  *
  * Before running the example make sure you have put your access_token in the correct place
  * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
@@ -75,10 +75,9 @@ import com.mapbox.navigation.ui.voice.api.MapboxAudioGuidance
  * How to use this example:
  * - You can long-click the map to select a destination.
  * - The guidance will start to the selected destination while simulating location updates.
- * You can disable simulation by commenting out the [replayLocationEngine] setter in [NavigationOptions].
- * Then, the device's real location will be used.
- * - At any point in time you can finish guidance or select a new destination.
- * - You can use buttons to mute/unmute voice instructions, recenter the camera, or show the route overview.
+ * - You can leave activity but active guidance session will be running.
+ * - Press the "Stop" button to finish the session. If you leave activity during free drive session,
+ * MapboxNavigation will be destroyed.
  */
 class BackgroundExampleActivity : AppCompatActivity() {
 
@@ -333,8 +332,13 @@ class BackgroundExampleActivity : AppCompatActivity() {
     }
 
     private fun initNavigation() {
-        // This examples app has many examples with unique MapboxNavigation setup
-        // For the SDK consumers apps we recommend to put setup in Applicaiton#onCreate
+        // This application has many examples with unique MapboxNavigation setup, each activity
+        // setup it in its-own way.
+        // For the SDK consumers apps we recommend to put setup in Application#onCreate.
+        // Current "hacky" setup won't recreate `MapboxNavigation` if you've already
+        // run a different example.
+        // To make this example run properly, restart the app's process if any other example has
+        // been launched already.
         if (MapboxNavigationApp.current() == null) {
             MapboxNavigationApp.setup(
                 NavigationOptions.Builder(this)
@@ -410,6 +414,7 @@ class BackgroundExampleActivity : AppCompatActivity() {
         // will be used for active guidance
         mapboxNavigation.setNavigationRoutes(routes)
         navigationCamera.requestNavigationCameraToFollowing()
+        // start background service which won't let `MapboxNavigation` to be destroyed
         startService(Intent(this, BackgroundService::class.java))
     }
 
@@ -417,10 +422,19 @@ class BackgroundExampleActivity : AppCompatActivity() {
         // clear
         mapboxNavigation.setNavigationRoutes(listOf())
         navigationCamera.requestNavigationCameraToOverview()
+        // Stop background service. `MapboxNavigation` will be destroyed as soon as user leaves
+        // current activity
         stopService(Intent(this, BackgroundService::class.java))
     }
 }
 
+/***
+ * The idea of this service is to let `MapboxNavigationApp` know that MapboxNavigation is in use
+ * and should not be destroyed. While active guidance session is running, MapboxNavigation keeps
+ * its own foreground service running.
+ * You can disable built-in foreground service by calling `MapboxNavigation.startTripSession(false)`
+ * and implement notification on your own.
+ */
 class BackgroundService : Service(), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
