@@ -78,6 +78,10 @@
         android:exported="false"
         />
 
+    <service android:name=".standalone.customforegroundservice.CustomForegroundService"
+      android:exported="false"
+      />
+
     <activity android:name=".standalone.customforegroundservice.CustomForegroundServiceActivity"
         android:exported="false"
         />
