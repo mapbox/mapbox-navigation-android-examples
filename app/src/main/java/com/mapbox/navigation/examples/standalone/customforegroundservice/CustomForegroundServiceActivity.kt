@@ -12,6 +12,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationChannelCompat
@@ -253,8 +254,8 @@ class CustomForegroundServiceActivity : AppCompatActivity() {
             routeLineApi.setNavigationRoutes(
                 routeUpdateResult.navigationRoutes
             ) { value ->
-                binding.mapView.getMapboxMap().getStyle()?.apply {
-                    routeLineView.renderRouteDrawData(this, value)
+                binding.mapView.getMapboxMap().getStyle { style ->
+                    routeLineView.renderRouteDrawData(style, value)
                 }
             }
 
@@ -289,7 +290,7 @@ class CustomForegroundServiceActivity : AppCompatActivity() {
                 mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
                 // start the trip session to being receiving location updates in free drive
                 // and later when a route is set also receiving route progress updates
-                mapboxNavigation.startTripSession(withForegroundService = false)
+                mapboxNavigation.startTripSession(withForegroundService = true)
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
@@ -382,11 +383,11 @@ class CustomForegroundServiceActivity : AppCompatActivity() {
         binding.soundButton.unmute()
 
         val serviceIntent = Intent(this, CustomForegroundService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(serviceIntent)
+//        } else {
             startService(serviceIntent)
-        }
+//        }
     }
 
     override fun onDestroy() {
@@ -534,32 +535,6 @@ class CustomForegroundService : Service(), LifecycleOwner {
             getString(R.string.mapbox_access_token),
             Locale.US.language
         )
-
-        val pendingIntent: PendingIntent =
-            Intent(this, CustomForegroundServiceActivity::class.java)
-                .let { notificationIntent ->
-                    PendingIntent.getActivity(
-                        this, 0, notificationIntent,
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                }
-
-        val channel = NotificationChannelCompat
-            .Builder("nav-service", NotificationManager.IMPORTANCE_DEFAULT)
-            .setName("Nav session")
-            .build()
-        NotificationManagerCompat.from(this).createNotificationChannel(channel)
-
-        val notification: Notification = NotificationCompat.Builder(this, "nav-service")
-            .setContentTitle("Navigation session")
-            .setContentText("Is running")
-            .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.mapbox_navigation_puck_icon)
-            .setContentIntent(pendingIntent)
-            .setTicker("ticker")
-            .build()
-
-        startForeground(1, notification)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
