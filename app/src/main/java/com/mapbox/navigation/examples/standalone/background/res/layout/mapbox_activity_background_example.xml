@@ -16,12 +16,12 @@
 
     <Button
         android:id="@+id/stop"
-        android:layout_width="48dp"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_gravity="end|center_vertical"
         android:layout_marginEnd="12dp"
-        android:text="Stop navigation session"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/stop_navigation_session_button"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
