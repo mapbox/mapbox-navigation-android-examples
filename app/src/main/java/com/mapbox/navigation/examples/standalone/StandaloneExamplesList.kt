@@ -22,6 +22,7 @@ import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
 import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
 import com.mapbox.navigation.examples.standalone.background.BackgroundExampleActivity
+import com.mapbox.navigation.examples.standalone.turnbyturn.TurnByTurnExperienceActivity
 import com.mapbox.navigation.examples.standalone.voice.PlayVoiceInstructionsActivity
 
 fun Context.examplesList() = listOf(
@@ -83,7 +84,7 @@ fun Context.examplesList() = listOf(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_tbt_experience),
         getString(R.string.title_turn_by_turn),
         getString(R.string.description_turn_by_turn),
-        BackgroundExampleActivity::class.java
+        TurnByTurnExperienceActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_route_preview),
@@ -140,9 +141,9 @@ fun Context.examplesList() = listOf(
         ReplayHistoryActivity::class.java
     ),
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_tbt_experience),
-        getString(R.string.description_custom_foreground_service),
-        getString(R.string.description_turn_by_turn),
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_background_navigation),
+        getString(R.string.title_background_navigation),
+        getString(R.string.description_background_navigation),
         BackgroundExampleActivity::class.java
     ),
 )
