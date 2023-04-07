@@ -17,7 +17,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
-import com.mapbox.bindgen.Expected
 import com.mapbox.geojson.Point
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.plugin.LocationPuck2D
@@ -37,17 +36,14 @@ import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.replay.route.ReplayRouteSession
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.NavigationSessionState
 import com.mapbox.navigation.core.trip.session.NavigationSessionStateObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
-import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityCustomForegroundServiceBinding
-import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
@@ -58,13 +54,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.voice.api.MapboxAudioGuidance
-import com.mapbox.navigation.ui.voice.api.MapboxSpeechApi
-import com.mapbox.navigation.ui.voice.api.MapboxVoiceInstructionsPlayer
-import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
-import com.mapbox.navigation.ui.voice.model.SpeechError
-import com.mapbox.navigation.ui.voice.model.SpeechValue
-import java.util.Date
-import java.util.Locale
 
 /**
  * This example demonstrates how to keep navigation session running while activity is destroyed.
@@ -211,13 +200,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
         }
     }
 
-    private val navigationSessionStateObserver = NavigationSessionStateObserver { state ->
-        if (state is NavigationSessionState.ActiveGuidance) {
-            val serviceIntent = Intent(this, BackgroundService::class.java)
-            startService(serviceIntent)
-        }
-    }
-
     /**
      * Gets notified with progress along the currently active route.
      */
@@ -274,7 +256,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                 mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerLocationObserver(locationObserver)
                 mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
-                mapboxNavigation.registerNavigationSessionStateObserver(navigationSessionStateObserver)
                 // start the trip session to being receiving location updates in free drive
                 // and later when a route is set also receiving route progress updates
                 mapboxNavigation.startTripSession(withForegroundService = true)
@@ -284,7 +265,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                 mapboxNavigation.unregisterRoutesObserver(routesObserver)
                 mapboxNavigation.unregisterLocationObserver(locationObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
-                mapboxNavigation.unregisterNavigationSessionStateObserver(navigationSessionStateObserver)
             }
         },
         onInitialize = this::initNavigation
@@ -376,20 +356,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
         }
     }
 
-//    private fun replayTestLocation() {
-//        mapboxReplayer.pushEvents(
-//            listOf(
-//                ReplayRouteMapper.mapToUpdateLocation(
-//                    Date().time.toDouble(),
-//                    Point.fromLngLat(-122.39726512303575, 37.785128345296805)
-//                )
-//            )
-//        )
-//        mapboxReplayer.playFirstLocation()
-//        mapboxReplayer.playbackSpeed(3.0)
-//        mapboxNavigation.mapboxReplayer.
-//    }
-
     private fun findRoute(destination: Point) {
         val originLocation = navigationLocationProvider.lastLocation
         val originPoint = originLocation?.let {
@@ -443,12 +409,14 @@ class BackgroundExampleActivity : AppCompatActivity() {
         // will be used for active guidance
         mapboxNavigation.setNavigationRoutes(routes)
         navigationCamera.requestNavigationCameraToFollowing()
+        startService(Intent(this, BackgroundService::class.java))
     }
 
     private fun clearRouteAndStopNavigation() {
         // clear
         mapboxNavigation.setNavigationRoutes(listOf())
         navigationCamera.requestNavigationCameraToOverview()
+        stopService(Intent(this, BackgroundService::class.java))
     }
 }
 
@@ -456,19 +424,20 @@ class BackgroundService : Service(), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
 
-    val mapboxAudioGuidanceComponent = MapboxAudioGuidance.create()
+    private val mapboxAudioGuidanceComponent = MapboxAudioGuidance.create()
+    private val mapboxReplayRouteSession = ReplayRouteSession() // remove the session to disable replay
 
     private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
         onCreatedObserver = object : MapboxNavigationObserver {
             @SuppressLint("MissingPermission")
             override fun onAttached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.registerNavigationSessionStateObserver(navigationSessionStateObserver)
                 mapboxAudioGuidanceComponent.onAttached(mapboxNavigation)
+                mapboxReplayRouteSession.onAttached(mapboxNavigation)
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.unregisterNavigationSessionStateObserver(navigationSessionStateObserver)
                 mapboxAudioGuidanceComponent.onDetached(mapboxNavigation)
+                mapboxReplayRouteSession.onDetached(mapboxNavigation)
             }
         }
     )
@@ -490,11 +459,4 @@ class BackgroundService : Service(), LifecycleOwner {
     override fun getLifecycle(): Lifecycle {
         return lifecycleRegistry
     }
-
-    private val navigationSessionStateObserver = NavigationSessionStateObserver { state ->
-        if (state !is NavigationSessionState.ActiveGuidance) {
-            stopSelf()
-        }
-    }
-
 }
