@@ -135,7 +135,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
         )
     }
 
-
     /**
      * Generates updates for the [routeLineView] with the geometries and properties of the routes that should be drawn on the map.
      */
@@ -193,7 +192,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                         stateTransitionOptions = transitionOptions
                     )
                 }
-
             }
         }
     }
@@ -345,7 +343,6 @@ class BackgroundExampleActivity : AppCompatActivity() {
                     .accessToken(getString(R.string.mapbox_access_token))
                     .build()
             )
-
         }
 
         // initialize location puck

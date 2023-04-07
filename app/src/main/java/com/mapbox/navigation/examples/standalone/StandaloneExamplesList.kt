@@ -7,6 +7,7 @@ import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRoutesActivity
 import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
+import com.mapbox.navigation.examples.standalone.background.BackgroundExampleActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
@@ -21,7 +22,6 @@ import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivi
 import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
 import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
-import com.mapbox.navigation.examples.standalone.background.BackgroundExampleActivity
 import com.mapbox.navigation.examples.standalone.turnbyturn.TurnByTurnExperienceActivity
 import com.mapbox.navigation.examples.standalone.voice.PlayVoiceInstructionsActivity
 
