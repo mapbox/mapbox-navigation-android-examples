@@ -13,6 +13,7 @@ import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.junctions.ShowJunctionsActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.standalone.maneuvers.ShowManeuversActivity
+import com.mapbox.navigation.examples.standalone.notifications.RouteNotificationsActivity
 import com.mapbox.navigation.examples.standalone.preview.PreviewActivity
 import com.mapbox.navigation.examples.standalone.replay.ReplayHistoryActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
@@ -138,5 +139,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_replay),
         getString(R.string.description_replay),
         ReplayHistoryActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_notifications),
+        getString(R.string.title_notifications),
+        getString(R.string.description_notifications),
+        RouteNotificationsActivity::class.java
     ),
 )

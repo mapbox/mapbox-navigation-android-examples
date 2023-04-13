@@ -124,6 +124,10 @@
         android:exported="false"
         />
 
+    <activity android:name=".standalone.notifications.RouteNotificationsActivity"
+        android:exported="false"
+        />
+
     <activity
         android:name=".dropinui.basic.NavigationViewActivity"
         android:exported="true"/>
