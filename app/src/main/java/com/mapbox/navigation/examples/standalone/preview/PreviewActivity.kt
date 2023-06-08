@@ -1,11 +1,11 @@
 package com.mapbox.navigation.examples.standalone.preview
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.res.Resources
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
@@ -63,7 +63,7 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
  * - Click "Start active guidance" to start navigation.
  * - Click "Finish active guidance" to switch back to free drive.
  */
-class PreviewActivity : Activity() {
+class PreviewActivity : AppCompatActivity() {
 
     /**
      * Bindings to the example layout.
