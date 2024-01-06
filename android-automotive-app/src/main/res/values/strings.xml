@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AAOS-app</string>
+    <string name="example_permission_screen_message">Accept permissions to continue</string>
+    <string name="example_permission_screen_title">Location permissions</string>
 </resources>
