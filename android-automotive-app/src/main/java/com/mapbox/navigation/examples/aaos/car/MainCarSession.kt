@@ -3,7 +3,6 @@ package com.mapbox.navigation.examples.aaos.car
 import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
-import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -11,14 +10,12 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.androidauto.MapboxCarContext
 import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
-import com.mapbox.androidauto.internal.logAndroidAuto
 import com.mapbox.androidauto.map.MapboxCarMapLoader
 import com.mapbox.androidauto.map.compass.CarCompassRenderer
 import com.mapbox.androidauto.map.logo.CarLogoRenderer
 import com.mapbox.androidauto.screenmanager.MapboxScreen
 import com.mapbox.androidauto.screenmanager.MapboxScreenFactory
 import com.mapbox.androidauto.screenmanager.MapboxScreenManager
-import com.mapbox.androidauto.screenmanager.factories.RoutePreviewScreenFactory2
 import com.mapbox.androidauto.screenmanager.prepareScreens
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
