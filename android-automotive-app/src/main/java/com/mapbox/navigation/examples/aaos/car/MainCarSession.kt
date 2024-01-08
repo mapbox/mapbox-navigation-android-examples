@@ -45,9 +45,10 @@ class MainCarSession : Session() {
     private val mapboxCarContext = MapboxCarContext(lifecycle, mapboxCarMap)
         .prepareScreens()
         .apply {
-            mapboxScreenManager[MapboxScreen.NEEDS_LOCATION_PERMISSION] = MapboxScreenFactory {
-                carContext -> ExamplePermissionScreen(carContext, carLocationPermissions)
-            }
+            mapboxScreenManager[MapboxScreen.NEEDS_LOCATION_PERMISSION] =
+                MapboxScreenFactory { carContext ->
+                    ExamplePermissionScreen(carContext, carLocationPermissions)
+                }
         }
 
     private val carTripSessionManager = CarTripSessionManager(
