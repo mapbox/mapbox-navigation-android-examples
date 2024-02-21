@@ -7,6 +7,7 @@ import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRoutesActivity
 import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
+import com.mapbox.navigation.examples.standalone.background.BackgroundExampleActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
@@ -138,5 +139,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_replay),
         getString(R.string.description_replay),
         ReplayHistoryActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_background_navigation),
+        getString(R.string.title_background_navigation),
+        getString(R.string.description_background_navigation),
+        BackgroundExampleActivity::class.java
     ),
 )
