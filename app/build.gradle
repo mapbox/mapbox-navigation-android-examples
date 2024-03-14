@@ -73,8 +73,8 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:android:2.10.1"
-    implementation "com.mapbox.navigation:ui-dropin:2.10.1"
+    implementation "com.mapbox.navigation:android:2.13.0-notifications"
+    implementation "com.mapbox.navigation:ui-dropin:2.13.0-notifications"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21"
     implementation "androidx.core:core-ktx:1.9.0"
     implementation "com.google.android.material:material:1.7.0"
