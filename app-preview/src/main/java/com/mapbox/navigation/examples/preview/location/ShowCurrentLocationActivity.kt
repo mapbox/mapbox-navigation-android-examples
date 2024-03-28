@@ -96,7 +96,6 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
         binding = MapboxActivityUserCurrentLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.mapView.mapboxMap.loadStyle(Style.STANDARD)
     }
 
