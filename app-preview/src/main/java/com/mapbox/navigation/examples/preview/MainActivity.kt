@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         bindExamples()
     }
 
-    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
+    override fun onExplanationNeeded(permissionsToExplain: List<String>) {
         Toast.makeText(
             this,
             "This app needs location and storage permissions in order to show its functionality.",
