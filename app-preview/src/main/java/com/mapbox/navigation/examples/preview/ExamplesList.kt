@@ -6,6 +6,7 @@ import com.mapbox.navigation.examples.preview.building.ShowBuildingExtrusionsAct
 import com.mapbox.navigation.examples.preview.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.preview.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.preview.location.ShowCurrentLocationActivity
+import com.mapbox.navigation.examples.preview.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.preview.voice.PlayVoiceInstructionsActivity
 
 fun Context.examplesList() = listOf(
@@ -38,5 +39,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_voice),
         getString(R.string.description_voice),
         PlayVoiceInstructionsActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_route_line),
+        getString(R.string.title_route),
+        getString(R.string.description_route),
+        RenderRouteLineActivity::class.java
     ),
 )

@@ -42,5 +42,10 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+      <activity android:name=".routeline.RenderRouteLineActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 </manifest>
