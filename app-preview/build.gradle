@@ -63,6 +63,7 @@ android {
 dependencies {
     // Mapbox Navigation SDK
     implementation "com.mapbox.navigationcore:navigation:3.0.0-rc.5"
+    implementation "com.mapbox.navigationcore:voice:3.0.0-rc.5"
     implementation "com.mapbox.navigationcore:ui-maps:3.0.0-rc.5"
     implementation "com.mapbox.navigationcore:ui-components:3.0.0-rc.5"
 

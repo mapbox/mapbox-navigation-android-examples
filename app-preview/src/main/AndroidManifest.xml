@@ -37,5 +37,10 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+      <activity android:name=".voice.PlayVoiceInstructionsActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 </manifest>
