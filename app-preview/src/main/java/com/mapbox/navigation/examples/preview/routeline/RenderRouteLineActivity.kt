@@ -104,7 +104,7 @@ class RenderRouteLineActivity : AppCompatActivity() {
     }
 
     /**
-     * RouteLine: Additional route line options are available through the 
+     * RouteLine: Additional route line options are available through the
      * [MapboxRouteLineViewOptions] and [MapboxRouteLineApiOptions].
      * Notice here the [MapboxRouteLineViewOptions.routeLineBelowLayerId] option. The map is made up of layers. In this
      * case the route line will be placed below the "road-label" layer which is a good default
@@ -122,8 +122,8 @@ class RenderRouteLineActivity : AppCompatActivity() {
             .routeLineBelowLayerId("road-label-navigation")
             .build()
     }
-    
-    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy { 
+
+    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
         MapboxRouteLineApiOptions.Builder()
             /**
              * Remove this line and [onPositionChangedListener] if you don't wish to show the

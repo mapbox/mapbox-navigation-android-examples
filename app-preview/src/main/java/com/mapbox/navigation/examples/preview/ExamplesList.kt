@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.preview.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.preview.camera.ShowCameraTransitionsActivity
+import com.mapbox.navigation.examples.preview.copilot.CopilotActivity
 import com.mapbox.navigation.examples.preview.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.preview.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.preview.routeline.RenderRouteLineActivity
@@ -46,4 +47,13 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_route),
         RenderRouteLineActivity::class.java
     ),
+    MapboxExample(
+        ContextCompat.getDrawable(
+            this,
+            R.drawable.mapbox_screenshot_copilot
+        ),
+        getString(R.string.title_copilot),
+        getString(R.string.description_copilot),
+        CopilotActivity::class.java
+    )
 )
