@@ -2,6 +2,7 @@ package com.mapbox.navigation.examples.preview
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import com.mapbox.navigation.examples.preview.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.preview.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.preview.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.preview.location.ShowCurrentLocationActivity
@@ -24,5 +25,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_camera_transitions),
         getString(R.string.description_camera_transitions),
         ShowCameraTransitionsActivity::class.java
-    )
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
+        getString(R.string.title_building_extrusions),
+        getString(R.string.description_building_extrusions),
+        ShowBuildingExtrusionsActivity::class.java
+    ),
 )

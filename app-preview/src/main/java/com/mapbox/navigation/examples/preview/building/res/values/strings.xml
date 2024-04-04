@@ -1,0 +1,6 @@
+<resources>
+
+    <string name="title_building_extrusions">Render building extrusion on arrival</string>
+    <string name="description_building_extrusions">Use the example to render building extrusions on arrival using building API and MapboxBuildingView.</string>
+
+</resources>

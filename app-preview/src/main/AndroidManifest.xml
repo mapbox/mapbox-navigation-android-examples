@@ -32,5 +32,10 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+      <activity android:name=".building.ShowBuildingExtrusionsActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 </manifest>
