@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.preview.copilot.CopilotActivity
 import com.mapbox.navigation.examples.preview.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.preview.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.preview.routeline.RenderRouteLineActivity
+import com.mapbox.navigation.examples.preview.speedlimit.ShowSpeedLimitActivity
 import com.mapbox.navigation.examples.preview.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.preview.status.ShowStatusActivity
 import com.mapbox.navigation.examples.preview.tripprogress.ShowTripProgressActivity
@@ -76,5 +77,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_show_custom_status),
         getString(R.string.description_show_custom_status),
         ShowCustomStatusActivity::class.java
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_speed_limit),
+        getString(R.string.title_speed_limit),
+        getString(R.string.description_speed_limit),
+        ShowSpeedLimitActivity::class.java
     ),
 )
