@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.preview.copilot.CopilotActivity
 import com.mapbox.navigation.examples.preview.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.preview.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.preview.routeline.RenderRouteLineActivity
+import com.mapbox.navigation.examples.preview.tripprogress.ShowTripProgressActivity
 import com.mapbox.navigation.examples.preview.voice.PlayVoiceInstructionsActivity
 
 fun Context.examplesList() = listOf(
@@ -55,5 +56,11 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_copilot),
         getString(R.string.description_copilot),
         CopilotActivity::class.java
-    )
+    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_trip_progress),
+        getString(R.string.title_trip_progress),
+        getString(R.string.description_trip_progress),
+        ShowTripProgressActivity::class.java
+    ),
 )

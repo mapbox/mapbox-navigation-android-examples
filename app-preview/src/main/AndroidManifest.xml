@@ -52,5 +52,10 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+      <activity android:name=".tripprogress.ShowTripProgressActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 </manifest>
