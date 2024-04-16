@@ -57,5 +57,15 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+      <activity android:name=".status.ShowStatusActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
+
+      <activity android:name=".status.ShowCustomStatusActivity"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 </manifest>
