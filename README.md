@@ -39,3 +39,4 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
 ## Contributing
 
 We welcome feedback and code contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
