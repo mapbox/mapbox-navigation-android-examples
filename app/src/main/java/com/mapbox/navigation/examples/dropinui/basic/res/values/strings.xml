@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-  <string name="title_navigation_view">Turn-By-Turn using NavigationView</string>
-  <string name="description_navigation_view">Render a complete turn-by-turn experience using NavigationView.</string>
-
-</resources>

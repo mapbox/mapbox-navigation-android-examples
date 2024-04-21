@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-  <string name="title_request_route_outside_navigation_view">Request routes using MapboxNavigation</string>
-  <string name="description_request_route_outside_navigation_view">The example demonstrates how to request routes using mapbox navigation and transition NavigationView to active guidance state</string>
-
-</resources>
