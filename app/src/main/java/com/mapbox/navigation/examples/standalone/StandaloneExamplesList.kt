@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.MapboxExample
 import com.mapbox.navigation.examples.R
+import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 
-fun Context.examplesList() = listOf<MapboxExample>(
+fun Context.examplesList() = listOf(
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
 //        getString(R.string.title_current_location),
@@ -54,12 +55,12 @@ fun Context.examplesList() = listOf<MapboxExample>(
 //        getString(R.string.description_speed_limit),
 //        ShowSpeedLimitActivity::class.java
 //    ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
-//        getString(R.string.title_building_extrusions),
-//        getString(R.string.description_building_extrusions),
-//        ShowBuildingExtrusionsActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
+        getString(R.string.title_building_extrusions),
+        getString(R.string.description_building_extrusions),
+        ShowBuildingExtrusionsActivity::class.java
+    ),
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_tbt_experience),
 //        getString(R.string.title_turn_by_turn),
