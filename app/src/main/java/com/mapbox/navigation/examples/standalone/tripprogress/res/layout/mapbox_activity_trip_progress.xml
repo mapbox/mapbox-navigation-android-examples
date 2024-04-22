@@ -29,15 +29,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-    <com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
-        android:id="@+id/tripProgressView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <!-- Uncomment the following line of code to customize the MapboxTripProgressView -->
-        <!-- style="@style/MapboxCustomTripProgressStyle" -->
-    </com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView>
+<!--    <com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView-->
+<!--        android:id="@+id/tripProgressView"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent">-->
+<!--        &lt;!&ndash; Uncomment the following line of code to customize the MapboxTripProgressView &ndash;&gt;-->
+<!--        &lt;!&ndash; style="@style/MapboxCustomTripProgressStyle" &ndash;&gt;-->
+<!--    </com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

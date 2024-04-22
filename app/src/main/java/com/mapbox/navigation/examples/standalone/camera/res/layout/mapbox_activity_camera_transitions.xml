@@ -22,20 +22,20 @@
         app:layout_constraintBottom_toTopOf="@id/route_button"
         app:layout_constraintEnd_toEndOf="@id/mapView">
 
-        <com.mapbox.navigation.ui.maps.camera.view.MapboxRouteOverviewButton
-            android:id="@+id/overview_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp" />
+<!--        <com.mapbox.navigation.ui.maps.camera.view.MapboxRouteOverviewButton-->
+<!--            android:id="@+id/overview_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginEnd="16dp"-->
+<!--            android:layout_marginBottom="16dp" />-->
 
-        <com.mapbox.navigation.ui.maps.camera.view.MapboxRecenterButton
-            android:id="@+id/recenter_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="invisible" />
+<!--        <com.mapbox.navigation.ui.maps.camera.view.MapboxRecenterButton-->
+<!--            android:id="@+id/recenter_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginEnd="16dp"-->
+<!--            android:layout_marginBottom="16dp"-->
+<!--            android:visibility="invisible" />-->
 
     </LinearLayout>
 

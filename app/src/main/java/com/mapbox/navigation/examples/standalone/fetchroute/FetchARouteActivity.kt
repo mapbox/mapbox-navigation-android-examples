@@ -25,7 +25,6 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
-import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 
 /**
  * The example demonstrates given a pair of coordinates how to fetch a route.
@@ -55,125 +54,125 @@ import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationAct
  * Note: The aim of this example is to only show how to request a route. Once the route is
  * requested, neither it is drawn nor any after affects are reflected on the map.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-class FetchARouteActivity : AppCompatActivity() {
-
-    private companion object {
-        private const val LOG_TAG = "FetchARouteActivity"
-    }
-
-    /**
-     * Bindings to the example layout.
-     */
-    private val binding: MapboxActivityFetchARouteBinding by lazy {
-        MapboxActivityFetchARouteBinding.inflate(layoutInflater)
-    }
-
-    private val originLocation = Location("test").apply {
-        longitude = -122.4192
-        latitude = 37.7627
-        bearing = 10f
-    }
-    private val destination = Point.fromLngLat(-122.4106, 37.7676)
-
-    /**
-     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
-     */
-    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
-        onInitialize = this::initNavigation
-    )
-
-    @SuppressLint("SetTextI18n")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
-        binding.fetchARouteButton.text = "Fetch A Route"
-        binding.fetchARouteButton.setOnClickListener { fetchARoute() }
-    }
-
-    private fun initNavigation() {
-        MapboxNavigationApp.setup(
-            NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                .build()
-        )
-    }
-
-    /**
-     * The method instantiates a [RouteOptions] object and fetches route between the origin and
-     * destination pair. There are several [RouteOptions] that you can specify, but this example
-     * mentions only what is relevant.
-     */
-    @SuppressLint("SetTextI18n")
-    private fun fetchARoute() {
-        binding.responseTextView.text = "fetching route..."
-
-        val originPoint = Point.fromLngLat(
-            originLocation.longitude,
-            originLocation.latitude
-        )
-
-        val routeOptions = RouteOptions.builder()
-            // applies the default parameters to route options
-            .applyDefaultNavigationOptions()
-            .applyLanguageAndVoiceUnitOptions(this)
-            // lists the coordinate pair i.e. origin and destination
-            // If you want to specify waypoints you can pass list of points instead of null
-            .coordinatesList(listOf(originPoint, destination))
-            // set it to true if you want to receive alternate routes to your destination
-            .alternatives(false)
-            // provide the bearing for the origin of the request to ensure
-            // that the returned route faces in the direction of the current user movement
-            .bearingsList(
-                listOf(
-                    Bearing.builder()
-                        .angle(originLocation.bearing.toDouble())
-                        .degrees(45.0)
-                        .build(),
-                    null
-                )
-            )
-            .build()
-        mapboxNavigation.requestRoutes(
-            routeOptions,
-            object : NavigationRouterCallback {
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
-                    // This particular callback is executed if you invoke
-                    // mapboxNavigation.cancelRouteRequest()
-                    binding.responseTextView.text = "route request canceled"
-                    binding.fetchARouteButton.visibility = VISIBLE
-                }
-
-                override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
-                    binding.responseTextView.text =
-                        """
-                            route request failed with:
-                            $reasons
-                        """.trimIndent()
-                    Log.e(LOG_TAG, "route request failed with $reasons")
-                    binding.fetchARouteButton.visibility = VISIBLE
-                }
-
-                override fun onRoutesReady(
-                    routes: List<NavigationRoute>,
-                    routerOrigin: RouterOrigin
-                ) {
-                    // GSON instance used only to print the response prettily
-                    val gson = GsonBuilder().setPrettyPrinting().create()
-                    val json = routes.map {
-                        gson.toJson(
-                            JsonParser.parseString(it.directionsRoute.toJson())
-                        )
-                    }
-                    binding.responseTextView.text =
-                        """
-                            |routes ready (origin: ${routerOrigin::class.simpleName}):
-                            |$json
-                        """.trimMargin()
-                }
-            }
-        )
-        binding.fetchARouteButton.visibility = GONE
-    }
-}
+//@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
+//class FetchARouteActivity : AppCompatActivity() {
+//
+//    private companion object {
+//        private const val LOG_TAG = "FetchARouteActivity"
+//    }
+//
+//    /**
+//     * Bindings to the example layout.
+//     */
+//    private val binding: MapboxActivityFetchARouteBinding by lazy {
+//        MapboxActivityFetchARouteBinding.inflate(layoutInflater)
+//    }
+//
+//    private val originLocation = Location("test").apply {
+//        longitude = -122.4192
+//        latitude = 37.7627
+//        bearing = 10f
+//    }
+//    private val destination = Point.fromLngLat(-122.4106, 37.7676)
+//
+//    /**
+//     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
+//     */
+//    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
+//        onInitialize = this::initNavigation
+//    )
+//
+//    @SuppressLint("SetTextI18n")
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(binding.root)
+//
+//        binding.fetchARouteButton.text = "Fetch A Route"
+//        binding.fetchARouteButton.setOnClickListener { fetchARoute() }
+//    }
+//
+//    private fun initNavigation() {
+//        MapboxNavigationApp.setup(
+//            NavigationOptions.Builder(this)
+//                .accessToken(getString(R.string.mapbox_access_token))
+//                .build()
+//        )
+//    }
+//
+//    /**
+//     * The method instantiates a [RouteOptions] object and fetches route between the origin and
+//     * destination pair. There are several [RouteOptions] that you can specify, but this example
+//     * mentions only what is relevant.
+//     */
+//    @SuppressLint("SetTextI18n")
+//    private fun fetchARoute() {
+//        binding.responseTextView.text = "fetching route..."
+//
+//        val originPoint = Point.fromLngLat(
+//            originLocation.longitude,
+//            originLocation.latitude
+//        )
+//
+//        val routeOptions = RouteOptions.builder()
+//            // applies the default parameters to route options
+//            .applyDefaultNavigationOptions()
+//            .applyLanguageAndVoiceUnitOptions(this)
+//            // lists the coordinate pair i.e. origin and destination
+//            // If you want to specify waypoints you can pass list of points instead of null
+//            .coordinatesList(listOf(originPoint, destination))
+//            // set it to true if you want to receive alternate routes to your destination
+//            .alternatives(false)
+//            // provide the bearing for the origin of the request to ensure
+//            // that the returned route faces in the direction of the current user movement
+//            .bearingsList(
+//                listOf(
+//                    Bearing.builder()
+//                        .angle(originLocation.bearing.toDouble())
+//                        .degrees(45.0)
+//                        .build(),
+//                    null
+//                )
+//            )
+//            .build()
+//        mapboxNavigation.requestRoutes(
+//            routeOptions,
+//            object : NavigationRouterCallback {
+//                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+//                    // This particular callback is executed if you invoke
+//                    // mapboxNavigation.cancelRouteRequest()
+//                    binding.responseTextView.text = "route request canceled"
+//                    binding.fetchARouteButton.visibility = VISIBLE
+//                }
+//
+//                override fun onFailure(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
+//                    binding.responseTextView.text =
+//                        """
+//                            route request failed with:
+//                            $reasons
+//                        """.trimIndent()
+//                    Log.e(LOG_TAG, "route request failed with $reasons")
+//                    binding.fetchARouteButton.visibility = VISIBLE
+//                }
+//
+//                override fun onRoutesReady(
+//                    routes: List<NavigationRoute>,
+//                    routerOrigin: RouterOrigin
+//                ) {
+//                    // GSON instance used only to print the response prettily
+//                    val gson = GsonBuilder().setPrettyPrinting().create()
+//                    val json = routes.map {
+//                        gson.toJson(
+//                            JsonParser.parseString(it.directionsRoute.toJson())
+//                        )
+//                    }
+//                    binding.responseTextView.text =
+//                        """
+//                            |routes ready (origin: ${routerOrigin::class.simpleName}):
+//                            |$json
+//                        """.trimMargin()
+//                }
+//            }
+//        )
+//        binding.fetchARouteButton.visibility = GONE
+//    }
+//}

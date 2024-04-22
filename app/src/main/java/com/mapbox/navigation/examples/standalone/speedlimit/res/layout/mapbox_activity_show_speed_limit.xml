@@ -29,15 +29,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-    <com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView
-        android:id="@+id/speedLimitView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-        <!-- Uncomment the following line of code to customize the MapboxManeuverView -->
-        <!-- style="@style/MapboxCustomManeuverStyle" -->
-    </com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView>
+<!--    <com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView-->
+<!--        android:id="@+id/speedLimitView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="56dp"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent">-->
+<!--        &lt;!&ndash; Uncomment the following line of code to customize the MapboxManeuverView &ndash;&gt;-->
+<!--        &lt;!&ndash; style="@style/MapboxCustomManeuverStyle" &ndash;&gt;-->
+<!--    </com.mapbox.navigation.ui.speedlimit.view.MapboxSpeedLimitView>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

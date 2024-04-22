@@ -30,18 +30,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-    <com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView
-        android:id="@+id/maneuverView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-        <!-- Uncomment the following line of code to customize the MapboxManeuverView -->
-        <!-- style="@style/MapboxCustomManeuverStyle" -->
-    </com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView>
+<!--    <com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView-->
+<!--        android:id="@+id/maneuverView"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="gone"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginEnd="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent">-->
+<!--        &lt;!&ndash; Uncomment the following line of code to customize the MapboxManeuverView &ndash;&gt;-->
+<!--        &lt;!&ndash; style="@style/MapboxCustomManeuverStyle" &ndash;&gt;-->
+<!--    </com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

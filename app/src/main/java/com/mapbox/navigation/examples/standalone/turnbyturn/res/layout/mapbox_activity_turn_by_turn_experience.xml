@@ -24,10 +24,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
-            android:id="@+id/tripProgressView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+<!--        <com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView-->
+<!--            android:id="@+id/tripProgressView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
 
         <ImageView
             android:id="@+id/stop"
@@ -38,43 +38,43 @@
             app:srcCompat="@android:drawable/ic_delete" />
     </androidx.cardview.widget.CardView>
 
-    <com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView
-        android:id="@+id/maneuverView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+<!--    <com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView-->
+<!--        android:id="@+id/maneuverView"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="4dp"-->
+<!--        android:visibility="invisible"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-    <com.mapbox.navigation.ui.voice.view.MapboxSoundButton
-        android:id="@+id/soundButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/maneuverView" />
+<!--    <com.mapbox.navigation.ui.voice.view.MapboxSoundButton-->
+<!--        android:id="@+id/soundButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:visibility="invisible"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/maneuverView" />-->
 
-    <com.mapbox.navigation.ui.maps.camera.view.MapboxRouteOverviewButton
-        android:id="@+id/routeOverview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/soundButton" />
+<!--    <com.mapbox.navigation.ui.maps.camera.view.MapboxRouteOverviewButton-->
+<!--        android:id="@+id/routeOverview"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:visibility="invisible"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/soundButton" />-->
 
-    <com.mapbox.navigation.ui.maps.camera.view.MapboxRecenterButton
-        android:id="@+id/recenter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/routeOverview" />
+<!--    <com.mapbox.navigation.ui.maps.camera.view.MapboxRecenterButton-->
+<!--        android:id="@+id/recenter"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/routeOverview" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
