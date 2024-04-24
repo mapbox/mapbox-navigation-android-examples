@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusions
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
+import com.mapbox.navigation.examples.standalone.preview.PreviewActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivity
 import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
@@ -77,12 +78,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_turn_by_turn),
         TurnByTurnExperienceActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_route_preview),
-//        getString(R.string.title_preview),
-//        getString(R.string.description_preview),
-//        PreviewActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_route_preview),
+        getString(R.string.title_preview),
+        getString(R.string.description_preview),
+        PreviewActivity::class.java
+    ),
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),
 //        getString(R.string.title_multiple_way_points),
