@@ -71,7 +71,7 @@
         android:exported="false"
         />
 
-    <activity android:name=".multiplewaypoints.MultipleWaypointsActivity"
+    <activity android:name=".standalone.waypoints.MultipleWaypointsActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />

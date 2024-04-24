@@ -16,6 +16,7 @@ import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
 import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
 import com.mapbox.navigation.examples.standalone.turnbyturn.TurnByTurnExperienceActivity
 import com.mapbox.navigation.examples.standalone.voice.PlayVoiceInstructionsActivity
+import com.mapbox.navigation.examples.standalone.waypoints.MultipleWaypointsActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -84,12 +85,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_preview),
         PreviewActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),
-//        getString(R.string.title_multiple_way_points),
-//        getString(R.string.description_multiple_way_points),
-//        MultipleWaypointsActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_multiple_waypoints),
+        getString(R.string.title_multiple_way_points),
+        getString(R.string.description_multiple_way_points),
+        MultipleWaypointsActivity::class.java
+    ),
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
 //        getString(R.string.title_building_extrusions_custom_arrival),
