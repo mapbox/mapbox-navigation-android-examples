@@ -2,6 +2,6 @@
 
     <string name="title_show_junctions">Render junction views for a route</string>
     <string name="description_show_junctions">Draw junction views using Junction API at complex intersections.</string>
-    <string name="set_route">Set Route</string>
+    <string name="fetch_route">Fetch Route</string>
 
 </resources>
