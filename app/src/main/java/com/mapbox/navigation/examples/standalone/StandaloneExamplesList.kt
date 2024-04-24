@@ -7,14 +7,15 @@ import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
+import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 
 fun Context.examplesList() = listOf(
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
-//        getString(R.string.title_current_location),
-//        getString(R.string.description_current_location),
-//        ShowCurrentLocationActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
+        getString(R.string.title_current_location),
+        getString(R.string.description_current_location),
+        ShowCurrentLocationActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_fetch_a_route),
         getString(R.string.title_fetch_route),
