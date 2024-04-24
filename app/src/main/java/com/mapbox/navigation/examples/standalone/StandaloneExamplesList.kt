@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.MapboxExample
 import com.mapbox.navigation.examples.R
+import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
@@ -91,12 +92,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_multiple_way_points),
         MultipleWaypointsActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
-//        getString(R.string.title_building_extrusions_custom_arrival),
-//        getString(R.string.description_building_extrusions_custom_arrival),
-//        CustomArrivalActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
+        getString(R.string.title_building_extrusions_custom_arrival),
+        getString(R.string.description_building_extrusions_custom_arrival),
+        CustomArrivalActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_status_basic),
         getString(R.string.title_show_status),
