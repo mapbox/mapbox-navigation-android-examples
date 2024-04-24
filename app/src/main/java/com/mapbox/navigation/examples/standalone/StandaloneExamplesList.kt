@@ -9,6 +9,7 @@ import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusions
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
+import com.mapbox.navigation.examples.standalone.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.standalone.preview.PreviewActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivity
@@ -50,12 +51,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_trip_progress),
         ShowTripProgressActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_maneuvers),
-//        getString(R.string.title_maneuver),
-//        getString(R.string.description_maneuver),
-//        ShowManeuversActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_maneuvers),
+        getString(R.string.title_maneuver),
+        getString(R.string.description_maneuver),
+        ShowManeuversActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_voice),
         getString(R.string.title_voice),
