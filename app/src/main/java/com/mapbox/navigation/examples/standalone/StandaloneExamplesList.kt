@@ -130,6 +130,8 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_show_alternative_routes),
         ShowAlternativeRoutesActivity::class.java
     ),
+
+    // TODO history replay doesn't work, will be fixed in the upcoming releases
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_replay),
 //        getString(R.string.title_replay),
