@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusions
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
+import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -22,12 +23,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_fetch_route),
         FetchARouteActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_route_line),
-//        getString(R.string.title_route),
-//        getString(R.string.description_route),
-//        RenderRouteLineActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_route_line),
+        getString(R.string.title_route),
+        getString(R.string.description_route),
+        RenderRouteLineActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_basic_camera),
         getString(R.string.title_camera_transitions),
