@@ -9,6 +9,7 @@ import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsAct
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
+import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -53,12 +54,12 @@ fun Context.examplesList() = listOf(
 //        getString(R.string.description_voice),
 //        PlayVoiceInstructionsActivity::class.java
 //    ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_speed_limit),
-//        getString(R.string.title_speed_limit),
-//        getString(R.string.description_speed_limit),
-//        ShowSpeedLimitActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_speed_limit),
+        getString(R.string.title_speed_limit),
+        getString(R.string.description_speed_limit),
+        ShowSpeedLimitActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_building_extrusion),
         getString(R.string.title_building_extrusions),
