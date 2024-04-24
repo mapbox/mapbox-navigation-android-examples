@@ -13,6 +13,7 @@ import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivi
 import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
 import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
+import com.mapbox.navigation.examples.standalone.voice.PlayVoiceInstructionsActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -51,12 +52,12 @@ fun Context.examplesList() = listOf(
 //        getString(R.string.description_maneuver),
 //        ShowManeuversActivity::class.java
 //    ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_voice),
-//        getString(R.string.title_voice),
-//        getString(R.string.description_voice),
-//        PlayVoiceInstructionsActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_voice),
+        getString(R.string.title_voice),
+        getString(R.string.description_voice),
+        PlayVoiceInstructionsActivity::class.java
+    ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_speed_limit),
         getString(R.string.title_speed_limit),
