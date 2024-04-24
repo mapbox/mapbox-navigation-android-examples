@@ -34,7 +34,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:textAllCaps="false"
-        android:text="@string/set_route_signboard"
+        android:text="@string/fetch_route_signboard"
         android:background="@drawable/mapbox_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
