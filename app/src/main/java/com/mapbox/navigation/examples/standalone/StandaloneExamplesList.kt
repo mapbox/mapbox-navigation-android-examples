@@ -12,6 +12,7 @@ import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivi
 import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivity
 import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
+import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -38,12 +39,12 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_camera_transitions),
         ShowCameraTransitionsActivity::class.java
     ),
-//    MapboxExample(
-//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_trip_progress),
-//        getString(R.string.title_trip_progress),
-//        getString(R.string.description_trip_progress),
-//        ShowTripProgressActivity::class.java
-//    ),
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_trip_progress),
+        getString(R.string.title_trip_progress),
+        getString(R.string.description_trip_progress),
+        ShowTripProgressActivity::class.java
+    ),
 //    MapboxExample(
 //        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_maneuvers),
 //        getString(R.string.title_maneuver),
