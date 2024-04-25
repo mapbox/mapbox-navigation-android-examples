@@ -86,8 +86,8 @@ import java.util.Date
 class ShowTripProgressActivity : AppCompatActivity() {
 
     private val routeCoordinates = listOf(
-        Point.fromLngLat(-122.4192,37.7627),
-        Point.fromLngLat(-122.4106,37.7676),
+        Point.fromLngLat(-122.4192, 37.7627),
+        Point.fromLngLat(-122.4106, 37.7676),
     )
 
     /**
@@ -323,7 +323,7 @@ class ShowTripProgressActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(
@@ -361,4 +361,3 @@ class ShowTripProgressActivity : AppCompatActivity() {
         val LOG_TAG: String = ShowTripProgressActivity::class.java.simpleName
     }
 }
-

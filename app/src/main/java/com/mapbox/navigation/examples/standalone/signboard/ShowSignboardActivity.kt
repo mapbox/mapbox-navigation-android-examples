@@ -72,7 +72,7 @@ class ShowSignboardActivity : AppCompatActivity() {
         Point.fromLngLat(-3.587, 40.5719),
         Point.fromLngLat(-3.607835, 40.551486),
     )
-    
+
     private lateinit var binding: MapboxActivitySignboardBinding
 
     /**
@@ -121,7 +121,7 @@ class ShowSignboardActivity : AppCompatActivity() {
     private val routeLineApi: MapboxRouteLineApi by lazy {
         MapboxRouteLineApi(MapboxRouteLineApiOptions.Builder().build())
     }
-    
+
     private val locationObserver = object : LocationObserver {
         override fun onNewRawLocation(rawLocation: Location) {}
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
@@ -257,7 +257,7 @@ class ShowSignboardActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(

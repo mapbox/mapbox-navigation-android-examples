@@ -359,7 +359,7 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(
@@ -378,4 +378,3 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         val LOG_TAG: String = ShowBuildingExtrusionsActivity::class.java.simpleName
     }
 }
-

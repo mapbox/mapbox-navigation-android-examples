@@ -15,7 +15,6 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
@@ -107,7 +106,7 @@ class MultipleWaypointsActivity : AppCompatActivity() {
         if (routeUpdateResult.navigationRoutes.isNotEmpty()) {
             // log maneuvers to see the named waypoints
             logManeuvers(routeUpdateResult.navigationRoutes.first())
-            
+
             routeLineApi.setNavigationRoutes(
                 routeUpdateResult.navigationRoutes,
                 mapboxNavigation.getAlternativeMetadataFor(routeUpdateResult.navigationRoutes),

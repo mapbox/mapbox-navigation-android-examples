@@ -99,7 +99,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityShowAlternativeRoutesBinding
 
     /**
-     * Additional route line options are available through the 
+     * Additional route line options are available through the
      * [MapboxRouteLineViewOptions] and [MapboxRouteLineApiOptions].
      */
     private val routeLineViewOptions: MapboxRouteLineViewOptions by lazy {
@@ -108,7 +108,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
             .build()
     }
 
-    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy { 
+    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
         MapboxRouteLineApiOptions.Builder()
             .vanishingRouteLineEnabled(true)
             .build()
@@ -315,7 +315,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
                 }
 
                 override fun onCanceled(
-                    routeOptions: RouteOptions, 
+                    routeOptions: RouteOptions,
                     @RouterOrigin routerOrigin: String
                 ) {
                     // no impl
@@ -339,7 +339,7 @@ class ShowAlternativeRoutesActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(

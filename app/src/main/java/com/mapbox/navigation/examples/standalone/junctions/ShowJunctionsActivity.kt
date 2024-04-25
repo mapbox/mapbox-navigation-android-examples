@@ -76,8 +76,8 @@ class ShowJunctionsActivity : AppCompatActivity() {
     private lateinit var binding: MapboxActivityShowJunctionsBinding
 
     /**
-    * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
-    */
+     * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
+     */
     private lateinit var replayProgressObserver: ReplayProgressObserver
 
     /**
@@ -169,7 +169,6 @@ class ShowJunctionsActivity : AppCompatActivity() {
                 mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
 
                 mapboxNavigation.startReplayTripSession()
-
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
@@ -259,7 +258,7 @@ class ShowJunctionsActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(

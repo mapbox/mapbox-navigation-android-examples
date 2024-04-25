@@ -49,4 +49,3 @@ class ShowStatusActivity : AppCompatActivity() {
         false
     }
 }
-

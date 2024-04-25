@@ -75,12 +75,12 @@ import java.util.Date
  */
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class ShowCameraTransitionsActivity : AppCompatActivity() {
-    
+
     private val routeCoordinates = listOf(
         Point.fromLngLat(-122.4192, 37.7627),
         Point.fromLngLat(-122.4106, 37.7676),
     )
-    
+
     /**
      * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
      */
@@ -400,7 +400,7 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        with (mapboxNavigation.mapboxReplayer) {
+        with(mapboxNavigation.mapboxReplayer) {
             play()
             pushEvents(
                 listOf(

@@ -114,7 +114,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
             .vanishingRouteLineEnabled(true)
             .build()
     }
-    
+
     private val routeLineView by lazy {
         MapboxRouteLineView(routeLineViewOptions)
     }
