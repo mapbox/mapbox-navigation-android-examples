@@ -91,15 +91,6 @@
         android:exported="false"
         />
 
-    <activity android:name=".standalone.junctions.ShowJunctionsActivity"
-        android:screenOrientation="portrait"
-        android:exported="false" />
-
-    <activity android:name=".standalone.signboard.ShowSignboardActivity"
-        android:screenOrientation="portrait"
-        android:exported="false"
-        />
-
     <activity android:name=".standalone.alternative.ShowAlternativeRoutesActivity"
         android:screenOrientation="portrait"
         android:exported="false" />

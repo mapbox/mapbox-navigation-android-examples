@@ -1,7 +1,0 @@
-<resources>
-
-    <string name="fetch_route_signboard">Fetch route</string>
-    <string name="title_signboard">Signboard Example</string>
-    <string name="description_signboard">Demonstrates the use of signboard API.</string>
-
-</resources>
