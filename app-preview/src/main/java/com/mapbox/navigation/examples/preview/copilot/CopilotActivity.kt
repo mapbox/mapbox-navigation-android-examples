@@ -3,7 +3,6 @@ package com.mapbox.navigation.examples.preview.copilot
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -107,8 +106,8 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCopilotB
 class CopilotActivity : AppCompatActivity() {
 
     private val routeCoordinates = listOf(
-        Point.fromLngLat(-122.4934801,37.7721532),
-        Point.fromLngLat(-122.4850055,37.7801765),
+        Point.fromLngLat(-122.4934801, 37.7721532),
+        Point.fromLngLat(-122.4850055, 37.7801765),
     )
 
     private lateinit var binding: MapboxActivityCopilotBinding
