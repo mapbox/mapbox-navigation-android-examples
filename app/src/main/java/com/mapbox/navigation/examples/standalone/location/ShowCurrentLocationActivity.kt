@@ -1,16 +1,16 @@
 package com.mapbox.navigation.examples.standalone.location
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
@@ -18,9 +18,7 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityUserCurrentLocationBinding
-import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 
 /**
@@ -36,7 +34,7 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
  *   </resources>
  * - Add MAPBOX_DOWNLOADS_TOKEN to your USER_HOME»/.gradle/gradle.properties file.
  *   To find out how to get your MAPBOX_DOWNLOADS_TOKEN follow these steps.
- *   https://docs.mapbox.com/android/beta/navigation/guides/install/#configure-credentials
+ *   https://docs.mapbox.com/android/navigation/guides/installation/#configure-credentials
  *
  * The example assumes that you have granted location permissions and does not enforce it. Since,
  * it's a standard procedure to ask for runtime permissions the example doesn't implements that
@@ -47,7 +45,6 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
  * - You should see a map view with the camera transitioning to your current location.
  * - A blue circular puck should be visible at your current location.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class ShowCurrentLocationActivity : AppCompatActivity() {
 
     /**
@@ -63,14 +60,6 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
      * and the updates enhanced by the Navigation SDK (cleaned up and matched to the road).
      */
     private val locationObserver = object : LocationObserver {
-        /**
-         * Invoked as soon as the [Location] is available.
-         */
-        override fun onNewRawLocation(rawLocation: Location) {
-            // Not implemented in this example. However, if you want you can also
-            // use this callback to get location updates, but as the name suggests
-            // these are raw location updates which are usually noisy.
-        }
 
         /**
          * Provides the best possible location update, snapped to the route or
@@ -85,6 +74,15 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
             // Invoke this method to move the camera to your current location.
             updateCamera(enhancedLocation)
         }
+
+        /**
+         * Invoked as soon as the [Location] is available.
+         */
+        override fun onNewRawLocation(rawLocation: Location) {
+            // Not implemented in this example. However, if you want you can also
+            // use this callback to get location updates, but as the name suggests
+            // these are raw location updates which are usually noisy.
+        }
     }
 
     /**
@@ -98,7 +96,7 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
         binding = MapboxActivityUserCurrentLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE)
+        binding.mapView.mapboxMap.loadStyle(Style.STANDARD)
     }
 
     private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
@@ -117,18 +115,16 @@ class ShowCurrentLocationActivity : AppCompatActivity() {
     )
 
     private fun initNavigation() {
-        MapboxNavigationApp.setup(
+        MapboxNavigationApp.setup {
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
-        )
+        }
         // Instantiate the location component which is the key component to fetch location updates.
         binding.mapView.location.apply {
             setLocationProvider(navigationLocationProvider)
             // Uncomment this block of code if you want to see a circular puck with arrow.
             /*locationPuck = LocationPuck2D(
-                bearingImage = ContextCompat.getDrawable(
-                    this@ShowCurrentLocationActivity,
+                bearingImage = ImageHolder.Companion.from(
                     R.drawable.mapbox_navigation_puck_icon
                 )
             )*/

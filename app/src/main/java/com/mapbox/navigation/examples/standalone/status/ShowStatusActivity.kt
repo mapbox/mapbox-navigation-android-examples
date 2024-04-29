@@ -9,9 +9,9 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.navigation.base.ExperimentalMapboxNavigationAPI
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowStatusBinding
-import com.mapbox.navigation.ui.status.model.Status
-import com.mapbox.navigation.ui.status.model.StatusFactory
-import com.mapbox.navigation.ui.status.view.MapboxStatusView
+import com.mapbox.navigation.ui.components.status.model.Status
+import com.mapbox.navigation.ui.components.status.model.StatusFactory
+import com.mapbox.navigation.ui.components.status.view.MapboxStatusView
 
 /**
  * In this example you can learn how to use [MapboxStatusView] to show a [Status] message
@@ -30,7 +30,7 @@ class ShowStatusActivity : AppCompatActivity() {
         binding.mapView.apply {
             scalebar.enabled = false
             gestures.addOnMapClickListener(onMapClickListener)
-            getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
+            mapboxMap.loadStyle(Style.MAPBOX_STREETS)
         }
     }
 

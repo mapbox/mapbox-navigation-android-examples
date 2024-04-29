@@ -2,15 +2,15 @@ package com.mapbox.navigation.examples.standalone.preview
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
@@ -24,7 +24,6 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
-import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
@@ -39,7 +38,8 @@ import com.mapbox.navigation.ui.maps.camera.transition.NavigationCameraTransitio
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 
 /**
  * This example demonstrates:
@@ -173,7 +173,7 @@ class PreviewActivity : AppCompatActivity() {
                 // alternative metadata is available only in active guidance.
                 mapboxNavigation.getAlternativeMetadataFor(navigationRoutes)
             ) { value ->
-                mapboxMap.getStyle()?.apply {
+                mapboxMap.style?.apply {
                     routeLineView.renderRouteDrawData(this, value)
                 }
             }
@@ -183,7 +183,7 @@ class PreviewActivity : AppCompatActivity() {
             viewportDataSource.evaluate()
         } else {
             // remove route line from the map
-            mapboxMap.getStyle()?.let { style ->
+            mapboxMap.style?.let { style ->
                 routeLineApi.clearRouteLine { value ->
                     routeLineView.renderClearRouteLineValue(
                         style,
@@ -214,17 +214,18 @@ class PreviewActivity : AppCompatActivity() {
         binding = ActivityPreviewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        mapboxMap = binding.mapView.getMapboxMap()
+        mapboxMap = binding.mapView.mapboxMap
 
         // initialize the location puck
         binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
-                bearingImage = ContextCompat.getDrawable(
-                    this@PreviewActivity,
+                bearingImage = ImageHolder.Companion.from(
                     R.drawable.mapbox_navigation_puck_icon
                 )
             )
             setLocationProvider(navigationLocationProvider)
+
+            puckBearingEnabled = true
             enabled = true
         }
 
@@ -234,7 +235,6 @@ class PreviewActivity : AppCompatActivity() {
         } else {
             MapboxNavigationProvider.create(
                 NavigationOptions.Builder(this.applicationContext)
-                    .accessToken(getString(R.string.mapbox_access_token))
                     .build()
             )
         }
@@ -256,7 +256,7 @@ class PreviewActivity : AppCompatActivity() {
         )
 
         // load map style
-        mapboxMap.loadStyleUri(
+        mapboxMap.loadStyle(
             Style.MAPBOX_STREETS
         ) {
             // add long click listener that search for a route to the clicked destination
@@ -266,14 +266,14 @@ class PreviewActivity : AppCompatActivity() {
             }
         }
 
-        // initialize route line, the withRouteLineBelowLayerId is specified to place
+        // initialize route line, the routeLineBelowLayerId is specified to place
         // the route line below road labels layer on the map
         // the value of this option will depend on the style that you are using
         // and under which layer the route line should be placed on the map layers stack
-        val mapboxRouteLineOptions = MapboxRouteLineOptions.Builder(this)
-            .withRouteLineBelowLayerId("road-label")
+        val mapboxRouteLineOptions = MapboxRouteLineViewOptions.Builder(this)
+            .routeLineBelowLayerId("road-label")
             .build()
-        routeLineApi = MapboxRouteLineApi(mapboxRouteLineOptions)
+        routeLineApi = MapboxRouteLineApi(MapboxRouteLineApiOptions.Builder().build())
         routeLineView = MapboxRouteLineView(mapboxRouteLineOptions)
 
         // We recommend starting a trip session for routes preview to get, display,
@@ -296,7 +296,7 @@ class PreviewActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxNavigation.onDestroy()
+        MapboxNavigationProvider.destroy()
     }
 
     private fun findRoute(destination: Point) {
@@ -315,24 +315,28 @@ class PreviewActivity : AppCompatActivity() {
                 .applyDefaultNavigationOptions()
                 .applyLanguageAndVoiceUnitOptions(this)
                 .coordinatesList(listOf(originPoint, destination))
-                // provide the bearing for the origin of the request to ensure
-                // that the returned route faces in the direction of the current user movement
-                .bearingsList(
-                    listOf(
-                        Bearing.builder()
-                            .angle(originLocation.bearing.toDouble())
-                            .degrees(45.0)
-                            .build(),
-                        null
-                    )
-                )
+                .apply {
+                    // provide the bearing for the origin of the request to ensure
+                    // that the returned route faces in the direction of the current user movement
+                    originLocation.bearing?.let { bearing ->
+                        bearingsList(
+                            listOf(
+                                Bearing.builder()
+                                    .angle(bearing)
+                                    .degrees(45.0)
+                                    .build(),
+                                null
+                            )
+                        )
+                    }
+                }
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
                 .alternatives(true)
                 .build(),
             object : NavigationRouterCallback {
                 override fun onRoutesReady(
                     routes: List<NavigationRoute>,
-                    routerOrigin: RouterOrigin
+                    routerOrigin: String
                 ) {
                     previewRoutes(routes)
                 }
@@ -344,7 +348,7 @@ class PreviewActivity : AppCompatActivity() {
                     // no impl
                 }
 
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: String) {
                     // no impl
                 }
             }
@@ -356,7 +360,7 @@ class PreviewActivity : AppCompatActivity() {
         // Preview state is managed by an application.
         // Display the routes you received on the map.
         routeLineApi.setNavigationRoutes(routes) { value ->
-            mapboxMap.getStyle()?.apply {
+            mapboxMap.style?.apply {
                 routeLineView.renderRouteDrawData(this, value)
                 // update the camera position to account for the new route
                 viewportDataSource.onRouteChanged(routes.first())

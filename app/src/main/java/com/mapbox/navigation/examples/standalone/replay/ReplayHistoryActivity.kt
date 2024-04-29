@@ -3,17 +3,17 @@ package com.mapbox.navigation.examples.standalone.replay
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.mapbox.common.location.Location
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentPlugin
@@ -27,7 +27,6 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.replay.MapboxReplayer
-import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.history.ReplayEventBase
 import com.mapbox.navigation.core.replay.history.ReplaySetNavigationRoute
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -42,9 +41,8 @@ import com.mapbox.navigation.ui.maps.camera.transition.NavigationCameraTransitio
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLineColorResources
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -105,26 +103,24 @@ class ReplayHistoryActivity : AppCompatActivity() {
 
     /** Rendering the set route event **/
 
-    private val options: MapboxRouteLineOptions by lazy {
-        MapboxRouteLineOptions.Builder(this)
-            .withRouteLineResources(
-                RouteLineResources.Builder()
-                    .routeLineColorResources(
-                        RouteLineColorResources.Builder().build()
-                    )
-                    .build()
-            )
-            .withRouteLineBelowLayerId("road-label-navigation")
-            .withVanishingRouteLineEnabled(true)
+    private val routeLineViewOptions: MapboxRouteLineViewOptions by lazy {
+        MapboxRouteLineViewOptions.Builder(this)
+            .routeLineBelowLayerId("road-label-navigation")
+            .build()
+    }
+
+    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
+        MapboxRouteLineApiOptions.Builder()
+            .vanishingRouteLineEnabled(true)
             .build()
     }
 
     private val routeLineView by lazy {
-        MapboxRouteLineView(options)
+        MapboxRouteLineView(routeLineViewOptions)
     }
 
     private val routeLineApi: MapboxRouteLineApi by lazy {
-        MapboxRouteLineApi(options)
+        MapboxRouteLineApi(routeLineApiOptions)
     }
 
     private val routesObserver: RoutesObserver = RoutesObserver { result ->
@@ -138,7 +134,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
         routeLineApi.setNavigationRoutes(
             result.navigationRoutes
         ) { value ->
-            binding.mapView.getMapboxMap().getStyle()?.apply {
+            binding.mapView.mapboxMap.style?.apply {
                 routeLineView.renderRouteDrawData(this, value)
             }
         }
@@ -149,7 +145,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
         viewportDataSource.evaluate()
 
         routeLineApi.updateWithRouteProgress(routeProgress) { result ->
-            binding.mapView.getMapboxMap().getStyle()?.apply {
+            binding.mapView.mapboxMap.style?.apply {
                 routeLineView.renderRouteLineUpdate(this, result)
             }
         }
@@ -157,7 +153,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
 
     private val onPositionChangedListener = OnIndicatorPositionChangedListener { point ->
         val result = routeLineApi.updateTraveledRouteLine(point)
-        binding.mapView.getMapboxMap().getStyle()?.apply {
+        binding.mapView.mapboxMap.style?.apply {
             // Render the result to update the map.
             routeLineView.renderRouteLineUpdate(this, result)
         }
@@ -191,9 +187,9 @@ class ReplayHistoryActivity : AppCompatActivity() {
         handleHistoryFileSelected()
 
         viewportDataSource = MapboxNavigationViewportDataSource(
-            binding.mapView.getMapboxMap()
+            binding.mapView.mapboxMap
         )
-        val mapboxMap = binding.mapView.getMapboxMap()
+        val mapboxMap = binding.mapView.mapboxMap
         navigationCamera = NavigationCamera(
             mapboxMap,
             binding.mapView.camera,
@@ -204,7 +200,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
                 .zoom(DEFAULT_INITIAL_ZOOM)
                 .build()
         )
-        mapboxMap.loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
             viewportDataSource.evaluate()
         }
 
@@ -242,38 +238,39 @@ class ReplayHistoryActivity : AppCompatActivity() {
     private fun initNavigation() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                .locationEngine(ReplayLocationEngine(mapboxReplayer))
                 .build()
         )
 
         locationComponent = binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
-                bearingImage = ContextCompat.getDrawable(
-                    this@ReplayHistoryActivity,
+                bearingImage = ImageHolder.from(
                     R.drawable.mapbox_navigation_puck_icon
                 )
             )
             addOnIndicatorPositionChangedListener(onPositionChangedListener)
             setLocationProvider(navigationLocationProvider)
+
+            puckBearingEnabled = true
             enabled = true
         }
         setupReplayControls()
     }
 
+    @SuppressLint("MissingPermission")
     private fun handleHistoryFileSelected() {
         loadNavigationJob = lifecycleScope.launch {
-            val events = historyFileLoader
-                .loadReplayHistory(this@ReplayHistoryActivity)
+            val events = historyFileLoader.loadReplayHistory(this@ReplayHistoryActivity)
+
             mapboxReplayer.clearEvents()
             mapboxReplayer.pushEvents(events)
-            mapboxNavigation.resetTripSession()
-            binding.playReplay.visibility = View.VISIBLE
-            // This is showcasing a new way to replay rides at runtime.
-            mapboxNavigation.startTripSession()
-            mapboxNavigation.setNavigationRoutes(emptyList())
-            isLocationInitialized = false
-            mapboxReplayer.playFirstLocation()
+            mapboxNavigation.resetTripSession {
+                binding.playReplay.visibility = View.VISIBLE
+                // This is showcasing a new way to replay rides at runtime.
+                mapboxNavigation.startTripSession()
+                mapboxNavigation.setNavigationRoutes(emptyList())
+                isLocationInitialized = false
+                mapboxReplayer.playFirstLocation()
+            }
         }
     }
 

@@ -12,18 +12,15 @@ import com.google.gson.JsonParser
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
-import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityFetchARouteBinding
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 
@@ -40,7 +37,7 @@ import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationAct
  *   </resources>
  * - Add MAPBOX_DOWNLOADS_TOKEN to your USER_HOME»/.gradle/gradle.properties file.
  *   To find out how to get your MAPBOX_DOWNLOADS_TOKEN follow these steps.
- *   https://docs.mapbox.com/android/beta/navigation/guides/install/#configure-credentials
+ *   https://docs.mapbox.com/android/navigation/guides/installation/#configure-credentials
  *
  * For the purposes of this example the code will not hook onto your current
  * location. Origin and destination coordinates will be hardcoded. To understand how to
@@ -55,7 +52,6 @@ import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationAct
  * Note: The aim of this example is to only show how to request a route. Once the route is
  * requested, neither it is drawn nor any after affects are reflected on the map.
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class FetchARouteActivity : AppCompatActivity() {
 
     private companion object {
@@ -95,7 +91,6 @@ class FetchARouteActivity : AppCompatActivity() {
     private fun initNavigation() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         )
     }
@@ -138,7 +133,8 @@ class FetchARouteActivity : AppCompatActivity() {
         mapboxNavigation.requestRoutes(
             routeOptions,
             object : NavigationRouterCallback {
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: String) {
                     // This particular callback is executed if you invoke
                     // mapboxNavigation.cancelRouteRequest()
                     binding.responseTextView.text = "route request canceled"
@@ -155,10 +151,7 @@ class FetchARouteActivity : AppCompatActivity() {
                     binding.fetchARouteButton.visibility = VISIBLE
                 }
 
-                override fun onRoutesReady(
-                    routes: List<NavigationRoute>,
-                    routerOrigin: RouterOrigin
-                ) {
+                override fun onRoutesReady(routes: List<NavigationRoute>, routerOrigin: String) {
                     // GSON instance used only to print the response prettily
                     val gson = GsonBuilder().setPrettyPrinting().create()
                     val json = routes.map {

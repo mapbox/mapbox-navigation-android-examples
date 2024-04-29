@@ -12,7 +12,7 @@ The repository is a collection of examples showing off the [Mapbox Navigation An
 
 ## Installation
 
-Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/beta/navigation/guides/install/) guide. Once you have your **public and secret access tokens ready**, do the following:
+Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/navigation/guides/installation/) guide. Once you have your **public and secret access tokens ready**, do the following:
 
 ### [app](app)
 
@@ -30,6 +30,11 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
 6. Ensure that your secret token is added to [build.gradle](./build.gradle) or to global `gradle.properties` as described in the installation guide.
 7. Run the examples under `app`.
 
+## Previous versions
+
+If you're looking for code examples from previous versions of the Navigation SDK, you can access them through the following links:
+- [Navigation SDK v2](https://docs.mapbox.com/android/navigation/v2/guides/): https://github.com/mapbox/mapbox-navigation-android-examples/tree/main-v2
+- [Navigation SDK v1](https://docs.mapbox.com/android/legacy/navigation/guides/): https://github.com/mapbox/mapbox-navigation-android/tree/v1.6.0/examples/
 
 ## Getting Help
 

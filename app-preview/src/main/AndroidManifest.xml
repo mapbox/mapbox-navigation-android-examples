@@ -19,13 +19,7 @@
       </activity>
 
       <activity
-          android:name=".location.ShowCurrentLocationActivity"
-          android:screenOrientation="portrait"
-          android:exported="false" />
-
-      <activity android:name=".fetchroute.FetchARouteActivity"
-          android:screenOrientation="portrait"
-          android:exported="false"
-          />
+          android:name=".copilot.CopilotActivity"
+          android:exported="true" />
   </application>
 </manifest>

@@ -3,17 +3,18 @@ package com.mapbox.navigation.examples.standalone.turnbyturn
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.mapbox.api.directions.v5.models.Bearing
+import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
+import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.gestures
@@ -27,15 +28,12 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
-import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.core.replay.MapboxReplayer
-import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -44,9 +42,16 @@ import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityTurnByTurnExperienceBinding
+import com.mapbox.navigation.tripdata.maneuver.api.MapboxManeuverApi
+import com.mapbox.navigation.tripdata.progress.api.MapboxTripProgressApi
+import com.mapbox.navigation.tripdata.progress.model.DistanceRemainingFormatter
+import com.mapbox.navigation.tripdata.progress.model.EstimatedTimeToArrivalFormatter
+import com.mapbox.navigation.tripdata.progress.model.PercentDistanceTraveledFormatter
+import com.mapbox.navigation.tripdata.progress.model.TimeRemainingFormatter
+import com.mapbox.navigation.tripdata.progress.model.TripProgressUpdateFormatter
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
-import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
-import com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView
+import com.mapbox.navigation.ui.components.maneuver.view.MapboxManeuverView
+import com.mapbox.navigation.ui.components.tripprogress.view.MapboxTripProgressView
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
@@ -59,20 +64,14 @@ import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
 import com.mapbox.navigation.ui.maps.route.arrow.model.RouteArrowOptions
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.tripprogress.api.MapboxTripProgressApi
-import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
-import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
-import com.mapbox.navigation.ui.tripprogress.model.PercentDistanceTraveledFormatter
-import com.mapbox.navigation.ui.tripprogress.model.TimeRemainingFormatter
-import com.mapbox.navigation.ui.tripprogress.model.TripProgressUpdateFormatter
-import com.mapbox.navigation.ui.tripprogress.view.MapboxTripProgressView
-import com.mapbox.navigation.ui.voice.api.MapboxSpeechApi
-import com.mapbox.navigation.ui.voice.api.MapboxVoiceInstructionsPlayer
-import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
-import com.mapbox.navigation.ui.voice.model.SpeechError
-import com.mapbox.navigation.ui.voice.model.SpeechValue
-import com.mapbox.navigation.ui.voice.model.SpeechVolume
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
+import com.mapbox.navigation.voice.api.MapboxSpeechApi
+import com.mapbox.navigation.voice.api.MapboxVoiceInstructionsPlayer
+import com.mapbox.navigation.voice.model.SpeechAnnouncement
+import com.mapbox.navigation.voice.model.SpeechError
+import com.mapbox.navigation.voice.model.SpeechValue
+import com.mapbox.navigation.voice.model.SpeechVolume
 import java.util.Date
 import java.util.Locale
 
@@ -109,19 +108,14 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     }
 
     /**
-     * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
-     */
-    private val mapboxReplayer = MapboxReplayer()
-
-    /**
-     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
-     */
-    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
-
-    /**
      * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
      */
-    private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
+    private lateinit var replayProgressObserver: ReplayProgressObserver
+
+    /**
+     * Debug object that converts a route into events that can be replayed to navigate a route.
+     */
+    private val replayRouteMapper = ReplayRouteMapper()
 
     /**
      * Bindings to the example layout.
@@ -333,7 +327,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         viewportDataSource.evaluate()
 
         // draw the upcoming maneuver arrow on the map
-        val style = binding.mapView.getMapboxMap().getStyle()
+        val style = binding.mapView.mapboxMap.style
         if (style != null) {
             val maneuverArrowResult = routeArrowApi.addUpcomingManeuverArrow(routeProgress)
             routeArrowView.renderManeuverUpdate(style, maneuverArrowResult)
@@ -365,7 +359,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
      * Gets notified whenever the tracked routes change.
      *
      * A change can mean:
-     * - routes get changed with [MapboxNavigation.setRoutes]
+     * - routes get changed with [MapboxNavigation.setNavigationRoutes]
      * - routes annotations get refreshed (for example, congestion annotation that indicate the live traffic along the route)
      * - driver got off route and a reroute was executed
      */
@@ -375,7 +369,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             routeLineApi.setNavigationRoutes(
                 routeUpdateResult.navigationRoutes
             ) { value ->
-                binding.mapView.getMapboxMap().getStyle()?.apply {
+                binding.mapView.mapboxMap.style?.apply {
                     routeLineView.renderRouteDrawData(this, value)
                 }
             }
@@ -385,7 +379,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             viewportDataSource.evaluate()
         } else {
             // remove the route line and route arrow from the map
-            val style = binding.mapView.getMapboxMap().getStyle()
+            val style = binding.mapView.mapboxMap.style
             if (style != null) {
                 routeLineApi.clearRouteLine { value ->
                     routeLineView.renderClearRouteLineValue(
@@ -409,11 +403,15 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                 mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerLocationObserver(locationObserver)
                 mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+
+                replayProgressObserver = ReplayProgressObserver(mapboxNavigation.mapboxReplayer)
                 mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-                mapboxNavigation.registerVoiceInstructionsObserver(voiceInstructionsObserver)
-                // start the trip session to being receiving location updates in free drive
-                // and later when a route is set also receiving route progress updates
-                mapboxNavigation.startTripSession()
+
+                // Start the trip session to being receiving location updates in free drive
+                // and later when a route is set also receiving route progress updates.
+                // In case of `startReplayTripSession`,
+                // location events are emitted by the `MapboxReplayer`
+                mapboxNavigation.startReplayTripSession()
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
@@ -422,6 +420,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                 mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
                 mapboxNavigation.unregisterVoiceInstructionsObserver(voiceInstructionsObserver)
+                mapboxNavigation.mapboxReplayer.finish()
             }
         },
         onInitialize = this::initNavigation
@@ -434,9 +433,9 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // initialize Navigation Camera
-        viewportDataSource = MapboxNavigationViewportDataSource(binding.mapView.getMapboxMap())
+        viewportDataSource = MapboxNavigationViewportDataSource(binding.mapView.mapboxMap)
         navigationCamera = NavigationCamera(
-            binding.mapView.getMapboxMap(),
+            binding.mapView.mapboxMap,
             binding.mapView.camera,
             viewportDataSource
         )
@@ -496,31 +495,33 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         // initialize voice instructions api and the voice instruction player
         speechApi = MapboxSpeechApi(
             this,
-            getString(R.string.mapbox_access_token),
             Locale.US.language
         )
         voiceInstructionsPlayer = MapboxVoiceInstructionsPlayer(
             this,
-            getString(R.string.mapbox_access_token),
             Locale.US.language
         )
 
-        // initialize route line, the withRouteLineBelowLayerId is specified to place
+        // initialize route line, the routeLineBelowLayerId is specified to place
         // the route line below road labels layer on the map
         // the value of this option will depend on the style that you are using
         // and under which layer the route line should be placed on the map layers stack
-        val mapboxRouteLineOptions = MapboxRouteLineOptions.Builder(this)
-            .withRouteLineBelowLayerId("road-label-navigation")
+        val mapboxRouteLineViewOptions = MapboxRouteLineViewOptions.Builder(this)
+            .routeLineBelowLayerId("road-label-navigation")
             .build()
-        routeLineApi = MapboxRouteLineApi(mapboxRouteLineOptions)
-        routeLineView = MapboxRouteLineView(mapboxRouteLineOptions)
+
+        routeLineApi = MapboxRouteLineApi(MapboxRouteLineApiOptions.Builder().build())
+        routeLineView = MapboxRouteLineView(mapboxRouteLineViewOptions)
 
         // initialize maneuver arrow view to draw arrows on the map
         val routeArrowOptions = RouteArrowOptions.Builder(this).build()
         routeArrowView = MapboxRouteArrowView(routeArrowOptions)
 
         // load map style
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        binding.mapView.mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
+            // Ensure that the route line related layers are present before the route arrow
+            routeLineView.initializeLayers(it)
+
             // add long click listener that search for a route to the clicked destination
             binding.mapView.gestures.addOnMapLongClickListener { point ->
                 findRoute(point)
@@ -551,7 +552,6 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxReplayer.finish()
         maneuverApi.cancel()
         routeLineApi.cancel()
         routeLineView.cancel()
@@ -562,9 +562,6 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     private fun initNavigation() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                // comment out the location engine setting block to disable simulation
-                .locationEngine(replayLocationEngine)
                 .build()
         )
 
@@ -572,11 +569,11 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         binding.mapView.location.apply {
             setLocationProvider(navigationLocationProvider)
             this.locationPuck = LocationPuck2D(
-                bearingImage = ContextCompat.getDrawable(
-                    this@TurnByTurnExperienceActivity,
+                bearingImage = ImageHolder.Companion.from(
                     R.drawable.mapbox_navigation_puck_icon
                 )
             )
+            puckBearingEnabled = true
             enabled = true
         }
 
@@ -584,23 +581,23 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     }
 
     private fun replayOriginLocation() {
-        mapboxReplayer.pushEvents(
-            listOf(
-                ReplayRouteMapper.mapToUpdateLocation(
-                    Date().time.toDouble(),
-                    Point.fromLngLat(-122.39726512303575, 37.785128345296805)
+        with(mapboxNavigation.mapboxReplayer) {
+            play()
+            pushEvents(
+                listOf(
+                    ReplayRouteMapper.mapToUpdateLocation(
+                        Date().time.toDouble(),
+                        Point.fromLngLat(-122.39726512303575, 37.785128345296805)
+                    )
                 )
             )
-        )
-        mapboxReplayer.playFirstLocation()
-        mapboxReplayer.playbackSpeed(3.0)
+            playFirstLocation()
+        }
     }
 
     private fun findRoute(destination: Point) {
-        val originLocation = navigationLocationProvider.lastLocation
-        val originPoint = originLocation?.let {
-            Point.fromLngLat(it.longitude, it.latitude)
-        } ?: return
+        val originLocation = navigationLocationProvider.lastLocation ?: return
+        val originPoint = Point.fromLngLat(originLocation.longitude, originLocation.latitude)
 
         // execute a route request
         // it's recommended to use the
@@ -612,21 +609,25 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                 .applyDefaultNavigationOptions()
                 .applyLanguageAndVoiceUnitOptions(this)
                 .coordinatesList(listOf(originPoint, destination))
-                // provide the bearing for the origin of the request to ensure
-                // that the returned route faces in the direction of the current user movement
-                .bearingsList(
-                    listOf(
-                        Bearing.builder()
-                            .angle(originLocation.bearing.toDouble())
-                            .degrees(45.0)
-                            .build(),
-                        null
-                    )
-                )
+                .apply {
+                    // provide the bearing for the origin of the request to ensure
+                    // that the returned route faces in the direction of the current user movement
+                    originLocation.bearing?.let { bearing ->
+                        bearingsList(
+                            listOf(
+                                Bearing.builder()
+                                    .angle(bearing)
+                                    .degrees(45.0)
+                                    .build(),
+                                null
+                            )
+                        )
+                    }
+                }
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
                 .build(),
             object : NavigationRouterCallback {
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: String) {
                     // no impl
                 }
 
@@ -636,7 +637,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
                 override fun onRoutesReady(
                     routes: List<NavigationRoute>,
-                    routerOrigin: RouterOrigin
+                    routerOrigin: String
                 ) {
                     setRouteAndStartNavigation(routes)
                 }
@@ -656,6 +657,9 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
         // move the camera to overview when new route is available
         navigationCamera.requestNavigationCameraToOverview()
+
+        // start simulation
+        startSimulation(routes.first().directionsRoute)
     }
 
     private fun clearRouteAndStopNavigation() {
@@ -663,12 +667,26 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         mapboxNavigation.setNavigationRoutes(listOf())
 
         // stop simulation
-        mapboxReplayer.stop()
+        stopSimulation()
 
         // hide UI elements
         binding.soundButton.visibility = View.INVISIBLE
         binding.maneuverView.visibility = View.INVISIBLE
         binding.routeOverview.visibility = View.INVISIBLE
         binding.tripProgressCard.visibility = View.INVISIBLE
+    }
+
+    private fun startSimulation(route: DirectionsRoute) {
+        mapboxNavigation.mapboxReplayer.stop()
+        mapboxNavigation.mapboxReplayer.clearEvents()
+        val replayData = replayRouteMapper.mapDirectionsRouteGeometry(route)
+        mapboxNavigation.mapboxReplayer.pushEvents(replayData)
+        mapboxNavigation.mapboxReplayer.seekTo(replayData[0])
+        mapboxNavigation.mapboxReplayer.play()
+    }
+
+    private fun stopSimulation() {
+        mapboxNavigation.mapboxReplayer.stop()
+        mapboxNavigation.mapboxReplayer.clearEvents()
     }
 }

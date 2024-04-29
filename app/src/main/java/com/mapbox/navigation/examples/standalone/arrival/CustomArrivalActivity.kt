@@ -1,13 +1,14 @@
 package com.mapbox.navigation.examples.standalone.arrival
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
+import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -17,22 +18,23 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
+import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
+import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.navigation.base.route.toNavigationRoute
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.core.replay.MapboxReplayer
-import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityCustomArrivalBinding
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
@@ -47,8 +49,8 @@ import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 import java.util.Date
 
 /**
@@ -93,24 +95,16 @@ class CustomArrivalActivity : AppCompatActivity() {
     private var distanceRemainingThresholdInMeters = 30
     private var arrivalNotificationHasDisplayed = false
 
-    private val route = DirectionsRoute.fromJson(
-        """{"routeIndex":"0","distance":724.77,"duration":149.424,"duration_typical":149.424,"geometry":"wfz_gAjo{nhFw@DcT~@oI^wGVaDJqDNcQx@wc@rB}Or@yDPaKb@qDRO_GIyCQoGImDu@qZUuHWkHUsJk@cUk@ySQsGMoF[_Mc@kROoFQeIG{BK{DGuCYgLo@mVCmA_@eNO_HOoFGcCiAof@","weight":214.483,"weight_name":"auto","legs":[{"distance":386.352,"duration":85.08,"duration_typical":85.08,"summary":"Mission Street, 16th Street","admins":[{"iso_3166_1":"US","iso_3166_1_alpha3":"USA"}],"steps":[{"distance":266.0,"duration":57.172,"duration_typical":57.172,"speedLimitUnit":"mph","speedLimitSign":"mutcd","geometry":"wfz_gAjo{nhFw@DcT~@oI^wGVaDJqDNcQx@wc@rB}Or@yDPaKb@qDR","name":"Mission Street","mode":"driving","maneuver":{"location":[-122.419462,37.762684],"bearing_before":0.0,"bearing_after":356.0,"instruction":"Drive north on Mission Street.","type":"depart"},"voiceInstructions":[{"distanceAlongGeometry":266.0,"announcement":"Drive north on Mission Street. Then, in 900 feet, Turn right onto 16th Street.","ssmlAnnouncement":"\u003cspeak\u003e\u003camazon:effect name\u003d\"drc\"\u003e\u003cprosody rate\u003d\"1.08\"\u003eDrive north on Mission Street. Then, in 900 feet, Turn right onto 16th Street.\u003c/prosody\u003e\u003c/amazon:effect\u003e\u003c/speak\u003e"},{"distanceAlongGeometry":119.778,"announcement":"Turn right onto 16th Street. Then, in 400 feet, Your destination will be on the left.","ssmlAnnouncement":"\u003cspeak\u003e\u003camazon:effect name\u003d\"drc\"\u003e\u003cprosody rate\u003d\"1.08\"\u003eTurn right onto 16th Street. Then, in 400 feet, Your destination will be on the left.\u003c/prosody\u003e\u003c/amazon:effect\u003e\u003c/speak\u003e"}],"bannerInstructions":[{"distanceAlongGeometry":266.0,"primary":{"text":"16th Street","components":[{"text":"16th Street","type":"text"}],"type":"turn","modifier":"right"}}],"driving_side":"right","weight":78.489,"intersections":[{"location":[-122.419462,37.762684],"bearings":[356],"entry":[true],"out":0,"geometry_index":0,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419465,37.762712],"bearings":[176,356],"entry":[false,true],"in":0,"out":1,"geometry_index":1,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419497,37.76305],"bearings":[176,356],"entry":[false,true],"in":0,"out":1,"geometry_index":2,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419513,37.763218],"bearings":[176,356],"entry":[false,true],"in":0,"out":1,"geometry_index":3,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419525,37.763358],"bearings":[176,357],"entry":[false,true],"in":0,"out":1,"geometry_index":4,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419531,37.763439],"bearings":[177,356],"entry":[false,true],"in":0,"out":1,"geometry_index":5,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419539,37.763528],"bearings":[176,355],"entry":[false,true],"in":0,"out":1,"geometry_index":6,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419568,37.763818],"bearings":[175,356],"entry":[false,true],"in":0,"out":1,"geometry_index":7,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419626,37.764406],"bearings":[176,356],"entry":[false,true],"in":0,"out":1,"geometry_index":8,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419661,37.76477],"bearings":[176,356],"entry":[false,true],"in":0,"out":1,"geometry_index":10,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419679,37.764963],"bearings":[176,355],"entry":[false,true],"in":0,"out":1,"geometry_index":11,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}}]},{"distance":120.352,"duration":27.908,"duration_typical":27.908,"speedLimitUnit":"mph","speedLimitSign":"mutcd","geometry":"wz~_gAp}{nhFO_GIyCQoGImDu@qZUuHWkHUsJ","name":"16th Street","mode":"driving","maneuver":{"location":[-122.419689,37.765052],"bearing_before":355.0,"bearing_after":85.0,"instruction":"Turn right onto 16th Street.","type":"turn","modifier":"right"},"voiceInstructions":[{"distanceAlongGeometry":55.556,"announcement":"Your destination is on the left.","ssmlAnnouncement":"\u003cspeak\u003e\u003camazon:effect name\u003d\"drc\"\u003e\u003cprosody rate\u003d\"1.08\"\u003eYour destination is on the left.\u003c/prosody\u003e\u003c/amazon:effect\u003e\u003c/speak\u003e"}],"bannerInstructions":[{"distanceAlongGeometry":120.352,"primary":{"text":"Your destination will be on the left","components":[{"text":"Your destination will be on the left","type":"text"}],"type":"arrive","modifier":"left"}},{"distanceAlongGeometry":55.556,"primary":{"text":"Your destination is on the left","components":[{"text":"Your destination is on the left","type":"text"}],"type":"arrive","modifier":"left"}}],"driving_side":"right","weight":43.25,"intersections":[{"location":[-122.419689,37.765052],"bearings":[85,175],"entry":[true,false],"in":1,"out":0,"geometry_index":12,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419561,37.76506],"bearings":[85,265],"entry":[true,false],"in":1,"out":0,"geometry_index":13,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.419484,37.765065],"bearings":[85,265],"entry":[true,false],"in":1,"out":0,"geometry_index":14,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.41882,37.765106],"bearings":[85,266],"entry":[true,false],"in":1,"out":0,"geometry_index":17,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.418665,37.765117],"bearings":[84,265],"entry":[true,false],"in":1,"out":0,"geometry_index":18,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.418515,37.765129],"bearings":[86,264],"entry":[true,false],"in":1,"out":0,"geometry_index":19,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}}]},{"distance":0.0,"duration":0.0,"duration_typical":0.0,"speedLimitUnit":"mph","speedLimitSign":"mutcd","geometry":"g`_`gAphynhF??","name":"16th Street","mode":"driving","maneuver":{"location":[-122.418329,37.76514],"bearing_before":86.0,"bearing_after":0.0,"instruction":"Your destination is on the left.","type":"arrive","modifier":"left"},"voiceInstructions":[],"bannerInstructions":[],"driving_side":"right","weight":0.0,"intersections":[{"location":[-122.418329,37.76514],"bearings":[266],"entry":[true],"in":0,"geometry_index":20,"admin_index":0}]}],"annotation":{"distance":[3.1,37.7,18.8,15.6,9.0,9.9,32.4,65.7,30.3,10.4,21.5,9.9,11.3,6.8,12.0,7.7,38.9,13.7,13.3,16.4],"duration":[0.616,4.684,2.701,2.249,1.301,2.384,7.772,15.757,7.261,2.492,5.17,2.387,2.141,1.288,2.276,1.454,7.375,2.595,2.077,2.57],"speed":[5.0,8.1,6.9,6.9,6.9,4.2,4.2,4.2,4.2,4.2,4.2,4.2,5.3,5.3,5.3,5.3,5.3,5.3,6.4,6.4],"maxspeed":[{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true}],"congestion":["unknown","low","low","low","low","low","low","low","low","low","low","low","low","low","low","low","low","low","low","low"]}},{"distance":338.418,"duration":64.343,"duration_typical":64.343,"summary":"16th Street","admins":[{"iso_3166_1":"US","iso_3166_1_alpha3":"USA"}],"steps":[{"distance":338.418,"duration":64.343,"duration_typical":64.343,"speedLimitUnit":"mph","speedLimitSign":"mutcd","geometry":"g`_`gAphynhFk@cUk@ySQsGMoF[_Mc@kROoFQeIG{BK{DGuCYgLo@mVCmA_@eNO_HOoFGcCiAof@","name":"16th Street","mode":"driving","maneuver":{"location":[-122.418329,37.76514],"bearing_before":0.0,"bearing_after":86.0,"instruction":"Drive east on 16th Street.","type":"depart"},"voiceInstructions":[{"distanceAlongGeometry":338.418,"announcement":"Drive east on 16th Street. Then, in a quarter mile, Your destination will be on the left.","ssmlAnnouncement":"\u003cspeak\u003e\u003camazon:effect name\u003d\"drc\"\u003e\u003cprosody rate\u003d\"1.08\"\u003eDrive east on 16th Street. Then, in a quarter mile, Your destination will be on the left.\u003c/prosody\u003e\u003c/amazon:effect\u003e\u003c/speak\u003e"},{"distanceAlongGeometry":68.056,"announcement":"Your destination is on the left.","ssmlAnnouncement":"\u003cspeak\u003e\u003camazon:effect name\u003d\"drc\"\u003e\u003cprosody rate\u003d\"1.08\"\u003eYour destination is on the left.\u003c/prosody\u003e\u003c/amazon:effect\u003e\u003c/speak\u003e"}],"bannerInstructions":[{"distanceAlongGeometry":338.418,"primary":{"text":"Your destination will be on the left","components":[{"text":"Your destination will be on the left","type":"text"}],"type":"arrive","modifier":"left"}},{"distanceAlongGeometry":68.056,"primary":{"text":"Your destination is on the left","components":[{"text":"Your destination is on the left","type":"text"}],"type":"arrive","modifier":"left"}}],"driving_side":"right","weight":92.745,"intersections":[{"location":[-122.418329,37.76514],"bearings":[86],"entry":[true],"out":0,"geometry_index":0,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.417642,37.765184],"bearings":[85,265],"entry":[true,false],"in":1,"out":0,"geometry_index":2,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.417504,37.765193],"bearings":[86,265],"entry":[true,false],"in":1,"out":0,"geometry_index":3,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.417384,37.7652],"bearings":[85,266],"entry":[true,false],"in":1,"out":0,"geometry_index":4,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.41685,37.765232],"bearings":[86,266],"entry":[true,false],"in":1,"out":0,"geometry_index":6,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.416505,37.765253],"bearings":[85,266],"entry":[true,false],"in":1,"out":0,"geometry_index":9,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.416411,37.765259],"bearings":[86,265],"entry":[true,false],"in":1,"out":0,"geometry_index":10,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.416336,37.765263],"bearings":[86,266],"entry":[true,false],"in":1,"out":0,"geometry_index":11,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.415749,37.7653],"bearings":[85,265],"entry":[true,false],"in":1,"out":0,"geometry_index":13,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.415467,37.765318],"bearings":[86,265],"entry":[true,false],"in":1,"out":0,"geometry_index":15,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.415323,37.765326],"bearings":[85,266],"entry":[true,false],"in":1,"out":0,"geometry_index":16,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}},{"location":[-122.415203,37.765334],"bearings":[86,265],"entry":[true,false],"in":1,"out":0,"geometry_index":17,"is_urban":true,"admin_index":0,"mapbox_streets_v8":{"class":"secondary"}}]},{"distance":0.0,"duration":0.0,"duration_typical":0.0,"speedLimitUnit":"mph","speedLimitSign":"mutcd","geometry":"}n_`gApyqnhF??","name":"16th Street","mode":"driving","maneuver":{"location":[-122.414505,37.765375],"bearing_before":86.0,"bearing_after":0.0,"instruction":"Your destination is on the left.","type":"arrive","modifier":"left"},"voiceInstructions":[],"bannerInstructions":[],"driving_side":"right","weight":0.0,"intersections":[{"location":[-122.414505,37.765375],"bearings":[266],"entry":[true],"in":0,"geometry_index":19,"admin_index":0}]}],"annotation":{"distance":[31.2,29.4,12.2,10.6,19.8,27.4,10.6,14.4,5.5,8.3,6.6,18.7,33.1,3.4,21.5,12.7,10.6,5.8,55.8],"duration":[4.89,4.603,1.907,1.906,3.559,4.924,1.908,2.588,0.985,1.494,0.744,2.105,3.725,1.126,7.023,4.157,1.817,0.999,9.567],"speed":[6.4,6.4,6.4,5.6,5.6,5.6,5.6,5.6,5.6,5.6,8.9,8.9,8.9,3.1,3.1,3.1,5.8,5.8,5.8],"maxspeed":[{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true},{"unknown":true}],"congestion":["low","low","low","low","low","low","low","low","low","low","unknown","unknown","unknown","unknown","unknown","unknown","low","low","low"]}}],"routeOptions":{"baseUrl":"https://api.mapbox.com","user":"mapbox","profile":"driving-traffic","coordinates":"-122.4192,37.7627;-122.4183502,37.7653577;-122.4145371,37.7657253","language":"en","continue_straight":true,"roundabout_exits":true,"geometries":"polyline6","overview":"full","steps":true,"annotations":"congestion,maxspeed,speed,duration,distance,closure","voice_instructions":true,"banner_instructions":true,"voice_units":"imperial","enable_refresh":true},"voiceLocale":"en-US","requestUuid":"NvdXaTWoucFBE8pSX-9WnxkkEdWvidlTFBqAxYIiWeq8RHlhzWCbkg\u003d\u003d"}"""
-    ).toNavigationRoute(RouterOrigin.Offboard)
-
-    /**
-     * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
-     */
-    private val mapboxReplayer = MapboxReplayer()
-
-    /**
-     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
-     */
-    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
+    private val routeCoordinates = listOf(
+        Point.fromLngLat(-122.4192, 37.7627),
+        Point.fromLngLat(-122.4183502, 37.7653577),
+        Point.fromLngLat(-122.4145371, 37.7657253),
+    )
 
     /**
      * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
      */
-    private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
+    private lateinit var replayProgressObserver: ReplayProgressObserver
 
     /**
      * [NavigationLocationProvider] is a utility class that helps to provide location updates generated by the Navigation SDK
@@ -149,7 +143,7 @@ class CustomArrivalActivity : AppCompatActivity() {
                     )
                 },
                 { value ->
-                    binding.mapView.getMapboxMap().getStyle { style ->
+                    binding.mapView.mapboxMap.getStyle { style ->
                         buildingView.highlightBuilding(style, value.buildings)
                     }
                 }
@@ -157,12 +151,17 @@ class CustomArrivalActivity : AppCompatActivity() {
         }
 
     /**
-     * Additional route line options are available through the [MapboxRouteLineOptions].
+     * Additional route line options are available through the
+     * [MapboxRouteLineViewOptions] and [MapboxRouteLineApiOptions].
      */
-    private val options: MapboxRouteLineOptions by lazy {
-        MapboxRouteLineOptions.Builder(this)
-            .withRouteLineResources(RouteLineResources.Builder().build())
-            .withRouteLineBelowLayerId("road-label-navigation")
+    private val routeLineViewOptions: MapboxRouteLineViewOptions by lazy {
+        MapboxRouteLineViewOptions.Builder(this)
+            .routeLineBelowLayerId("road-label-navigation")
+            .build()
+    }
+
+    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
+        MapboxRouteLineApiOptions.Builder()
             .build()
     }
 
@@ -170,14 +169,14 @@ class CustomArrivalActivity : AppCompatActivity() {
      * This class is responsible for rendering route line related mutations generated by the [routeLineApi]
      */
     private val routeLineView by lazy {
-        MapboxRouteLineView(options)
+        MapboxRouteLineView(routeLineViewOptions)
     }
 
     /**
      * Generates updates for the [routeLineView] with the geometries and properties of the routes that should be drawn on the map.
      */
     private val routeLineApi: MapboxRouteLineApi by lazy {
-        MapboxRouteLineApi(options)
+        MapboxRouteLineApi(routeLineApiOptions)
     }
 
     /**
@@ -212,7 +211,7 @@ class CustomArrivalActivity : AppCompatActivity() {
                     enhancedLocation.longitude,
                     enhancedLocation.latitude
                 ),
-                enhancedLocation.bearing.toDouble()
+                enhancedLocation.bearing
             )
         }
     }
@@ -226,7 +225,7 @@ class CustomArrivalActivity : AppCompatActivity() {
         routeLineApi.setNavigationRoutes(
             routeUpdateResult.navigationRoutes
         ) { value ->
-            binding.mapView.getMapboxMap().getStyle()?.apply {
+            binding.mapView.mapboxMap.style?.apply {
                 routeLineView.renderRouteDrawData(this, value)
             }
         }
@@ -259,8 +258,11 @@ class CustomArrivalActivity : AppCompatActivity() {
                 mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerLocationObserver(locationObserver)
                 mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+
+                replayProgressObserver = ReplayProgressObserver(mapboxNavigation.mapboxReplayer)
                 mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-                mapboxNavigation.startTripSession()
+
+                mapboxNavigation.startReplayTripSession()
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
@@ -268,6 +270,7 @@ class CustomArrivalActivity : AppCompatActivity() {
                 mapboxNavigation.unregisterLocationObserver(locationObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
+                mapboxNavigation.mapboxReplayer.finish()
             }
         },
         onInitialize = this::initNavigation
@@ -279,22 +282,21 @@ class CustomArrivalActivity : AppCompatActivity() {
         binding = MapboxActivityCustomArrivalBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        binding.mapView.mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
             binding.actionButton.visibility = View.VISIBLE
         }
 
-        binding.actionButton.text = "Set Route"
+        binding.actionButton.text = "Fetch Route"
         binding.actionButton.setOnClickListener {
             binding.actionButton.visibility = View.GONE
-            mapboxNavigation.setNavigationRoutes(listOf(route))
+            fetchRoute()
         }
 
-        buildingApi = MapboxBuildingsApi(binding.mapView.getMapboxMap())
+        buildingApi = MapboxBuildingsApi(binding.mapView.mapboxMap)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxReplayer.finish()
         buildingApi.cancel()
         routeLineView.cancel()
         routeLineApi.cancel()
@@ -322,9 +324,6 @@ class CustomArrivalActivity : AppCompatActivity() {
     private fun initNavigation() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
-                // comment out the location engine setting block to disable simulation
-                .locationEngine(replayLocationEngine)
                 .build()
         )
 
@@ -336,16 +335,58 @@ class CustomArrivalActivity : AppCompatActivity() {
         replayOriginLocation()
     }
 
+    private fun fetchRoute() {
+        mapboxNavigation.requestRoutes(
+            RouteOptions.builder()
+                .applyDefaultNavigationOptions()
+                .applyLanguageAndVoiceUnitOptions(this)
+                .alternatives(false)
+                .coordinatesList(routeCoordinates)
+                .layersList(listOf(mapboxNavigation.getZLevel(), null, null))
+                .build(),
+
+            object : NavigationRouterCallback {
+                override fun onRoutesReady(
+                    routes: List<NavigationRoute>,
+                    @RouterOrigin routerOrigin: String
+                ) {
+                    mapboxNavigation.setNavigationRoutes(routes)
+                }
+
+                override fun onFailure(
+                    reasons: List<RouterFailure>,
+                    routeOptions: RouteOptions
+                ) {
+                    Log.d(LOG_TAG, "onFailure: $reasons")
+                }
+
+                override fun onCanceled(
+                    routeOptions: RouteOptions,
+                    @RouterOrigin routerOrigin: String
+                ) {
+                    Log.d(LOG_TAG, "onCanceled")
+                }
+            }
+        )
+    }
+
     private fun replayOriginLocation() {
-        mapboxReplayer.pushEvents(
-            listOf(
-                ReplayRouteMapper.mapToUpdateLocation(
-                    Date().time.toDouble(),
-                    Point.fromLngLat(-122.4192, 37.7627)
+        with(mapboxNavigation.mapboxReplayer) {
+            play()
+            pushEvents(
+                listOf(
+                    ReplayRouteMapper.mapToUpdateLocation(
+                        Date().time.toDouble(),
+                        routeCoordinates.first()
+                    )
                 )
             )
-        )
-        mapboxReplayer.playFirstLocation()
-        mapboxReplayer.playbackSpeed(3.0)
+            playFirstLocation()
+            playbackSpeed(3.0)
+        }
+    }
+
+    private companion object {
+        val LOG_TAG: String = CustomArrivalActivity::class.java.simpleName
     }
 }

@@ -9,9 +9,9 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.navigation.base.ExperimentalMapboxNavigationAPI
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowCustomStatusBinding
-import com.mapbox.navigation.ui.status.model.Status
-import com.mapbox.navigation.ui.status.model.StatusFactory.buildStatus
-import com.mapbox.navigation.ui.status.view.MapboxStatusView
+import com.mapbox.navigation.ui.components.status.model.StatusFactory.buildStatus
+import com.mapbox.navigation.ui.components.status.view.MapboxStatusView
+import javax.net.ssl.SSLEngineResult.Status
 
 /**
  * In this example you can learn how to customize [MapboxStatusView] and use it to show
@@ -32,7 +32,7 @@ class ShowCustomStatusActivity : AppCompatActivity() {
         binding.mapView.apply {
             scalebar.enabled = false
             gestures.addOnMapClickListener(onMapClickListener)
-            getMapboxMap().loadStyleUri(MAPBOX_STREETS)
+            mapboxMap.loadStyle(MAPBOX_STREETS)
         }
     }
 

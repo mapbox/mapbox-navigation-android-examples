@@ -1,12 +1,11 @@
-package com.mapbox.navigation.examples.multiplewaypoints
+package com.mapbox.navigation.examples.standalone.waypoints
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
@@ -16,27 +15,25 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
-import com.mapbox.navigation.base.route.RouterCallback
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
-import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityMultipleWaypointsBinding
-import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
+import com.mapbox.navigation.tripdata.maneuver.api.MapboxManeuverApi
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
-import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
+import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 
 /**
  * The example demonstrates how to build a route of multiple waypoints of different types
@@ -60,7 +57,6 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
  * 3. Repeat the first and the second step until you get a route you want
  * 4. Press "Reset the route" to start from the beginning
  */
-@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MultipleWaypointsActivity : AppCompatActivity() {
 
     private lateinit var binding: MapboxActivityMultipleWaypointsBinding
@@ -102,27 +98,26 @@ class MultipleWaypointsActivity : AppCompatActivity() {
      * Gets notified whenever the tracked routes change.
      *
      * A change can mean:
-     * - routes get changed with [MapboxNavigation.setRoutes]
+     * - routes get changed with [MapboxNavigation.setNavigationRoutes]
      * - routes annotations get refreshed (for example, congestion annotation that indicate the live traffic along the route)
      * - driver got off route and a reroute was executed
      */
     private val routesObserver = RoutesObserver { routeUpdateResult ->
-        if (routeUpdateResult.routes.isNotEmpty()) {
+        if (routeUpdateResult.navigationRoutes.isNotEmpty()) {
             // log maneuvers to see the named waypoints
-            logManeuvers(routeUpdateResult.routes.first())
+            logManeuvers(routeUpdateResult.navigationRoutes.first())
 
-            // generate route geometries and render them
-            val routeLines = routeUpdateResult.routes.map { RouteLine(it, null) }
-            routeLineApi.setRoutes(
-                routeLines
+            routeLineApi.setNavigationRoutes(
+                routeUpdateResult.navigationRoutes,
+                mapboxNavigation.getAlternativeMetadataFor(routeUpdateResult.navigationRoutes),
             ) { value ->
-                mapboxMap.getStyle()?.apply {
+                mapboxMap.style?.apply {
                     routeLineView.renderRouteDrawData(this, value)
                 }
             }
         } else {
             // remove the route line and route arrow from the map
-            val style = mapboxMap.getStyle()
+            val style = mapboxMap.style
             if (style != null) {
                 routeLineApi.clearRouteLine { value ->
                     routeLineView.renderClearRouteLineValue(
@@ -182,7 +177,7 @@ class MultipleWaypointsActivity : AppCompatActivity() {
         binding = MapboxActivityMultipleWaypointsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        mapboxMap = binding.mapView.getMapboxMap()
+        mapboxMap = binding.mapView.mapboxMap
         binding.mapView.location.apply {
             setLocationProvider(navigationLocationProvider)
             enabled = true
@@ -191,23 +186,22 @@ class MultipleWaypointsActivity : AppCompatActivity() {
         // initialize Mapbox Navigation
         mapboxNavigation = MapboxNavigationProvider.create(
             NavigationOptions.Builder(this.applicationContext)
-                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         )
         mapboxNavigation.startTripSession(withForegroundService = false)
 
-        // initialize route line, the withRouteLineBelowLayerId is specified to place
+        // initialize route line, the routeLineBelowLayerId is specified to place
         // the route line below road labels layer on the map
         // the value of this option will depend on the style that you are using
         // and under which layer the route line should be placed on the map layers stack
-        val mapboxRouteLineOptions = MapboxRouteLineOptions.Builder(this)
-            .withRouteLineBelowLayerId("road-label")
+        val mapboxRouteLineOptions = MapboxRouteLineViewOptions.Builder(this)
+            .routeLineBelowLayerId("road-label")
             .build()
-        routeLineApi = MapboxRouteLineApi(mapboxRouteLineOptions)
+        routeLineApi = MapboxRouteLineApi(MapboxRouteLineApiOptions.Builder().build())
         routeLineView = MapboxRouteLineView(mapboxRouteLineOptions)
 
         // load map style
-        mapboxMap.loadStyleUri(
+        mapboxMap.loadStyle(
             Style.MAPBOX_STREETS
         ) {
             // add long click listener that search for a route to the clicked destination
@@ -233,7 +227,7 @@ class MultipleWaypointsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxNavigation.onDestroy()
+        MapboxNavigationProvider.destroy()
     }
 
     private fun addWaypoint(destination: Point) {
@@ -271,10 +265,10 @@ class MultipleWaypointsActivity : AppCompatActivity() {
                 .waypointIndicesList(addedWaypoints.waypointsIndices())
                 .waypointNamesList(addedWaypoints.waypointsNames())
                 .build(),
-            object : RouterCallback {
+            object : NavigationRouterCallback {
                 override fun onRoutesReady(
-                    routes: List<DirectionsRoute>,
-                    routerOrigin: RouterOrigin
+                    routes: List<NavigationRoute>,
+                    routerOrigin: String
                 ) {
                     setRoute(routes)
                 }
@@ -286,17 +280,17 @@ class MultipleWaypointsActivity : AppCompatActivity() {
                     // no impl
                 }
 
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: String) {
                     // no impl
                 }
             }
         )
     }
 
-    private fun setRoute(routes: List<DirectionsRoute>) {
+    private fun setRoute(routes: List<NavigationRoute>) {
         // set routes, where the first route in the list is the primary route that
         // will be used for active guidance
-        mapboxNavigation.setRoutes(routes)
+        mapboxNavigation.setNavigationRoutes(routes)
 
         // show the "Reset the route" button
         binding.multipleWaypointResetRouteButton.apply {
@@ -310,8 +304,8 @@ class MultipleWaypointsActivity : AppCompatActivity() {
 
     // Resets the current route
     private fun resetCurrentRoute() {
-        if (mapboxNavigation.getRoutes().isNotEmpty()) {
-            mapboxNavigation.setRoutes(emptyList()) // reset route
+        if (mapboxNavigation.getNavigationRoutes().isNotEmpty()) {
+            mapboxNavigation.setNavigationRoutes(emptyList()) // reset route
             addedWaypoints.clear() // reset stored waypoints
         }
     }
@@ -322,7 +316,7 @@ class MultipleWaypointsActivity : AppCompatActivity() {
      * Do not use it.
      * This method doesn't demonstrate the way you should use [MapboxManeuverApi]
      */
-    private fun logManeuvers(route: DirectionsRoute) {
+    private fun logManeuvers(route: NavigationRoute) {
         MapboxManeuverApi(
             MapboxDistanceFormatter(mapboxNavigation.navigationOptions.distanceFormatterOptions)
         ).getManeuvers(route).fold(

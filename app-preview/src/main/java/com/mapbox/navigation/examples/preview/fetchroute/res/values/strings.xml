@@ -1,9 +1,0 @@
-<resources>
-
-    <string name="fetch_a_route_message">Route was fetched successfully</string>
-    <string name="fetch_a_route_cancel_message">Route request was canceled</string>
-    <string name="fetch_a_route_error_message">Route request returned error</string>
-    <string name="title_fetch_route">Fetch routes between an origin and destination</string>
-    <string name="description_fetch_route">Fetch routes by specifying two coordinates in RouteOptions and passing those options to MapboxNavigation\'s requestRoutes method.</string>
-
-</resources>

@@ -4,25 +4,22 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.mapbox.navigation.examples.MapboxExample
 import com.mapbox.navigation.examples.R
-import com.mapbox.navigation.examples.multiplewaypoints.MultipleWaypointsActivity
 import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRoutesActivity
 import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
-import com.mapbox.navigation.examples.standalone.junctions.ShowJunctionsActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.standalone.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.standalone.preview.PreviewActivity
-import com.mapbox.navigation.examples.standalone.replay.ReplayHistoryActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
-import com.mapbox.navigation.examples.standalone.signboard.ShowSignboardActivity
 import com.mapbox.navigation.examples.standalone.speedlimit.ShowSpeedLimitActivity
 import com.mapbox.navigation.examples.standalone.status.ShowCustomStatusActivity
 import com.mapbox.navigation.examples.standalone.status.ShowStatusActivity
 import com.mapbox.navigation.examples.standalone.tripprogress.ShowTripProgressActivity
 import com.mapbox.navigation.examples.standalone.turnbyturn.TurnByTurnExperienceActivity
 import com.mapbox.navigation.examples.standalone.voice.PlayVoiceInstructionsActivity
+import com.mapbox.navigation.examples.standalone.waypoints.MultipleWaypointsActivity
 
 fun Context.examplesList() = listOf(
     MapboxExample(
@@ -116,27 +113,17 @@ fun Context.examplesList() = listOf(
         ShowCustomStatusActivity::class.java
     ),
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_junctions),
-        getString(R.string.title_show_junctions),
-        getString(R.string.description_show_junctions),
-        ShowJunctionsActivity::class.java
-    ),
-    MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_signboard),
-        getString(R.string.title_signboard),
-        getString(R.string.description_signboard),
-        ShowSignboardActivity::class.java
-    ),
-    MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_alternative_routes),
         getString(R.string.title_show_alternative_routes),
         getString(R.string.description_show_alternative_routes),
         ShowAlternativeRoutesActivity::class.java
     ),
-    MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_replay),
-        getString(R.string.title_replay),
-        getString(R.string.description_replay),
-        ReplayHistoryActivity::class.java
-    ),
+
+    // TODO history replay doesn't work, will be fixed in the upcoming releases
+//    MapboxExample(
+//        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_replay),
+//        getString(R.string.title_replay),
+//        getString(R.string.description_replay),
+//        ReplayHistoryActivity::class.java
+//    ),
 )
