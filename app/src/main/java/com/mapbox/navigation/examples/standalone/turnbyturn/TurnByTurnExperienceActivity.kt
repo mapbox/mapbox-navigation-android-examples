@@ -589,7 +589,6 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
                 )
             )
             playFirstLocation()
-            playbackSpeed(3.0)
         }
     }
 
