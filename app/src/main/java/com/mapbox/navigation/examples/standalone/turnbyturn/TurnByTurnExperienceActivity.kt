@@ -519,6 +519,9 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
         // load map style
         binding.mapView.mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
+            // Ensure that the route line related layers are present before the route arrow
+            routeLineView.initializeLayers(it)
+
             // add long click listener that search for a route to the clicked destination
             binding.mapView.gestures.addOnMapLongClickListener { point ->
                 findRoute(point)
