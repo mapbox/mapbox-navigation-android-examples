@@ -37,7 +37,7 @@ import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationAct
  *   </resources>
  * - Add MAPBOX_DOWNLOADS_TOKEN to your USER_HOME»/.gradle/gradle.properties file.
  *   To find out how to get your MAPBOX_DOWNLOADS_TOKEN follow these steps.
- *   https://docs.mapbox.com/android/navigation/build-with-coreframework/installation/#configure-credentials
+ *   https://docs.mapbox.com/android/navigation/guides/installation/#configure-credentials
  *
  * For the purposes of this example the code will not hook onto your current
  * location. Origin and destination coordinates will be hardcoded. To understand how to
