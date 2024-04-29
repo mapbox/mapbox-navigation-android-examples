@@ -34,7 +34,7 @@ import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
  *   </resources>
  * - Add MAPBOX_DOWNLOADS_TOKEN to your USER_HOME»/.gradle/gradle.properties file.
  *   To find out how to get your MAPBOX_DOWNLOADS_TOKEN follow these steps.
- *   https://docs.mapbox.com/android/navigation/build-with-coreframework/installation/#configure-credentials
+ *   https://docs.mapbox.com/android/navigation/guides/installation/#configure-credentials
  *
  * The example assumes that you have granted location permissions and does not enforce it. Since,
  * it's a standard procedure to ask for runtime permissions the example doesn't implements that
