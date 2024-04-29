@@ -36,6 +36,8 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.databinding.MapboxActivityCustomArrivalBinding
+import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
+import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.building.api.MapboxBuildingsApi
