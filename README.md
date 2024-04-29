@@ -33,7 +33,7 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
 ## Previous versions
 
 If you're looking for code examples from previous versions of the Navigation SDK, you can access them through the following links:
-- [Nav SDK v2](https://docs.mapbox.com/android/navigation/v2/guides/): https://github.com/mapbox/mapbox-navigation-android-examples/tree/main-v2
+- [Navigation SDK v2](https://docs.mapbox.com/android/navigation/v2/guides/): https://github.com/mapbox/mapbox-navigation-android-examples/tree/main-v2
 - [Navigation SDK v1](https://docs.mapbox.com/android/legacy/navigation/guides/): https://github.com/mapbox/mapbox-navigation-android/tree/v1.6.0/examples/
 
 ## Getting Help
