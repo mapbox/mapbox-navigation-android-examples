@@ -12,7 +12,7 @@ The repository is a collection of examples showing off the [Mapbox Navigation An
 
 ## Installation
 
-Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/navigation/build-with-coreframework/installation/) guide. Once you have your **public and secret access tokens ready**, do the following:
+Make sure you follow the steps under the [Installation](https://docs.mapbox.com/android/navigation/guides/installation/) guide. Once you have your **public and secret access tokens ready**, do the following:
 
 ### [app](app)
 
