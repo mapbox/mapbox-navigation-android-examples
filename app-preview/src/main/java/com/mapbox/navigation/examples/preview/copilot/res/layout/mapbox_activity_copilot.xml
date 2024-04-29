@@ -37,7 +37,7 @@
         app:srcCompat="@drawable/ic_start" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/setRoutes"
+        android:id="@+id/fetchRoutes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/ic_route"
@@ -55,7 +55,7 @@
         android:visibility="visible"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/setRoutes"
+        app:layout_constraintStart_toEndOf="@id/fetchRoutes"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

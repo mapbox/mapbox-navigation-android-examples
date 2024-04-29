@@ -1,25 +1,31 @@
 package com.mapbox.navigation.examples.preview.copilot
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RawRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import com.mapbox.api.directions.v5.models.DirectionsResponse
+import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
+import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.CopilotOptions
 import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.base.route.NavigationRoute
+import com.mapbox.navigation.base.route.NavigationRouterCallback
+import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.navigation.base.route.toNavigationRoutes
 import com.mapbox.navigation.copilot.HistoryPoint
 import com.mapbox.navigation.copilot.MapboxCopilot
 import com.mapbox.navigation.copilot.SearchResultUsed
 import com.mapbox.navigation.copilot.SearchResultUsedEvent
 import com.mapbox.navigation.copilot.SearchResults
 import com.mapbox.navigation.copilot.SearchResultsEvent
+import com.mapbox.navigation.core.DeveloperMetadata
 import com.mapbox.navigation.core.DeveloperMetadataObserver
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
@@ -96,12 +102,19 @@ import com.mapbox.navigation.examples.preview.databinding.MapboxActivityCopilotB
  * - Look at how Navigation session state changes to Idle and the Copilot session ID is now empty
  */
 
+@SuppressLint("SetTextI18n")
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CopilotActivity : AppCompatActivity() {
+
+    private val routeCoordinates = listOf(
+        Point.fromLngLat(-122.4934801,37.7721532),
+        Point.fromLngLat(-122.4850055,37.7801765),
+    )
 
     private lateinit var binding: MapboxActivityCopilotBinding
     private lateinit var copilotViewModel: CopilotViewModel
     private var navigationSessionState: NavigationSessionState = NavigationSessionState.Idle
+
     private val navigationSessionStateObserver = NavigationSessionStateObserver {
         navigationSessionState = it
         val sessionStateText = "Navigation session state:"
@@ -110,25 +123,25 @@ class CopilotActivity : AppCompatActivity() {
                 binding.navigationSessionState.text =
                     "$sessionStateText Idle"
                 binding.startStopNavigation.setImageResource(R.drawable.ic_start)
-                binding.setRoutes.visibility = View.GONE
-                binding.feedbackPush.visibility = View.GONE
-                binding.searchPush.visibility = View.GONE
+                binding.fetchRoutes.isVisible = false
+                binding.feedbackPush.isVisible = false
+                binding.searchPush.isVisible = false
             }
             is NavigationSessionState.FreeDrive -> {
                 binding.navigationSessionState.text =
                     "$sessionStateText Free Drive"
                 binding.startStopNavigation.setImageResource(R.drawable.ic_stop)
-                binding.setRoutes.visibility = View.VISIBLE
-                binding.feedbackPush.visibility = View.VISIBLE
-                binding.searchPush.visibility = View.VISIBLE
+                binding.fetchRoutes.isVisible = true
+                binding.feedbackPush.isVisible = true
+                binding.searchPush.isVisible = true
             }
             is NavigationSessionState.ActiveGuidance -> {
                 binding.navigationSessionState.text =
                     "$sessionStateText Active Guidance"
                 binding.startStopNavigation.setImageResource(R.drawable.ic_stop)
-                binding.setRoutes.visibility = View.GONE
-                binding.feedbackPush.visibility = View.VISIBLE
-                binding.searchPush.visibility = View.VISIBLE
+                binding.fetchRoutes.isVisible = false
+                binding.feedbackPush.isVisible = true
+                binding.searchPush.isVisible = true
             }
         }
     }
@@ -155,7 +168,6 @@ class CopilotActivity : AppCompatActivity() {
     ) {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
                 .copilotOptions(
                     // Set shouldSendHistoryOnlyWithFeedback to true if you want to sent Copilot traces
                     // only when an end user submits negative feedback
@@ -164,7 +176,6 @@ class CopilotActivity : AppCompatActivity() {
                 .build()
         )
     }
-    private lateinit var routeResponse: DirectionsResponse
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,8 +184,6 @@ class CopilotActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         copilotViewModel = ViewModelProvider(this)[CopilotViewModel::class.java]
-        routeResponse =
-            DirectionsResponse.fromJson(readRawFileText(this, R.raw.multiple_routes))
 
         binding.startStopNavigation.setOnClickListener {
             when (navigationSessionState) {
@@ -191,10 +200,8 @@ class CopilotActivity : AppCompatActivity() {
             }
         }
 
-        binding.setRoutes.setOnClickListener {
-            mapboxNavigation.setNavigationRoutes(
-                routeResponse.routes().toNavigationRoutes(RouterOrigin.Onboard),
-            )
+        binding.fetchRoutes.setOnClickListener {
+            fetchRoute()
         }
 
         binding.feedbackPush.setOnClickListener {
@@ -232,6 +239,42 @@ class CopilotActivity : AppCompatActivity() {
         }
     }
 
-    private fun readRawFileText(context: Context, @RawRes res: Int): String =
-        context.resources.openRawResource(res).bufferedReader().use { it.readText() }
+    private fun fetchRoute() {
+        mapboxNavigation.requestRoutes(
+            RouteOptions.builder()
+                .applyDefaultNavigationOptions()
+                .applyLanguageAndVoiceUnitOptions(this)
+                .alternatives(false)
+                .coordinatesList(routeCoordinates)
+                .layersList(listOf(mapboxNavigation.getZLevel(), null))
+                .build(),
+
+            object : NavigationRouterCallback {
+                override fun onRoutesReady(
+                    routes: List<NavigationRoute>,
+                    @RouterOrigin routerOrigin: String
+                ) {
+                    mapboxNavigation.setNavigationRoutes(routes)
+                }
+
+                override fun onFailure(
+                    reasons: List<RouterFailure>,
+                    routeOptions: RouteOptions
+                ) {
+                    Log.d(LOG_TAG, "onFailure: $reasons")
+                }
+
+                override fun onCanceled(
+                    routeOptions: RouteOptions,
+                    @RouterOrigin routerOrigin: String
+                ) {
+                    Log.d(LOG_TAG, "onCanceled")
+                }
+            }
+        )
+    }
+
+    private companion object {
+        val LOG_TAG: String = CopilotActivity::class.java.simpleName
+    }
 }
