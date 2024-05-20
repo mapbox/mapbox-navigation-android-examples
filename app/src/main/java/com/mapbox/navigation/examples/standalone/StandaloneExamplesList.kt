@@ -8,6 +8,7 @@ import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRout
 import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
+import com.mapbox.navigation.examples.standalone.custompuck.CustomPuckActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
 import com.mapbox.navigation.examples.standalone.maneuvers.ShowManeuversActivity
@@ -118,6 +119,13 @@ fun Context.examplesList() = listOf(
         getString(R.string.description_show_alternative_routes),
         ShowAlternativeRoutesActivity::class.java
     ),
+
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.custom_puck_activity_thumbnail),
+        getString(R.string.title_custom_2d_puck),
+        getString(R.string.description_custom_2d_puck),
+        CustomPuckActivity::class.java
+    )
 
     // TODO history replay doesn't work, will be fixed in the upcoming releases
 //    MapboxExample(

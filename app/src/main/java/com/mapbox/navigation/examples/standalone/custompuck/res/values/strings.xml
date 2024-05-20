@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_custom_2d_puck">Use a custom 2D or 3D puck</string>
+    <string name="description_custom_2d_puck">Demonstrates using a custom 2D or 3D puck.</string>
+
+</resources>

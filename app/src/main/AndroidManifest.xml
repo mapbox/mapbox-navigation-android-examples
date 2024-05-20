@@ -108,6 +108,11 @@
         android:screenOrientation="portrait"
         android:exported="false"
         />
+
+    <activity android:name=".standalone.custompuck.CustomPuckActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
   </application>
 
 </manifest>
