@@ -1,6 +1,6 @@
 # Mapbox Navigation Android-Auto SDK Examples
 
-The android-auto-app showcases the minimum integration needed to support the android-auto module in your application. The [android-auto](../android-auto-app/README.md) module is a portable example that can be copied into your app. See instructions for integrating below.
+The android-auto-app showcases the minimum integration needed to support the android-auto module in your application, it's a portable example that can be copied into your app. See instructions for integrating below.
 
 <div align="center" padding="100">
   <img src="../.github/android_auto_example.png"/>
