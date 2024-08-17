@@ -127,6 +127,6 @@ class StandaloneActivity : AppCompatActivity(), PermissionsListener {
     }
 
     private companion object {
-        const val MAPBOX_ACCESS_TOKEN_PLACEHOLDER = "YOUR_MAPBOX_ACCESS_TOKEN_GOES_HERE"
+        const val MAPBOX_ACCESS_TOKEN_PLACEHOLDER = "pk.eyJ1IjoiZGFtbzEyMyIsImEiOiJjbHpzdHJtMHMwcnlvMmlzOTA3MjhheXJxIn0.GVAI4flEe7QIIUFy0OneAw"
     }
 }
