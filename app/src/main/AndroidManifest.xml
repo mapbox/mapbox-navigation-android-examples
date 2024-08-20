@@ -27,6 +27,11 @@
         android:exported="false"
         />
 
+    <activity android:name=".standalone.callout.RouteCalloutActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
+
     <activity android:name=".standalone.location.ShowCurrentLocationActivity"
         android:screenOrientation="portrait"
         android:exported="false"
