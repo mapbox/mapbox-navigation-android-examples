@@ -1,0 +1,4 @@
+<resources>
+    <string name="title_show_route_callouts">Show route callouts</string>
+    <string name="description_show_route_callouts">Use the example to show route callouts using RouteCallout API.</string>
+</resources>
