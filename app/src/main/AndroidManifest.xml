@@ -118,6 +118,11 @@
         android:screenOrientation="portrait"
         android:exported="false"
         />
+
+      <activity android:name=".standalone.isochrone.IsochroneRangeInMeters"
+          android:screenOrientation="portrait"
+          android:exported="false"
+          />
   </application>
 
 </manifest>
