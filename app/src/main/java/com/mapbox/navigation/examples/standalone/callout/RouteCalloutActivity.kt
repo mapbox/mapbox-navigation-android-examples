@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.bindgen.Value
+import com.mapbox.common.SettingsServiceFactory
+import com.mapbox.common.SettingsServiceStorageType
 import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -13,6 +16,7 @@ import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.maps.viewannotation.ViewAnnotationUpdateMode
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
@@ -288,6 +292,11 @@ class RouteCalloutActivity : AppCompatActivity() {
         binding.mapView.mapboxMap.loadStyle(
             NavigationStyles.NAVIGATION_DAY_STYLE
         )
+        SettingsServiceFactory.getInstance(SettingsServiceStorageType.NON_PERSISTENT).set(
+            "com.mapbox.maps.experimental.dispatch_annotations_positions_before_rendering",
+            Value.valueOf(true)
+        )
+        binding.mapView.viewAnnotationManager.setViewAnnotationUpdateMode(ViewAnnotationUpdateMode.MAP_FIXED_DELAY)
 
         binding.startNavigation.setOnClickListener {
             binding.startNavigation.isVisible = false
