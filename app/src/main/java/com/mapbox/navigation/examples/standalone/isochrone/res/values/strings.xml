@@ -1,0 +1,4 @@
+<resources>
+    <string name="title_isochrone_range">Isochrone Range Preview</string>
+    <string name="description_isochrone_range">Demonstrates using an isochrone.</string>
+</resources>
