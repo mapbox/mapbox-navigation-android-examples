@@ -1,11 +1,16 @@
 package com.mapbox.navigation.examples.standalone.camera
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.common.location.Location
@@ -306,6 +311,9 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
         binding.overviewButton.setOnClickListener {
             navigationCamera.requestNavigationCameraToOverview()
         }
+        binding.changeMapSize.setOnClickListener {
+            animateViewSizeChange(binding.mapView)
+        }
 
         binding.routeButton.text = "Fetch route"
 
@@ -325,6 +333,29 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun animateViewSizeChange(targetView: View) {
+        val animator = ValueAnimator.ofFloat(1f, 2.0f/3.0f)
+        val parent = targetView.parent as ViewGroup
+
+        animator.addUpdateListener { valueAnimator ->
+            val fraction = valueAnimator.animatedValue as Float
+
+            val newWidth = (parent.width * fraction).toInt()
+            val newHeight = (parent.height * fraction).toInt()
+
+            val layoutParams = targetView.layoutParams
+            layoutParams.width = newWidth
+            layoutParams.height = newHeight
+            targetView.layoutParams = layoutParams
+
+            targetView.requestLayout()
+            //navigationCamera.resetFrame()
+        }
+
+        animator.duration = 500
+        animator.start()
     }
 
     override fun onDestroy() {
