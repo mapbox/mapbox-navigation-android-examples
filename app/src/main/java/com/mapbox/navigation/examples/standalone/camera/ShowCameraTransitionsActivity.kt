@@ -353,6 +353,7 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
             targetView.requestLayout()
             //navigationCamera.resetFrame()
         }
+        binding.mapView.camera.registerAnimators(animator)
 
         animator.duration = 500
         animator.start()
