@@ -270,7 +270,7 @@ class ShowBuildingExtrusionsActivity : AppCompatActivity() {
         binding = MapboxActivityBuildingExtrusionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        binding.mapView.getMapboxMap().loadStyleUri("mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd") {
             binding.actionButton.visibility = View.VISIBLE
         }
 

@@ -520,7 +520,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
         routeArrowView = MapboxRouteArrowView(routeArrowOptions)
 
         // load map style
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        binding.mapView.getMapboxMap().loadStyleUri("mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd") {
             // add long click listener that search for a route to the clicked destination
             binding.mapView.gestures.addOnMapLongClickListener { point ->
                 findRoute(point)
@@ -588,7 +588,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             listOf(
                 ReplayRouteMapper.mapToUpdateLocation(
                     Date().time.toDouble(),
-                    Point.fromLngLat(-122.39726512303575, 37.785128345296805)
+                    Point.fromLngLat( 58.545364, 23.608444)
                 )
             )
         )
@@ -599,7 +599,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
     private fun findRoute(destination: Point) {
         val originLocation = navigationLocationProvider.lastLocation
         val originPoint = originLocation?.let {
-            Point.fromLngLat(it.longitude, it.latitude)
+            Point.fromLngLat(58.545364, 23.608444)
         } ?: return
 
         // execute a route request

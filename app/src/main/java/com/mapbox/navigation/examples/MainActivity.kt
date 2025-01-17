@@ -14,8 +14,12 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.core.permissions.PermissionsManager.areLocationPermissionsGranted
 import com.mapbox.navigation.examples.databinding.ActivityMainBinding
-import com.mapbox.navigation.examples.dropinui.DropInUIActivity
+import com.mapbox.navigation.examples.dropinui.basic.NavigationViewActivity
 import com.mapbox.navigation.examples.standalone.StandaloneActivity
+import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRoutesActivity
+import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
+import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
+import com.mapbox.navigation.examples.standalone.turnbyturn.TurnByTurnExperienceActivity
 
 class MainActivity : AppCompatActivity(), PermissionsListener {
 
@@ -39,7 +43,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener {
         }
 
         binding.cardDropIn.setOnClickListener {
-            val intent = Intent(this, DropInUIActivity::class.java)
+            val intent = Intent(this, NavigationViewActivity::class.java)
             startActivity(intent)
         }
 

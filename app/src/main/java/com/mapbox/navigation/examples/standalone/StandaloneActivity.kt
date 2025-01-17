@@ -26,13 +26,5 @@ class StandaloneActivity : AppCompatActivity() {
         examplesAdapter = MapboxExamplesAdapter(examples) {
             startActivity(Intent(this@StandaloneActivity, examples[it].activity))
         }
-        binding.standaloneRecycler.apply {
-            layoutManager = LinearLayoutManager(
-                this@StandaloneActivity,
-                LinearLayoutManager.VERTICAL,
-                false
-            )
-            adapter = examplesAdapter
-        }
     }
 }

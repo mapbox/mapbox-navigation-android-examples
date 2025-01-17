@@ -4,18 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ccc"
     tools:context=".MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/standaloneRecycler"
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDropIn"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:layout_height="420dp"
+        android:layout_margin="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:cardBackgroundColor="#FAFAFA"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="4dp"
+        >
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/dropInUIDescription"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:includeFontPadding="false"
+                android:paddingTop="15dp"
+                android:paddingLeft="6dp"
+                android:text="@string/standalone_components_description"
+                android:textColor="#131313"
+                android:textSize="16sp" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/mapbox_item_view_recycler"/>
+        tools:layout_editor_absoluteX="6dp"
+        tools:layout_editor_absoluteY="659dp"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="0dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="140dp"
+            android:layout_height="80dp"
+            android:paddingBottom="10dp"
+            android:layout_gravity="end|bottom"
+            app:srcCompat="@drawable/flag_of_oman" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="195dp"
+            android:layout_height="90dp"
+            android:layout_gravity="start|bottom"
+            app:srcCompat="@drawable/logo__1_" />
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

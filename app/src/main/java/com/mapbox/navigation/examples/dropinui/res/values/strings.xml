@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="drop_in_ui_title">Drop-In UI</string>
-  <string name="drop_in_ui_description">The examples hosted under this section demonstrate the usage of Drop-In UI offered by the Mapbox Navigation SDK. Refer these examples if you want to use an in-built navigation experience, with the tools to replace and inject custom views as required by your app.</string>
+  <string name="drop_in_ui_title">AnkaNaviDemo App</string>
+  <string name="drop_in_ui_description">Welcome to ONM Demo, your preview of the basic navigation solution for Oman!</string>
 
-  <string name="standalone_components_title">Standalone Components</string>
-  <string name="standalone_components_description">The examples hosted under this section demonstrate the usage of standalone components offered by the Mapbox Navigation SDK. Refer these examples if you want to build a fully custom navigation experience from scratch using the components provided.</string>
+  <string name="standalone_components_title">About</string>
+  <string name="standalone_components_description"> <b>About ONM Demo</b> \n Welcome to ONM Demo, your preview of the basic navigation solution for Oman! \n\n ONM Demo is a showcase application developed by Ankageo, designed to demonstrate basic features and functionality of the Oman Navigation Map (ONM). \n \n Contact Us\n We’d love to hear your feedback or answer your questions!\n\n
+    Email: info@ankageo.com \n\n
+    Website: www.ankageo.com
+  </string>
 </resources>

@@ -29,6 +29,11 @@ class NavigationViewActivity : AppCompatActivity() {
         binding = MapboxActivityNavigationViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.navigationView.customizeViewOptions {
+            mapStyleUriDay = "mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd"
+            mapStyleUriNight = "mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd"
+        }
+
         // This allows to simulate your location
         binding.navigationView.api.routeReplayEnabled(true)
     }

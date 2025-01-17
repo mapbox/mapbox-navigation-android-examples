@@ -2,12 +2,24 @@ package com.mapbox.navigation.examples.dropinui.viewreplacement
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.mapbox.geojson.Point
+import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
+import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.dropin.ViewBinderCustomization
+import com.mapbox.navigation.dropin.ViewStyleCustomization
 import com.mapbox.navigation.dropin.infopanel.InfoPanelBinder
+import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityCustomizeInfoPanelBinding
+import com.mapbox.navigation.examples.dropinui.styling.CustomInfoPanelAttributesActivity
+import com.mapbox.navigation.examples.dropinui.viewinjection.CustomLongClickActivity
 
 /**
  * The example demonstrates how to use [ViewBinderCustomization] to replace Mapbox implementation
@@ -41,7 +53,6 @@ class CustomInfoPanelActivity : AppCompatActivity() {
         setContentView(binding.navigationView)
 
         binding.navigationView.api.routeReplayEnabled(true)
-
         binding.navigationView.customizeViewBinders {
             infoPanelBinder = MyInfoPanelBinder()
         }
@@ -64,4 +75,5 @@ class MyInfoPanelBinder : InfoPanelBinder() {
 
     override fun getContentLayout(layout: ViewGroup): ViewGroup? =
         layout.findViewById(R.id.infoPanelContent)
+
 }

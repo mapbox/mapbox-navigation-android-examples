@@ -1,8 +1,11 @@
 package com.mapbox.navigation.examples.standalone.arrival
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
+import android.provider.CalendarContract.Colors
+import android.util.JsonReader
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +52,7 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
+import org.json.JSONStringer
 import java.util.Date
 
 /**
@@ -279,9 +283,6 @@ class CustomArrivalActivity : AppCompatActivity() {
         binding = MapboxActivityCustomArrivalBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.getMapboxMap().loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
-            binding.actionButton.visibility = View.VISIBLE
-        }
 
         binding.actionButton.text = "Set Route"
         binding.actionButton.setOnClickListener {
@@ -322,7 +323,7 @@ class CustomArrivalActivity : AppCompatActivity() {
     private fun initNavigation() {
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(this)
-                .accessToken(getString(R.string.mapbox_access_token))
+                .accessToken("sk.eyJ1Ijoic2V6ZXJiemJ5ayIsImEiOiJjbTYwazU1cXIwYno5MmlzNjd3ZWF3aGw1In0.o-fegsrF9IgROoDwRh9_XA")
                 // comment out the location engine setting block to disable simulation
                 .locationEngine(replayLocationEngine)
                 .build()
@@ -333,6 +334,7 @@ class CustomArrivalActivity : AppCompatActivity() {
             enabled = true
         }
 
+
         replayOriginLocation()
     }
 
@@ -341,7 +343,7 @@ class CustomArrivalActivity : AppCompatActivity() {
             listOf(
                 ReplayRouteMapper.mapToUpdateLocation(
                     Date().time.toDouble(),
-                    Point.fromLngLat(-122.4192, 37.7627)
+                    Point.fromLngLat(58.545364, 23.608444)
                 )
             )
         )

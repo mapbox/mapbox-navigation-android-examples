@@ -204,7 +204,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
                 .zoom(DEFAULT_INITIAL_ZOOM)
                 .build()
         )
-        mapboxMap.loadStyleUri(NavigationStyles.NAVIGATION_DAY_STYLE) {
+        mapboxMap.loadStyleUri("mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd") {
             viewportDataSource.evaluate()
         }
 
