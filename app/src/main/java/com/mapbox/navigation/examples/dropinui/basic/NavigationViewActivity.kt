@@ -3,6 +3,7 @@ package com.mapbox.navigation.examples.dropinui.basic
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.navigation.dropin.NavigationView
+import com.mapbox.navigation.examples.BuildConfig
 import com.mapbox.navigation.examples.databinding.MapboxActivityNavigationViewBinding
 
 /**
@@ -30,8 +31,8 @@ class NavigationViewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.navigationView.customizeViewOptions {
-            mapStyleUriDay = "mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd"
-            mapStyleUriNight = "mapbox://styles/senolpazar/cm60gwmlj004h01scb8pra2jd"
+            mapStyleUriNight = BuildConfig.MAPBOX_STYLE_URI
+            mapStyleUriDay = BuildConfig.MAPBOX_STYLE_URI
         }
 
         // This allows to simulate your location

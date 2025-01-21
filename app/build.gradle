@@ -4,6 +4,13 @@ apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
+def properties = new Properties()
+try {
+    properties.load(new FileInputStream(rootProject.file("gradle.properties")))
+} catch (Exception e) {
+    logger.warn("Properties not Found!")
+}
+
 android {
     compileSdkVersion 33
 
@@ -21,6 +28,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments clearPackageData: 'true'
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField("String", "MAPBOX_STYLE_URI", "\"" + properties['MAPBOX_STYLE_URI'] + "\"")
     }
 
     testOptions {
