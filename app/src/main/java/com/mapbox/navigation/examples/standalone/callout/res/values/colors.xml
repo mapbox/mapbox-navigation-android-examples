@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryCalloutColor">#4264fb</color>
+    <color name="primaryCalloutColorDarkDark">#00195F</color>
+    <color name="alternativeCalloutColor">#AFADAD</color>
+    <color name="alternativeCalloutColorDark">#424242</color>
+    <color name="fasterArrow">#09AA74</color>
+    <color name="slowerArrow">#AA093F</color>
+</resources>
