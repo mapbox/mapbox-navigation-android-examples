@@ -74,6 +74,7 @@ import com.mapbox.navigation.voice.model.SpeechValue
 import com.mapbox.navigation.voice.model.SpeechVolume
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 /**
  * This example demonstrates a basic turn-by-turn navigation experience by putting together some UI elements to showcase
@@ -287,7 +288,7 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
      * and the updates enhanced by the Navigation SDK (cleaned up and matched to the road).
      */
     private val locationObserver = object : LocationObserver {
-        var firstLocationUpdateReceived = false
+        var previousLocationMatcherResult: LocationMatcherResult? = null
 
         override fun onNewRawLocation(rawLocation: Location) {
             // not handled
@@ -299,7 +300,17 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
             navigationLocationProvider.changePosition(
                 location = enhancedLocation,
                 keyPoints = locationMatcherResult.keyPoints,
-            )
+            ) {
+                val previousLocationMatcherResult = previousLocationMatcherResult
+                if (
+                    previousLocationMatcherResult != null &&
+                    locationMatcherResult.enhancedLocation.monotonicTimestamp != null &&
+                    previousLocationMatcherResult.enhancedLocation.monotonicTimestamp != null
+                ) {
+                    val animationDurationNs = locationMatcherResult.enhancedLocation.monotonicTimestamp!! - previousLocationMatcherResult.enhancedLocation.monotonicTimestamp!!
+                    duration = TimeUnit.NANOSECONDS.toMillis(animationDurationNs)
+                }
+            }
 
             // update camera position to account for new location
             viewportDataSource.onLocationChanged(enhancedLocation)
@@ -307,14 +318,14 @@ class TurnByTurnExperienceActivity : AppCompatActivity() {
 
             // if this is the first location update the activity has received,
             // it's best to immediately move the camera to the current user location
-            if (!firstLocationUpdateReceived) {
-                firstLocationUpdateReceived = true
+            if (previousLocationMatcherResult == null) {
                 navigationCamera.requestNavigationCameraToOverview(
                     stateTransitionOptions = NavigationCameraTransitionOptions.Builder()
                         .maxDuration(0) // instant transition
                         .build()
                 )
             }
+            previousLocationMatcherResult = locationMatcherResult
         }
     }
 
