@@ -7,7 +7,7 @@ import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.standalone.alternative.ShowAlternativeRoutesActivity
 import com.mapbox.navigation.examples.standalone.arrival.CustomArrivalActivity
 import com.mapbox.navigation.examples.standalone.building.ShowBuildingExtrusionsActivity
-import com.mapbox.navigation.examples.standalone.callout.RouteCalloutActivity
+import com.mapbox.navigation.examples.standalone.callout.CustomRouteCalloutActivity
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.custompuck.CustomPuckActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
@@ -26,10 +26,10 @@ import com.mapbox.navigation.examples.standalone.waypoints.MultipleWaypointsActi
 
 fun Context.examplesList() = listOf(
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_route_callout),
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_custom_route_callout),
         getString(R.string.title_show_route_callouts),
         getString(R.string.description_show_route_callouts),
-        RouteCalloutActivity::class.java
+        CustomRouteCalloutActivity::class.java
     ),
     MapboxExample(
         ContextCompat.getDrawable(this, R.drawable.mapbox_ic_user_current_location),
@@ -44,7 +44,7 @@ fun Context.examplesList() = listOf(
         FetchARouteActivity::class.java
     ),
     MapboxExample(
-        ContextCompat.getDrawable(this, R.drawable.mapbox_ic_route_line),
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_route_lines),
         getString(R.string.title_route),
         getString(R.string.description_route),
         RenderRouteLineActivity::class.java

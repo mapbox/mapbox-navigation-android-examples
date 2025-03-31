@@ -6,16 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.mapbox.api.directions.v5.models.RouteOptions
-import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapboxDelicateApi
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
-import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
@@ -23,40 +21,27 @@ import com.mapbox.navigation.base.route.RouteAlternativesOptions
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
 import com.mapbox.navigation.core.MapboxNavigation
-import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.preview.RoutesPreviewObserver
-import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
-import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.routealternatives.AlternativeRouteMetadata
-import com.mapbox.navigation.core.trip.session.LocationMatcherResult
-import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.databinding.ActivityRouteCalloutBinding
 import com.mapbox.navigation.examples.standalone.camera.ShowCameraTransitionsActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
 import com.mapbox.navigation.ui.maps.NavigationStyles
-import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
-import com.mapbox.navigation.ui.maps.route.callout.api.MapboxRouteCalloutApi
-import com.mapbox.navigation.ui.maps.route.callout.api.MapboxRouteCalloutView
-import com.mapbox.navigation.ui.maps.route.callout.model.MapboxRouteCalloutApiOptions
-import com.mapbox.navigation.ui.maps.route.callout.model.MapboxRouteCalloutViewOptions
-import com.mapbox.navigation.ui.maps.route.callout.model.RouteCalloutType
 import com.mapbox.navigation.ui.maps.route.line.MapboxRouteLineApiExtensions.setNavigationRoutes
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 import kotlinx.coroutines.launch
-import java.util.Date
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This example demonstrates the usage of the route callout API and UI elements.
+ * This example demonstrates customization of the route callouts UI elements.
  *
  * Before running the example make sure you have put your access_token in the correct place
  * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
@@ -77,75 +62,50 @@ import kotlin.time.Duration.Companion.seconds
  * [ShowCameraTransitionsActivity]
  *
  * How to use this example:
- * - The example uses two hardcoded points and requests routes between them.
- * - When the example starts, route lines and callouts are drawn on the map using the route between the predefined points and start navigation,
- * the camera transitions to the location where the route is
- * - Click on Start Navigation button to update options of [MapboxRouteCalloutApi], apply them to [MapboxRouteCalloutView]
- * and start navigation.
- * - You should now start to navigate and see possible alternative routes throughout the trip.
- * - You can click on the route callout to make the route it is attached to the primary one.
+ * - The example uses a list of predefined coordinates that will be used to fetch a route.
+ * - When the example starts, the camera transitions to fit route origin and destination, the route between them fetches
+ * - Once routes are rendered you can see callouts attached to each route line
+ * - Click on any callout to make that route primary and all others alternative
+ * - Click on Switch Theme button to trigger adapter to redraw callouts with new data
  *
  * Note:
  * The example does not demonstrates the use of [MapboxRouteArrowApi] and [MapboxRouteArrowView].
  * Take a look at [RenderRouteLineActivity] example to learn more about route line and route arrow.
  */
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
-class RouteCalloutActivity : AppCompatActivity() {
-    /**
-     * [NavigationLocationProvider] is a utility class that helps to provide location updates generated by the Navigation SDK
-     * to the Maps SDK in order to update the user location indicator on the map.
-     */
-    private val navigationLocationProvider = NavigationLocationProvider()
+class CustomRouteCalloutActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRouteCalloutBinding
 
-    private val routeLineViewOptions: MapboxRouteLineViewOptions by lazy {
-        MapboxRouteLineViewOptions.Builder(this)
-            .routeLineBelowLayerId("road-label-navigation")
+    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
+        MapboxRouteLineApiOptions.Builder()
+            .isRouteCalloutsEnabled(true)
             .build()
     }
 
-    private val routeLineApiOptions: MapboxRouteLineApiOptions by lazy {
-        MapboxRouteLineApiOptions.Builder()
-            .vanishingRouteLineEnabled(true)
-            .build()
+    /**
+     * Click on any callout of the alternative route on the map to make it primary.
+     */
+    private val routeCalloutClickListener: ((NavigationRoute) -> Unit) = { route ->
+        reorderRoutes(route)
     }
+
+    /**
+     * Callout adapter allows to provide custom UI for the route callouts.
+     */
+    private val calloutAdapter by lazy { CustomRouteCalloutAdapter(this, routeCalloutClickListener) }
+
     private val routeLineView by lazy {
-        MapboxRouteLineView(routeLineViewOptions)
+        MapboxRouteLineView(MapboxRouteLineViewOptions.Builder(this).build()).also {
+            it.enableCallouts(
+                binding.mapView.viewAnnotationManager,
+                calloutAdapter,
+            )
+        }
     }
 
     private val routeLineApi: MapboxRouteLineApi by lazy {
         MapboxRouteLineApi(routeLineApiOptions)
-    }
-
-    /**
-     * Additional route callout options are available through the
-     * [MapboxRouteCalloutViewOptions] and [MapboxRouteCalloutApiOptions].
-     */
-    private val routeCalloutApiOptions: MapboxRouteCalloutApiOptions by lazy {
-        MapboxRouteCalloutApiOptions.Builder()
-            .routeCalloutType(RouteCalloutType.RouteDurations)
-            .similarDurationDelta(1.minutes)
-            .build()
-    }
-
-    private val routeCalloutViewOptions: MapboxRouteCalloutViewOptions by lazy {
-        MapboxRouteCalloutViewOptions.Builder()
-            .build()
-    }
-
-    /**
-     * Generates updates for the [routeCalloutView] with the properties of the route callouts that should be drawn on the map.
-     */
-    private val routeCalloutApi by lazy {
-        MapboxRouteCalloutApi(routeCalloutApiOptions)
-    }
-
-    /**
-     * This class is responsible for rendering route callout related mutations generated by the [routeCalloutApi]
-     */
-    private val routeCalloutView by lazy {
-        MapboxRouteCalloutView(binding.mapView, routeCalloutViewOptions)
     }
 
     /**
@@ -157,50 +117,6 @@ class RouteCalloutActivity : AppCompatActivity() {
      * Hardcoded destination point of the route.
      */
     private val destinationPoint = Point.fromLngLat(12.497853961893584, 41.89050307407414)
-
-    /**
-     * Gets notified with location updates.
-     *
-     * Exposes raw updates coming directly from the location services
-     * and the updates enhanced by the Navigation SDK (cleaned up and matched to the road).
-     */
-    private val locationObserver: LocationObserver = object : LocationObserver {
-        /**
-         * Invoked as soon as the [Location] is available.
-         */
-        override fun onNewRawLocation(rawLocation: Location) {
-        }
-
-        /**
-         * Provides the best possible location update, snapped to the route or
-         * map-matched to the road if possible.
-         */
-        override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
-            val enhancedLocation = locationMatcherResult.enhancedLocation
-            navigationLocationProvider.changePosition(enhancedLocation, locationMatcherResult.keyPoints)
-            updateCamera(
-                Point.fromLngLat(
-                    enhancedLocation.longitude,
-                    enhancedLocation.latitude
-                ),
-                enhancedLocation.bearing
-            )
-        }
-    }
-
-    /**
-     * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
-     */
-    private lateinit var replayProgressObserver: ReplayProgressObserver
-
-    /**
-     * This is one way to keep the route(s) appearing on the map in sync with
-     * MapboxNavigation. When this observer is called the route data is used to draw route(s) and callout(s)
-     * on the map.
-     */
-    private val routesObserver = RoutesObserver { result ->
-        updateRoutes(result.navigationRoutes, mapboxNavigation.getAlternativeMetadataFor(result.navigationRoutes))
-    }
 
     private val routesPreviewObserver: RoutesPreviewObserver = RoutesPreviewObserver { update ->
         val preview = update.routesPreview ?: return@RoutesPreviewObserver
@@ -218,13 +134,6 @@ class RouteCalloutActivity : AppCompatActivity() {
                     binding.mapView.mapboxMap.style!!,
                     this
                 )
-            }
-
-            routeCalloutApi.setNavigationRoutes(
-                newRoutes = routes,
-                alternativeRoutesMetadata = metadata,
-            ).apply {
-                routeCalloutView.renderCallouts(this)
             }
         }
     }
@@ -251,57 +160,35 @@ class RouteCalloutActivity : AppCompatActivity() {
         onResumedObserver = object : MapboxNavigationObserver {
             @SuppressLint("MissingPermission")
             override fun onAttached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.registerLocationObserver(locationObserver)
-                mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerRoutesPreviewObserver(routesPreviewObserver)
-
-                replayProgressObserver = ReplayProgressObserver(mapboxNavigation.mapboxReplayer)
-                mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
-                mapboxNavigation.startReplayTripSession()
 
                 findRoute(originPoint, destinationPoint)
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
-                mapboxNavigation.unregisterLocationObserver(locationObserver)
-                mapboxNavigation.unregisterRoutesObserver(routesObserver)
                 mapboxNavigation.unregisterRoutesPreviewObserver(routesPreviewObserver)
-                mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
-                mapboxNavigation.mapboxReplayer.stop()
             }
         },
         onInitialize = this::initNavigation
     )
-
-    /**
-     * Click on any callout of the alternative route on the map to make it primary.
-     */
-    private val routeCalloutClickListener: ((NavigationRoute) -> Unit) = { route ->
-        reorderRoutes(route)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRouteCalloutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.mapboxMap.loadStyle(
-            NavigationStyles.NAVIGATION_DAY_STYLE
-        )
-
-        binding.startNavigation.setOnClickListener {
-            binding.startNavigation.isVisible = false
-
-            routeCalloutApi.updateOptions(
-                routeCalloutApiOptions.toBuilder()
-                    .routeCalloutType(RouteCalloutType.RelativeDurationsOnAlternative)
-                    .build()
-            ).apply { routeCalloutView.renderCallouts(this) }
-
-            mapboxNavigation.moveRoutesFromPreviewToNavigator()
+        binding.mapView.mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
+            updateCamera()
         }
 
-        routeCalloutView.setRouteCalloutClickListener(routeCalloutClickListener)
+        binding.switchTheme.setOnClickListener {
+            calloutAdapter.theme = when (calloutAdapter.theme) {
+                CustomRouteCalloutAdapter.Theme.Day -> CustomRouteCalloutAdapter.Theme.Night
+                CustomRouteCalloutAdapter.Theme.Night -> CustomRouteCalloutAdapter.Theme.Day
+            }
+
+            calloutAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onDestroy() {
@@ -320,13 +207,6 @@ class RouteCalloutActivity : AppCompatActivity() {
                 )
                 .build()
         )
-
-        binding.mapView.location.apply {
-            setLocationProvider(navigationLocationProvider)
-            enabled = true
-        }
-        replayOriginLocation()
-        updateCamera(originPoint)
     }
 
     /**
@@ -335,7 +215,6 @@ class RouteCalloutActivity : AppCompatActivity() {
     private fun findRoute(origin: Point?, destination: Point?) {
         val routeOptions = RouteOptions.builder()
             .applyDefaultNavigationOptions()
-            .applyLanguageAndVoiceUnitOptions(this)
             .coordinatesList(listOf(origin, destination))
             .layersList(listOf(mapboxNavigation.getZLevel(), null))
             .alternatives(true) // make sure you set the `alternatives` flag to true in route options
@@ -347,8 +226,9 @@ class RouteCalloutActivity : AppCompatActivity() {
                     routes: List<NavigationRoute>,
                     @RouterOrigin routerOrigin: String
                 ) {
+                    updateCamera()
                     if (routes.isNotEmpty()) {
-                        binding.startNavigation.isVisible = true
+                        binding.switchTheme.isVisible = true
                         mapboxNavigation.setRoutesPreview(routes)
                     }
                 }
@@ -370,33 +250,25 @@ class RouteCalloutActivity : AppCompatActivity() {
         )
     }
 
-    private fun updateCamera(point: Point, bearing: Double? = null) {
+    @OptIn(MapboxDelicateApi::class)
+    private fun updateCamera() {
         val mapAnimationOptions = MapAnimationOptions.Builder().duration(1500L).build()
-        binding.mapView.camera.easeTo(
+        val overviewOption = binding.mapView.mapboxMap.cameraForCoordinates(
+            listOf(
+                originPoint,
+                destinationPoint
+            ),
             CameraOptions.Builder()
-                .center(point)
-                .bearing(bearing)
-                .zoom(15.0)
-                .pitch(45.0)
-                .padding(EdgeInsets(1000.0, 0.0, 0.0, 0.0))
+                .padding(EdgeInsets(100.0, 100.0, 100.0, 100.0))
                 .build(),
+            null,
+            null,
+            null,
+        )
+
+        binding.mapView.camera.easeTo(
+            overviewOption,
             mapAnimationOptions
         )
-    }
-
-    private fun replayOriginLocation() {
-        with(mapboxNavigation.mapboxReplayer) {
-            play()
-            pushEvents(
-                listOf(
-                    ReplayRouteMapper.mapToUpdateLocation(
-                        Date().time.toDouble(),
-                        originPoint
-                    )
-                )
-            )
-            playFirstLocation()
-            playbackSpeed(3.0)
-        }
     }
 }

@@ -27,7 +27,7 @@
         android:exported="false"
         />
 
-    <activity android:name=".standalone.callout.RouteCalloutActivity"
+    <activity android:name=".standalone.callout.CustomRouteCalloutActivity"
         android:screenOrientation="portrait"
         android:exported="false"
         />
