@@ -8,6 +8,7 @@ executors:
     docker:
       - image: mbgl/android-ndk-r22:latest
     working_directory: ~/code
+    resource_class: medium+
 
 #-------------------------------
 #---------- WORKFLOWS ----------
