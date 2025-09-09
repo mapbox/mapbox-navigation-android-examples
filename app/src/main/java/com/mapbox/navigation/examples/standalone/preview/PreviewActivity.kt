@@ -29,7 +29,6 @@ import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.ActivityPreviewBinding
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
@@ -220,7 +219,7 @@ class PreviewActivity : AppCompatActivity() {
         binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
                 bearingImage = ImageHolder.Companion.from(
-                    R.drawable.mapbox_navigation_puck_icon
+                    com.mapbox.navigation.ui.components.R.drawable.mapbox_navigation_puck_icon
                 )
             )
             setLocationProvider(navigationLocationProvider)

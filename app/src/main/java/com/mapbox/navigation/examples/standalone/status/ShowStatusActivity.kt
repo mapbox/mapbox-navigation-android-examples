@@ -7,7 +7,6 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.navigation.base.ExperimentalMapboxNavigationAPI
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowStatusBinding
 import com.mapbox.navigation.ui.components.status.model.Status
 import com.mapbox.navigation.ui.components.status.model.StatusFactory
@@ -38,7 +37,7 @@ class ShowStatusActivity : AppCompatActivity() {
         val status = StatusFactory.buildStatus(
             message = "Voice instructions OFF",
             duration = 2000,
-            icon = R.drawable.mapbox_ic_sound_off
+            icon = com.mapbox.navigation.ui.components.R.drawable.mapbox_ic_sound_off
         )
         binding.statusView.render(status)
     }

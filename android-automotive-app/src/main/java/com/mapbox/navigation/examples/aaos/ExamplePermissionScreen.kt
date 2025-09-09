@@ -20,7 +20,7 @@ internal class ExamplePermissionScreen(
             carContext.getString(R.string.example_permission_screen_title)
         ).addAction(
             Action.Builder()
-                .setTitle(carContext.getString(R.string.car_label_ok))
+                .setTitle(carContext.getString(com.mapbox.androidauto.R.string.car_label_ok))
                 .setOnClickListener {
                     Log.i(TAG, "Request permissions click")
                     carLocationPermissions.requestPermissions(carContext)

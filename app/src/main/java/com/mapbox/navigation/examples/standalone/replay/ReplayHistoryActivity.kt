@@ -244,7 +244,7 @@ class ReplayHistoryActivity : AppCompatActivity() {
         locationComponent = binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
                 bearingImage = ImageHolder.from(
-                    R.drawable.mapbox_navigation_puck_icon
+                    com.mapbox.navigation.ui.components.R.drawable.mapbox_navigation_puck_icon
                 )
             )
             addOnIndicatorPositionChangedListener(onPositionChangedListener)

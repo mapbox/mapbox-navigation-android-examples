@@ -34,7 +34,6 @@ import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityCameraTransitionsBinding
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
@@ -342,7 +341,7 @@ class ShowCameraTransitionsActivity : AppCompatActivity() {
         binding.mapView.location.apply {
             this.locationPuck = LocationPuck2D(
                 bearingImage = ImageHolder.Companion.from(
-                    R.drawable.mapbox_navigation_puck_icon
+                    com.mapbox.navigation.ui.components.R.drawable.mapbox_navigation_puck_icon
                 )
             )
             setLocationProvider(navigationLocationProvider)

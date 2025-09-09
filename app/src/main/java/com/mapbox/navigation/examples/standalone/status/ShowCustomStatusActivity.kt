@@ -7,7 +7,6 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.navigation.base.ExperimentalMapboxNavigationAPI
-import com.mapbox.navigation.examples.R
 import com.mapbox.navigation.examples.databinding.MapboxActivityShowCustomStatusBinding
 import com.mapbox.navigation.ui.components.status.model.StatusFactory.buildStatus
 import com.mapbox.navigation.ui.components.status.view.MapboxStatusView
@@ -49,7 +48,7 @@ class ShowCustomStatusActivity : AppCompatActivity() {
         buildStatus(
             message = "Status with text and an icon",
             duration = 2000,
-            icon = R.drawable.mapbox_ic_sound_off
+            icon = com.mapbox.navigation.ui.components.R.drawable.mapbox_ic_sound_off
         ),
         buildStatus(
             message = "Sticky status",
