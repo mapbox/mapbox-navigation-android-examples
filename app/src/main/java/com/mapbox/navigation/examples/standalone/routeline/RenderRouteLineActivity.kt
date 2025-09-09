@@ -156,7 +156,7 @@ class RenderRouteLineActivity : AppCompatActivity() {
             /**
              * Remove this line if you don't wish to show the route callout feature
              */
-            it.enableCallouts(viewBinding.mapView.viewAnnotationManager, routeCalloutAdapter)
+            it.setCalloutAdapter(viewBinding.mapView.viewAnnotationManager, routeCalloutAdapter)
         }
     }
 

@@ -6,7 +6,7 @@ version: 2.1
 executors:
   default-executor:
     docker:
-      - image: mbgl/android-ndk-r22:latest
+      - image: mbgl/android-ndk-r22-jdk17-ubuntu24:latest
     working_directory: ~/code
     resource_class: medium+
 

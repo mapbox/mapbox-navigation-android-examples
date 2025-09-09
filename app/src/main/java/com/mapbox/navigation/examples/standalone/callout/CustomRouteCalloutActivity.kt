@@ -97,7 +97,7 @@ class CustomRouteCalloutActivity : AppCompatActivity() {
 
     private val routeLineView by lazy {
         MapboxRouteLineView(MapboxRouteLineViewOptions.Builder(this).build()).also {
-            it.enableCallouts(
+            it.setCalloutAdapter(
                 binding.mapView.viewAnnotationManager,
                 calloutAdapter,
             )
