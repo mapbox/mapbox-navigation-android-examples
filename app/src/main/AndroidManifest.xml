@@ -21,6 +21,11 @@
       </intent-filter>
     </activity>
 
+    <activity android:name=".standalone.compose.JetpackComposeActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
+
     <activity android:name=".standalone.fetchroute.FetchARouteActivity"
         android:screenOrientation="portrait"
         android:exported="false"
