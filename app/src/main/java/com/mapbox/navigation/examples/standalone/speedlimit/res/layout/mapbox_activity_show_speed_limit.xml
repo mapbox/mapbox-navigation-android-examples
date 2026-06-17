@@ -42,4 +42,19 @@
         <!-- Uncomment the following line of code to customize the MapboxManeuverView -->
         <!-- style="@style/MapboxCustomManeuverStyle" -->
     </com.mapbox.navigation.ui.components.speedlimit.view.MapboxSpeedInfoView>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/toggleUnitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/mapbox_button"
+        android:padding="12dp"
+        android:text="Toggle Unit"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
