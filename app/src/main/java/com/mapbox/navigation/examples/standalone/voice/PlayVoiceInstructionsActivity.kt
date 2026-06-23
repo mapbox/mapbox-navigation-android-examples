@@ -49,7 +49,6 @@ import com.mapbox.navigation.voice.api.MapboxVoiceInstructionsPlayer
 import com.mapbox.navigation.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.voice.model.SpeechError
 import com.mapbox.navigation.voice.model.SpeechValue
-import com.mapbox.navigation.voice.model.SpeechVolume
 import java.util.Date
 import java.util.Locale
 
@@ -263,7 +262,7 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
      * when voice instructions should be muted.
      */
     private val voiceInstructionsObserver = VoiceInstructionsObserver { voiceInstructions ->
-        if(!isVoiceInstructionsMuted) {
+        if (!isVoiceInstructionsMuted) {
             speechApi.generate(voiceInstructions, speechCallback)
         }
     }
