@@ -49,7 +49,6 @@ import com.mapbox.navigation.voice.api.MapboxVoiceInstructionsPlayer
 import com.mapbox.navigation.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.voice.model.SpeechError
 import com.mapbox.navigation.voice.model.SpeechValue
-import com.mapbox.navigation.voice.model.SpeechVolume
 import java.util.Date
 import java.util.Locale
 
@@ -135,17 +134,15 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
     private lateinit var voiceInstructionsPlayer: MapboxVoiceInstructionsPlayer
 
     /**
-     * Stores and updates the state of whether the voice instructions should be played as they come or muted.
+     * Stores and updates the state of whether the voice instructions should be played.
      */
     private var isVoiceInstructionsMuted = false
         set(value) {
             field = value
             if (value) {
                 binding.soundButton.muteAndExtend(1500L)
-                voiceInstructionsPlayer.volume(SpeechVolume(0f))
             } else {
                 binding.soundButton.unmuteAndExtend(1500L)
-                voiceInstructionsPlayer.volume(SpeechVolume(1f))
             }
         }
 
@@ -260,9 +257,14 @@ class PlayVoiceInstructionsActivity : AppCompatActivity() {
 
     /**
      * Observes when a new voice instruction should be played.
+     *
+     * Playback is gated by `isVoiceInstructionsMuted` to avoid acquiring audio focus
+     * when voice instructions should be muted.
      */
     private val voiceInstructionsObserver = VoiceInstructionsObserver { voiceInstructions ->
-        speechApi.generate(voiceInstructions, speechCallback)
+        if (!isVoiceInstructionsMuted) {
+            speechApi.generate(voiceInstructions, speechCallback)
+        }
     }
 
     private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
