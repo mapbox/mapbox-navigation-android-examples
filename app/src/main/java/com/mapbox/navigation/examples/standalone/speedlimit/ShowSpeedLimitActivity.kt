@@ -17,6 +17,7 @@ import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.formatter.DistanceFormatterOptions
+import com.mapbox.navigation.base.formatter.UnitType
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
@@ -135,9 +136,9 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
      * Options used for formatting speed information, such as mph or km/h.
      * By default, the unit type will be determined based on the device's locale.
      */
-    private val distanceFormatterOptions: DistanceFormatterOptions by lazy {
-        DistanceFormatterOptions.Builder(applicationContext).build()
-    }
+    private lateinit var distanceFormatterOptions: DistanceFormatterOptions
+
+    private var lastLocationMatcherResult: LocationMatcherResult? = null
 
     /**
      * Gets notified with location updates.
@@ -160,6 +161,7 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
          * map-matched to the road if possible.
          */
         override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+            lastLocationMatcherResult = locationMatcherResult
             val enhancedLocation = locationMatcherResult.enhancedLocation
             navigationLocationProvider.changePosition(
                 enhancedLocation,
@@ -174,16 +176,20 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
                 enhancedLocation.bearing
             )
 
-            val info = speedInfoApi.updatePostedAndCurrentSpeed(
-                locationMatcherResult,
-                distanceFormatterOptions
-            )
-            if (info != null) {
-                binding.speedLimitView.isVisible = true
-                binding.speedLimitView.render(info)
-            } else {
-                binding.speedLimitView.isVisible = false
-            }
+            updateSpeedLimit(locationMatcherResult)
+        }
+    }
+
+    private fun updateSpeedLimit(locationMatcherResult: LocationMatcherResult) {
+        val info = speedInfoApi.updatePostedAndCurrentSpeed(
+            locationMatcherResult,
+            distanceFormatterOptions
+        )
+        if (info != null) {
+            binding.speedLimitView.isVisible = true
+            binding.speedLimitView.render(info)
+        } else {
+            binding.speedLimitView.isVisible = false
         }
     }
 
@@ -231,11 +237,24 @@ class ShowSpeedLimitActivity : AppCompatActivity() {
         binding = MapboxActivityShowSpeedLimitBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        distanceFormatterOptions = DistanceFormatterOptions.Builder(applicationContext).build()
+
+        binding.actionButton.isVisible = true
+        binding.actionButton.setOnClickListener {
+            fetchRoute()
+        }
+
         binding.mapView.mapboxMap.loadStyle(NavigationStyles.NAVIGATION_DAY_STYLE) {
-            binding.actionButton.isVisible = true
-            binding.actionButton.setOnClickListener {
-                fetchRoute()
-            }
+            // style loaded
+        }
+
+        binding.toggleUnitButton.setOnClickListener {
+            val currentUnit = distanceFormatterOptions.unitType
+            val newUnit = if (currentUnit == UnitType.METRIC) UnitType.IMPERIAL else UnitType.METRIC
+            distanceFormatterOptions = distanceFormatterOptions.toBuilder()
+                .unitType(newUnit)
+                .build()
+            lastLocationMatcherResult?.let { updateSpeedLimit(it) }
         }
     }
 
