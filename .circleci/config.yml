@@ -8,7 +8,7 @@ executors:
     docker:
       - image: mbgl/android-ndk-r22-jdk17-ubuntu24:latest
     working_directory: ~/code
-    resource_class: medium+
+    resource_class: large
 
 #-------------------------------
 #---------- WORKFLOWS ----------
