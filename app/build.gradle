@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
@@ -82,9 +81,9 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigationcore:navigation:3.11.6"
-    implementation "com.mapbox.navigationcore:ui-components:3.11.6"
-    implementation "com.mapbox.extension:maps-compose:11.14.4"
+    implementation "com.mapbox.navigationcore:navigation:3.30.0"
+    implementation "com.mapbox.navigationcore:ui-components:3.30.0"
+    implementation "com.mapbox.extension:maps-compose:11.30.0"
     
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21"
     implementation "androidx.core:core-ktx:1.9.0"
