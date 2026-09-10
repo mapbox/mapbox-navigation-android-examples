@@ -60,6 +60,10 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://api.mapbox.com/downloads/v2/releases/maven' }
+}
+
 dependencies {
     // Mapbox Navigation SDK
     implementation "com.mapbox.navigationcore:copilot:3.30.0"
