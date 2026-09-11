@@ -80,11 +80,15 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://api.mapbox.com/downloads/v2/releases/maven' }
+}
+
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigationcore:navigation:3.11.6"
-    implementation "com.mapbox.navigationcore:ui-components:3.11.6"
-    implementation "com.mapbox.extension:maps-compose:11.14.4"
+    implementation "com.mapbox.navigationcore:navigation:3.30.0"
+    implementation "com.mapbox.navigationcore:ui-components:3.30.0"
+    implementation "com.mapbox.extension:maps-compose:11.30.0"
     
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21"
     implementation "androidx.core:core-ktx:1.9.0"

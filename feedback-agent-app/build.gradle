@@ -61,6 +61,10 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://api.mapbox.com/downloads/v2/releases/maven' }
+}
+
 dependencies {
     implementation("com.mapbox.navigationcore:navigation:3.11.6")
     implementation("com.mapbox.navigationcore:core-mapgpt:3.11.6")

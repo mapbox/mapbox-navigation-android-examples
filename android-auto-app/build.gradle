@@ -59,3 +59,24 @@ dependencies {
     implementation("com.mapbox.navigation:ui-androidauto:0.18.1")
     implementation("com.mapbox.navigation:ui-dropin:2.9.5")
 }
+
+// This module is using Nav SDK v2 which unlike v3 requires download token to be provided
+def sdkRegistryToken = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
+if (sdkRegistryToken == null || sdkRegistryToken.empty) {
+    throw new Exception("SDK Registry token is not specified.")
+}
+repositories {
+    maven {
+        url 'https://api.mapbox.com/downloads/v2/releases/maven'
+        authentication {
+            basic(BasicAuthentication)
+        }
+        credentials {
+            // Do not change the username below.
+            // This should always be `mapbox` (not your username).
+            username = "mapbox"
+            // Use the secret token you stored in gradle.properties or environment as the password
+            password = sdkRegistryToken
+        }
+    }
+}
