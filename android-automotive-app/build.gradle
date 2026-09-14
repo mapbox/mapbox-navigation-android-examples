@@ -1,14 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
     namespace "com.mapbox.navigation.examples.aaos"
-    compileSdkVersion 33
+    compileSdkVersion 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -18,7 +16,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.aaos"
         minSdkVersion 29
-        targetSdkVersion 33
+        targetSdkVersion 36
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -44,24 +42,15 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    buildFeatures {
-        viewBinding true
-    }
-}
-
-repositories {
-    maven { url 'https://api.mapbox.com/downloads/v2/releases/maven' }
 }
 
 dependencies {
     // Mapbox Navigation Android Auto SDK
-    implementation("com.mapbox.navigation:ui-androidauto:0.22.0")
+    implementation("com.mapbox.navigationcore:android-ndk27:3.30.1")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.30.1")
 
     // Android Automotive library
     // https://developer.android.com/jetpack/androidx/releases/car-app
-//    implementation("androidx.car.app:app:1.4.0-rc02")
-//    implementation("androidx.car.app:app-automotive:1.4.0-rc02")
     implementation("androidx.car.app:app:1.2.0")
     implementation("androidx.car.app:app-automotive:1.2.0")
 }
