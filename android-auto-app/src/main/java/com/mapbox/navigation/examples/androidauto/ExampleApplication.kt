@@ -9,10 +9,10 @@ class ExampleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Setup MapboxNavigation
+        // Setup MapboxNavigation. The access token is picked up automatically from
+        // mapbox_access_token.xml via the com.mapbox.maps.token Gradle plugin.
         MapboxNavigationApp.setup(
             NavigationOptions.Builder(applicationContext)
-                .accessToken(getString(R.string.mapbox_access_token))
                 .build()
         ).attachAllActivities(this)
     }

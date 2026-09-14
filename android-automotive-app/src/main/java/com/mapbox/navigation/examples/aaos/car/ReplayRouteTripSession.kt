@@ -1,7 +1,7 @@
 package com.mapbox.navigation.examples.aaos.car
 
 import android.annotation.SuppressLint
-import com.mapbox.androidauto.internal.logAndroidAuto
+import com.mapbox.maps.logI
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
@@ -18,7 +18,7 @@ internal class ReplayRouteTripSession : UIComponent() {
     @SuppressLint("MissingPermission")
     override fun onAttached(mapboxNavigation: MapboxNavigation) {
         super.onAttached(mapboxNavigation)
-        logAndroidAuto("ReplayRouteTripSession onAttached")
+        logI(TAG, "ReplayRouteTripSession onAttached")
         mapboxNavigation.stopTripSession()
         coroutineScope.launch {
             // When we stop a trip session, we need to wait for the android auto navigation manager.
@@ -30,34 +30,38 @@ internal class ReplayRouteTripSession : UIComponent() {
             delay(500)
 
             mapboxNavigation.startReplayTripSession()
-            val context = mapboxNavigation.navigationOptions.applicationContext
             val mapboxReplayer = mapboxNavigation.mapboxReplayer
 
             routesObserver = RoutesObserver { result ->
-                logAndroidAuto("ReplayRouteTripSession ${result.navigationRoutes.size}")
+                logI(TAG, "ReplayRouteTripSession ${result.navigationRoutes.size}")
                 if (result.navigationRoutes.isEmpty()) {
                     mapboxReplayer.clearEvents()
-                    mapboxNavigation.resetTripSession()
-                    mapboxReplayer.pushRealLocation(context, 0.0)
-                    mapboxReplayer.play()
+                    mapboxNavigation.resetTripSession {
+                        mapboxReplayer.pushRealLocation(0.0)
+                        mapboxReplayer.play()
+                    }
                 }
             }.also { mapboxNavigation.registerRoutesObserver(it) }
 
             replayProgressObserver = ReplayProgressObserver(mapboxNavigation.mapboxReplayer)
                 .also { mapboxNavigation.registerRouteProgressObserver(it) }
 
-            mapboxReplayer.pushRealLocation(context, 0.0)
+            mapboxReplayer.pushRealLocation(0.0)
             mapboxReplayer.play()
         }
     }
 
     override fun onDetached(mapboxNavigation: MapboxNavigation) {
         super.onDetached(mapboxNavigation)
-        logAndroidAuto("ReplayRouteTripSession onDetached")
+        logI(TAG, "ReplayRouteTripSession onDetached")
         replayProgressObserver?.let { mapboxNavigation.unregisterRouteProgressObserver(it) }
         routesObserver?.let { mapboxNavigation.unregisterRoutesObserver(it) }
         mapboxNavigation.mapboxReplayer.stop()
         mapboxNavigation.mapboxReplayer.clearEvents()
         mapboxNavigation.stopTripSession()
+    }
+
+    private companion object {
+        private const val TAG = "ReplayRouteTripSession"
     }
 }

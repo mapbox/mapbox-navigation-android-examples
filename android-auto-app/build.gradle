@@ -1,14 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
     namespace "com.mapbox.navigation.examples.androidauto"
-    compileSdkVersion 33
+    compileSdkVersion 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -17,8 +15,8 @@ android {
 
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.androidauto"
-        minSdkVersion 23
-        targetSdkVersion 33
+        minSdkVersion 24
+        targetSdkVersion 36
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -40,43 +38,40 @@ android {
             manifestPlaceholders = [enableCrashReporting: "true"]
         }
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 
     lintOptions {
         abortOnError false
     }
 
     buildFeatures {
-        viewBinding true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.7'
     }
 }
 
 dependencies {
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("com.google.android.material:material:1.7.0")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigation:ui-androidauto:0.18.1")
-    implementation("com.mapbox.navigation:ui-dropin:2.9.5")
-}
+    implementation("com.mapbox.navigationcore:android-ndk27:3.30.1")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.30.1")
+    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.30.1")
+    implementation("com.mapbox.extension:maps-compose-ndk27:11.30.1")
 
-// This module is using Nav SDK v2 which unlike v3 requires download token to be provided
-def sdkRegistryToken = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
-if (sdkRegistryToken == null || sdkRegistryToken.empty) {
-    throw new Exception("SDK Registry token is not specified.")
-}
-repositories {
-    maven {
-        url 'https://api.mapbox.com/downloads/v2/releases/maven'
-        authentication {
-            basic(BasicAuthentication)
-        }
-        credentials {
-            // Do not change the username below.
-            // This should always be `mapbox` (not your username).
-            username = "mapbox"
-            // Use the secret token you stored in gradle.properties or environment as the password
-            password = sdkRegistryToken
-        }
-    }
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation(platform('androidx.compose:compose-bom:2024.06.00'))
+    implementation('androidx.compose.material3:material3')
+    implementation('androidx.compose.ui:ui')
+    implementation('androidx.compose.ui:ui-tooling-preview')
+    debugImplementation('androidx.compose.ui:ui-tooling')
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
 }
