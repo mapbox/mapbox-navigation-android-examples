@@ -8,21 +8,21 @@ import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.androidauto.MapboxCarContext
-import com.mapbox.androidauto.deeplink.GeoDeeplinkNavigateAction
-import com.mapbox.androidauto.map.MapboxCarMapLoader
-import com.mapbox.androidauto.map.compass.CarCompassRenderer
-import com.mapbox.androidauto.map.logo.CarLogoRenderer
-import com.mapbox.androidauto.screenmanager.MapboxScreen
-import com.mapbox.androidauto.screenmanager.MapboxScreenFactory
-import com.mapbox.androidauto.screenmanager.MapboxScreenManager
-import com.mapbox.androidauto.screenmanager.prepareScreens
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
 import com.mapbox.maps.extension.style.style
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.examples.aaos.ExamplePermissionScreen
+import com.mapbox.navigation.ui.androidauto.MapboxCarContext
+import com.mapbox.navigation.ui.androidauto.deeplink.GeoDeeplinkNavigateAction
+import com.mapbox.navigation.ui.androidauto.map.MapboxCarMapLoader
+import com.mapbox.navigation.ui.androidauto.map.compass.CarCompassRenderer
+import com.mapbox.navigation.ui.androidauto.map.logo.CarLogoRenderer
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenFactory
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
+import com.mapbox.navigation.ui.androidauto.screenmanager.prepareScreens
 import com.mapbox.navigation.ui.maps.NavigationStyles
 
 @OptIn(MapboxExperimental::class)

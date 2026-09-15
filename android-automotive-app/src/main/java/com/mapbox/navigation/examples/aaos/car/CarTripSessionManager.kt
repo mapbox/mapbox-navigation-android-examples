@@ -3,11 +3,11 @@ package com.mapbox.navigation.examples.aaos.car
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.car.app.CarContext
-import com.mapbox.androidauto.MapboxCarContext
-import com.mapbox.androidauto.internal.logAndroidAuto
-import com.mapbox.androidauto.screenmanager.MapboxScreen
-import com.mapbox.androidauto.screenmanager.MapboxScreenManager
+import com.mapbox.maps.logI
 import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.ui.androidauto.MapboxCarContext
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -30,7 +30,7 @@ class CarTripSessionManager(
             carLocationPermissions.grantedState,
             mapboxCarContext.mapboxNavigationManager.autoDriveEnabledFlow,
         ) { locationPermissionGranted, autoDriveEnabled ->
-            logAndroidAuto("CarStartTripSession $locationPermissionGranted $autoDriveEnabled")
+            logI(TAG, "CarStartTripSession $locationPermissionGranted $autoDriveEnabled")
             if (locationPermissionGranted) {
                 if (autoDriveEnabled) {
                     replayRouteTripSession?.onDetached(mapboxNavigation)
