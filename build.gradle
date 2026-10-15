@@ -1,7 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        mavenLocal() // TEMP: locally published access-token 0.5.0, remove once it's released
         google()
         mavenCentral()
         maven {
