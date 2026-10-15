@@ -64,9 +64,9 @@ kotlin {
 }
 
 dependencies {
-    implementation("com.mapbox.navigationcore:navigation:3.32.0")
-    implementation("com.mapbox.navigationcore:core-mapgpt:3.32.0")
-    implementation("com.mapbox.mapgpt.experimental:mapgpt:24.32.0")
+    implementation("com.mapbox.navigationcore:navigation-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:core-mapgpt-ndk27:3.32.0")
+    implementation("com.mapbox.mapgpt.experimental:mapgpt-ndk27:24.32.0")
 
     // Kotlin support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.20"
