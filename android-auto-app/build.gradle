@@ -1,12 +1,11 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.mapbox.maps.token'
+apply plugin: 'kotlin-parcelize'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
     namespace "com.mapbox.navigation.examples.androidauto"
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -16,7 +15,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.androidauto"
         minSdkVersion 24
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -60,10 +59,10 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigationcore:android-ndk27:3.30.1")
-    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.30.1")
-    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.30.1")
-    implementation("com.mapbox.extension:maps-compose-ndk27:11.30.1")
+    implementation("com.mapbox.navigationcore:android-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.32.0")
+    implementation("com.mapbox.extension:maps-compose-ndk27:11.32.0")
 
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation(platform('androidx.compose:compose-bom:2024.06.00'))

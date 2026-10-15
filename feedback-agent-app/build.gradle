@@ -1,8 +1,7 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
-apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
@@ -13,13 +12,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-        freeCompilerArgs += "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-        freeCompilerArgs += "-opt-in=com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI"
     }
 
     defaultConfig {
@@ -52,12 +44,19 @@ android {
         compose true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.4.7'
-    }
-
     lintOptions {
         abortOnError false
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+        optIn.addAll(
+                "kotlin.RequiresOptIn",
+                "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI",
+        )
     }
 }
 

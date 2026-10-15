@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
@@ -16,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.preview"
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 37
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
