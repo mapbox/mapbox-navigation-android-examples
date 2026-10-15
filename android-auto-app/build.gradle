@@ -1,12 +1,14 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
 
 android {
     namespace "com.mapbox.navigation.examples.androidauto"
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -16,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.mapbox.navigation.examples.androidauto"
         minSdkVersion 24
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode gitNumberOfCommits
         versionName gitTagDescription
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -38,8 +40,11 @@ android {
             manifestPlaceholders = [enableCrashReporting: "true"]
         }
     }
-    kotlinOptions {
-        jvmTarget = "17"
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
 
     lintOptions {
@@ -49,24 +54,20 @@ android {
     buildFeatures {
         compose true
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.4.7'
-    }
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.5.1")
-    implementation("com.google.android.material:material:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.8.0")
+    implementation("com.google.android.material:material:1.14.0")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigationcore:android-ndk27:3.30.1")
-    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.30.1")
-    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.30.1")
-    implementation("com.mapbox.extension:maps-compose-ndk27:11.30.1")
+    implementation("com.mapbox.navigationcore:android-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.32.0")
+    implementation("com.mapbox.extension:maps-compose-ndk27:11.32.0")
 
-    implementation("androidx.activity:activity-compose:1.9.2")
-    implementation(platform('androidx.compose:compose-bom:2024.06.00'))
+    implementation("androidx.activity:activity-compose:1.13.0")
+    implementation(platform('androidx.compose:compose-bom:2026.09.00'))
     implementation('androidx.compose.material3:material3')
     implementation('androidx.compose.ui:ui')
     implementation('androidx.compose.ui:ui-tooling-preview')

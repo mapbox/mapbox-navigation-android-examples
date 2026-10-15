@@ -18,6 +18,7 @@ import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
 import com.mapbox.navigation.base.options.NavigationOptions
@@ -27,6 +28,7 @@ import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.preview.RoutesPreviewObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.examples.databinding.ActivityPreviewBinding
@@ -42,7 +44,9 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
 
 /**
  * This example demonstrates:
- * - A basic route preview;
+ * - A basic route preview using the routes preview API of [MapboxNavigation]
+ *   ([MapboxNavigation.setRoutesPreview], [RoutesPreviewObserver]);
+ * - Selecting a different primary route while previewing routes;
  * - Switching between free drive, preview, and active guidance.
  *
  * Before running the example make sure you have put your access_token in the correct place
@@ -62,6 +66,7 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
  * - Click "Start active guidance" to start navigation.
  * - Click "Finish active guidance" to switch back to free drive.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class PreviewActivity : AppCompatActivity() {
 
     /**
@@ -198,6 +203,37 @@ class PreviewActivity : AppCompatActivity() {
     }
 
     /**
+     * The observer gets notified whenever the routes preview state changes.
+     * Use this observer to draw previewed routes. The SDK computes alternative metadata
+     * for previewed routes, so alternatives are drawn the same way as in active guidance.
+     */
+    private val routesPreviewObserver = RoutesPreviewObserver { update ->
+        val routesPreview = update.routesPreview
+        if (routesPreview != null) {
+            // routesList is ordered as [primary, alternative1, alternative2, ...]
+            routeLineApi.setNavigationRoutes(
+                routesPreview.routesList,
+                routesPreview.alternativesMetadata
+            ) { value ->
+                mapboxMap.style?.apply {
+                    routeLineView.renderRouteDrawData(this, value)
+                }
+            }
+
+            // update the camera position to account for the new primary route
+            viewportDataSource.onRouteChanged(routesPreview.primaryRoute)
+            viewportDataSource.evaluate()
+            navigationCamera.requestNavigationCameraToOverview()
+
+            binding.buttonStartActiveGuidance.visibility = View.VISIBLE
+        } else {
+            // Routes preview has been cleaned up because the routes were moved to the navigator.
+            // From now on the route line is drawn by [routesObserver].
+            binding.buttonStartActiveGuidance.visibility = View.GONE
+        }
+    }
+
+    /**
      * Generates updates for the [routeLineView] with the geometries and properties of the routes that should be drawn on the map.
      */
     private lateinit var routeLineApi: MapboxRouteLineApi
@@ -260,9 +296,16 @@ class PreviewActivity : AppCompatActivity() {
         ) {
             // add long click listener that search for a route to the clicked destination
             binding.mapView.gestures.addOnMapLongClickListener { point ->
-                findRoute(point)
+                // a new destination can be selected only in free drive
+                if (mapboxNavigation.getNavigationRoutes().isEmpty()) {
+                    findRoute(point)
+                }
                 true
             }
+        }
+
+        binding.buttonStartActiveGuidance.setOnClickListener {
+            startActiveGuidance()
         }
 
         // initialize route line, the routeLineBelowLayerId is specified to place
@@ -285,12 +328,14 @@ class PreviewActivity : AppCompatActivity() {
         super.onStart()
         mapboxNavigation.registerLocationObserver(locationObserver)
         mapboxNavigation.registerRoutesObserver(routesObserver)
+        mapboxNavigation.registerRoutesPreviewObserver(routesPreviewObserver)
     }
 
     override fun onStop() {
         super.onStop()
         mapboxNavigation.unregisterLocationObserver(locationObserver)
         mapboxNavigation.unregisterRoutesObserver(routesObserver)
+        mapboxNavigation.unregisterRoutesPreviewObserver(routesPreviewObserver)
     }
 
     override fun onDestroy() {
@@ -337,7 +382,9 @@ class PreviewActivity : AppCompatActivity() {
                     routes: List<NavigationRoute>,
                     routerOrigin: String
                 ) {
-                    previewRoutes(routes)
+                    // Set routes to preview. The SDK processes them asynchronously
+                    // and notifies [routesPreviewObserver] once the preview is ready.
+                    mapboxNavigation.setRoutesPreview(routes)
                 }
 
                 override fun onFailure(
@@ -354,32 +401,12 @@ class PreviewActivity : AppCompatActivity() {
         )
     }
 
-    private fun previewRoutes(routes: List<NavigationRoute>) {
-        // Mapbox navigation doesn't have a special state for route preview.
-        // Preview state is managed by an application.
-        // Display the routes you received on the map.
-        routeLineApi.setNavigationRoutes(routes) { value ->
-            mapboxMap.style?.apply {
-                routeLineView.renderRouteDrawData(this, value)
-                // update the camera position to account for the new route
-                viewportDataSource.onRouteChanged(routes.first())
-                viewportDataSource.evaluate()
-                navigationCamera.requestNavigationCameraToOverview()
-            }
-        }
-        binding.buttonStartActiveGuidance.apply {
-            visibility = View.VISIBLE
-            setOnClickListener {
-                startActiveGuidance(routes)
-            }
-        }
-    }
-
-    private fun startActiveGuidance(routes: List<NavigationRoute>) {
+    private fun startActiveGuidance() {
         binding.buttonStartActiveGuidance.visibility = View.GONE
-        // Set routes to switch navigator from free drive to active guidance state.
+        // Move previewed routes to the navigator to switch it from free drive to active guidance
+        // state and clean up the routes preview state. The selected primary route is kept.
         // In active guidance navigator emits your route progress, voice and banner instructions, etc.
-        mapboxNavigation.setNavigationRoutes(routes)
+        mapboxNavigation.moveRoutesFromPreviewToNavigator()
         navigationCamera.requestNavigationCameraToFollowing()
         binding.buttonFinishActiveGuidance.apply {
             visibility = View.VISIBLE
