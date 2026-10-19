@@ -45,8 +45,8 @@ android {
 
 dependencies {
     // Mapbox Navigation Android Auto SDK
-    implementation("com.mapbox.navigationcore:android-ndk27:3.32.0")
-    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.32.0")
+    implementation("com.mapbox.navigationcore:android-ndk27:3.33.0")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.33.0")
 
     // Android Automotive library
     // https://developer.android.com/jetpack/androidx/releases/car-app
