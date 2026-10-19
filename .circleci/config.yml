@@ -45,9 +45,9 @@ commands:
           keys:
             - deps-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
             - deps-
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
+
+  save-gradle-cache:
+    steps:
       - save_cache:
           paths:
             - ~/.gradle
@@ -89,6 +89,7 @@ jobs:
       - restore-gradle-cache
       - assemble-app:
           variant: "Debug"
+      - save-gradle-cache
       - write-workspace
 
   static-analysis:
