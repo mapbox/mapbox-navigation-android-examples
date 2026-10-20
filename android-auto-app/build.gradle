@@ -61,9 +61,9 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0")
 
     // Mapbox Navigation Android Auto SDK Developer Preview
-    implementation("com.mapbox.navigationcore:android-ndk27:3.33.0")
-    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.33.0")
-    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.33.0")
+    implementation("com.mapbox.navigationcore:android-ndk27:3.34.0-rc.1")
+    implementation("com.mapbox.navigationcore:android-auto-components-ndk27:3.34.0-rc.1")
+    implementation("com.mapbox.navigationcore:ui-components-ndk27:3.34.0-rc.1")
     implementation("com.mapbox.extension:maps-compose-ndk27:11.33.0")
 
     implementation("androidx.activity:activity-compose:1.9.2")
