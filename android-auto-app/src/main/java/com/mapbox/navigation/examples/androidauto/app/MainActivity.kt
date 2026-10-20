@@ -8,17 +8,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.api.directions.v5.models.Bearing
@@ -49,8 +55,10 @@ import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
+import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import com.mapbox.navigation.examples.androidauto.PhoneScreen
+import com.mapbox.navigation.examples.androidauto.car.CarRouteLineCustomizationSettings
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.components.R
 import com.mapbox.navigation.ui.maps.NavigationStyles
@@ -63,6 +71,7 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
+import com.mapbox.navigation.examples.androidauto.R as ExampleR
 
 /**
  * Phone-side screen for the Android Auto example.
@@ -137,22 +146,11 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     // automatic reroute (e.g. the driver goes off-route), where the puck would otherwise keep
     // moving along the new route while the map kept showing the old, now-stale route line.
     private val routesObserver = RoutesObserver { result ->
-        val style = mapboxMap?.style ?: return@RoutesObserver
-        if (result.navigationRoutes.isEmpty()) {
-            routeLineApi.clearRouteLine { value ->
-                routeLineView.renderClearRouteLineValue(
-                    style,
-                    value
-                )
-            }
-            viewportDataSource?.clearRouteData()
-        } else {
-            routeLineApi.setNavigationRoutes(result.navigationRoutes) { value ->
-                routeLineView.renderRouteDrawData(style, value)
-            }
-            viewportDataSource?.onRouteChanged(result.navigationRoutes.first())
-        }
-        viewportDataSource?.evaluate()
+        renderRoutes(
+            result.navigationRoutes.ifEmpty {
+                mapboxNavigation.getRoutesPreview()?.routesList.orEmpty()
+            },
+        )
     }
 
     // Advances the route line's traveled/remaining split (vanishing point) as guidance
@@ -212,7 +210,9 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 mapboxNavigation.getNavigationRoutes(),
             )
         }
-        mapboxNavigation.startTripSession()
+        if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
+            mapboxNavigation.startTripSession()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -293,23 +293,20 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     }
 
     private fun showRoutePreview(routes: List<NavigationRoute>) {
-        uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ROUTE_PREVIEW, routes)
+        mapboxNavigation.setRoutesPreview(routes)
+        onRoutePreview(routes)
         CarAppSyncComponent.getInstance().notifyRoutePreview()
-        mapboxMap?.style?.let { style ->
-            routeLineApi.setNavigationRoutes(routes) { value ->
-                routeLineView.renderRouteDrawData(style, value)
-            }
-        }
-        viewportDataSource?.onRouteChanged(routes.first())
-        viewportDataSource?.evaluate()
-        applyCameraAction(uiState.cameraAction())
     }
 
     @SuppressLint("MissingPermission")
     private fun startActiveGuidance(routes: List<NavigationRoute>) {
         val next = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ACTIVE_GUIDANCE, routes)
         val activeGuidance = next as? CarAppUiState.ActiveGuidance ?: return
-        mapboxNavigation.setNavigationRoutes(activeGuidance.routes)
+        if (mapboxNavigation.getRoutesPreview() != null) {
+            mapboxNavigation.moveRoutesFromPreviewToNavigator()
+        } else {
+            mapboxNavigation.setNavigationRoutes(activeGuidance.routes)
+        }
         uiState = activeGuidance
         CarAppSyncComponent.getInstance().notifyActiveGuidance()
         // Instant, not animated - otherwise the camera (and with it, the puck's apparent
@@ -326,6 +323,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     @SuppressLint("MissingPermission")
     private fun finishTrip() {
         // routesObserver clears the route line and viewport route data in response to this.
+        mapboxNavigation.setRoutesPreview(emptyList())
         mapboxNavigation.setNavigationRoutes(emptyList())
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.FREE_DRIVE)
         CarAppSyncComponent.getInstance().notifyFreeDrive()
@@ -335,21 +333,45 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     // PhoneScreen: called when the CAR screen changes state, so the phone can mirror it.
     override fun onFreeDrive() {
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.FREE_DRIVE)
+        renderRoutes(emptyList())
         applyCameraAction(uiState.cameraAction())
     }
 
     override fun onRoutePreview(routes: List<NavigationRoute>) {
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ROUTE_PREVIEW, routes)
+        renderRoutes(routes)
         applyCameraAction(uiState.cameraAction())
     }
 
     override fun onActiveGuidance(routes: List<NavigationRoute>) {
-        startActiveGuidance(routes)
+        uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ACTIVE_GUIDANCE, routes)
+        renderRoutes(routes)
+        applyCameraAction(uiState.cameraAction())
     }
 
     override fun onArrival(routes: List<NavigationRoute>) {
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ARRIVAL, routes)
         applyCameraAction(uiState.cameraAction())
+    }
+
+    private fun renderRoutes(routes: List<NavigationRoute>) {
+        mapboxMap?.style?.let { style ->
+            if (routes.isEmpty()) {
+                routeLineApi.clearRouteLine { value ->
+                    routeLineView.renderClearRouteLineValue(style, value)
+                }
+            } else {
+                routeLineApi.setNavigationRoutes(routes) { value ->
+                    routeLineView.renderRouteDrawData(style, value)
+                }
+            }
+        }
+        if (routes.isEmpty()) {
+            viewportDataSource?.clearRouteData()
+        } else {
+            viewportDataSource?.onRouteChanged(routes.first())
+        }
+        viewportDataSource?.evaluate()
     }
 
     private fun applyCameraAction(action: CameraAction) {
@@ -410,6 +432,27 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     @Composable
     private fun BoxScope.CarAppStateOverlay() {
+        var customRouteLine by remember {
+            mutableStateOf(CarRouteLineCustomizationSettings.useCustomRouteLineAndArrow)
+        }
+        Surface(modifier = Modifier.align(Alignment.TopCenter)) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(ExampleR.string.custom_car_route_line),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = customRouteLine,
+                        onCheckedChange = {
+                            customRouteLine = it
+                            CarRouteLineCustomizationSettings.useCustomRouteLineAndArrow = it
+                        },
+                    )
+                }
+                Text(stringResource(ExampleR.string.custom_car_route_line_hint))
+            }
+        }
         when (val state = uiState) {
             is CarAppUiState.RoutePreview -> {
                 Button(

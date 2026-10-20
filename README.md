@@ -30,6 +30,34 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
 6. Ensure that your secret token is added to [build.gradle](./build.gradle) or to global `gradle.properties` as described in the installation guide.
 7. Run the examples under `app`.
 
+### [android-auto-app](android-auto-app)
+
+Configure the public access token in `android-auto-app/src/main/res/values/mapbox_access_token.xml`,
+then run the phone app and connect Android Auto or the Desktop Head Unit. Grant location permission
+on the phone before using navigation.
+
+The example uses SearchBox, experimental route preview, and a unified navigation screen on hosts
+supporting Car App API 7 or newer; older hosts use separate free-drive and guidance screens.
+Phone and car share route-preview and navigation state. The SDK 3.33 compatibility helper in
+`CarContextExtensions.kt` checks the host API level because this SDK version does not yet expose
+the public `supportsUnifiedNavigation` extension.
+
+Open **Navigation settings** from the car's settings action to toggle voice guidance or the map
+compass. Both apply immediately and persist across connections. Voice guidance shares its mute
+state with the navigation screen's audio control.
+
+Enable **Custom car route line and arrow** on the phone, then reconnect Android Auto to apply the
+custom route colors, arrow icons, and disabled vanishing route line. This setting is in memory and
+is read once per car session.
+
+To simulate driving while the car app is open:
+
+```sh
+adb shell dumpsys activity service com.mapbox.navigation.examples.androidauto.car.MainCarAppService AUTO_DRIVE
+```
+
+Turning auto drive off or disconnecting the car restores device locations for the shared trip session.
+
 ## Previous versions
 
 If you're looking for code examples from previous versions of the Navigation SDK, you can access them through the following links:
