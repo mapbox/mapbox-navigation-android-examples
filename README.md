@@ -42,6 +42,10 @@ Phone and car share route-preview and navigation state. The SDK 3.33 compatibili
 `CarContextExtensions.kt` checks the host API level because this SDK version does not yet expose
 the public `supportsUnifiedNavigation` extension.
 
+`MainCarSession` shows the SDK setup, screen registration, permissions, and intent handling.
+Map/rendering lifecycle is in `CarMapLifecycle`, auto-drive and replay management in
+`CarTripSessionController`, and optional route styling and action buttons in `CarMapCustomization`.
+
 Open **Navigation settings** from the car's settings action to toggle voice guidance or the map
 compass. Both apply immediately and persist across connections. Voice guidance shares its mute
 state with the navigation screen's audio control.
