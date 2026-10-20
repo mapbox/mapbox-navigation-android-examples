@@ -296,7 +296,7 @@ class PreviewActivity : AppCompatActivity() {
         ) {
             // add long click listener that search for a route to the clicked destination
             binding.mapView.gestures.addOnMapLongClickListener { point ->
-                // a new destination can be selected only in free drive
+                // a new destination can be selected
                 if (mapboxNavigation.getNavigationRoutes().isEmpty()) {
                     findRoute(point)
                 }
