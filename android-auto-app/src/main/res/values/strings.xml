@@ -1,12 +1,8 @@
 <resources>
     <string name="app_name">AA-app</string>
-    <string name="custom_car_route_line">Custom car route line and arrow</string>
-    <string name="custom_car_route_line_hint">Reconnect Android Auto to apply changes.</string>
     <string name="car_settings_title">Navigation settings</string>
     <string name="car_settings_voice_guidance">Voice guidance</string>
     <string name="car_settings_voice_guidance_description">Read turn-by-turn directions aloud.</string>
-    <string name="car_settings_show_compass">Show compass</string>
-    <string name="car_settings_show_compass_description">Display the compass on the car map.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

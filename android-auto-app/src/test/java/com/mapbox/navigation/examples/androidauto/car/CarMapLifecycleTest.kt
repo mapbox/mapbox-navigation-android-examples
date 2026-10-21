@@ -1,17 +1,20 @@
 package com.mapbox.navigation.examples.androidauto.car
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.mapbox.maps.CameraBoundsOptions
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.StyleLoadedCallback
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
+import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
-import com.mapbox.navigation.ui.androidauto.map.compass.CarCompassRenderer
 import com.mapbox.navigation.ui.androidauto.map.logo.CarLogoRenderer
-import com.mapbox.navigation.ui.androidauto.settings.MapboxCarStorage
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.mockingDetails
 import org.mockito.Mockito.verify
@@ -21,57 +24,20 @@ class CarMapLifecycleTest {
 
     private val carContext = mock(MapboxCarContext::class.java)
     private val carMap = mock(MapboxCarMap::class.java)
-    private val storage = mock(MapboxCarStorage::class.java)
-    private val lifecycle = mock(Lifecycle::class.java)
     private val owner = mock(LifecycleOwner::class.java)
     private lateinit var mapLifecycle: CarMapLifecycle
 
     @Before
     fun setUp() {
         `when`(carContext.mapboxCarMap).thenReturn(carMap)
-        `when`(carContext.mapboxCarStorage).thenReturn(storage)
-        `when`(carContext.lifecycle).thenReturn(lifecycle)
-        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.RESUMED)
-        `when`(storage.readSharedPref(CarSettingsScreen.SHOW_COMPASS_PREF, true)).thenReturn(true)
         mapLifecycle = CarMapLifecycle(carContext)
     }
 
     @Test
-    fun `resume shows the logo and enabled compass`() {
+    fun `resume shows only the logo`() {
         mapLifecycle.onResume(owner)
 
-        assertTrue(registeredObservers().any { it is CarLogoRenderer })
-        assertTrue(registeredObservers().any { it is CarCompassRenderer })
-    }
-
-    @Test
-    fun `resume respects a disabled compass preference`() {
-        `when`(storage.readSharedPref(CarSettingsScreen.SHOW_COMPASS_PREF, true)).thenReturn(false)
-
-        mapLifecycle.onResume(owner)
-
-        assertTrue(registeredObservers().any { it is CarLogoRenderer })
-        assertFalse(registeredObservers().any { it is CarCompassRenderer })
-    }
-
-    @Test
-    fun `changing the preference removes the active compass immediately`() {
-        mapLifecycle.onResume(owner)
-        val compass = registeredObservers().filterIsInstance<CarCompassRenderer>().single()
-        `when`(storage.readSharedPref(CarSettingsScreen.SHOW_COMPASS_PREF, true)).thenReturn(false)
-
-        mapLifecycle.updateCompass()
-
-        verify(carMap).unregisterObserver(compass)
-    }
-
-    @Test
-    fun `enabling the compass does not attach it while the session is paused`() {
-        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.STARTED)
-
-        mapLifecycle.updateCompass()
-
-        assertFalse(registeredObservers().any { it is CarCompassRenderer })
+        assertTrue(registeredObservers().single() is CarLogoRenderer)
     }
 
     @Test
@@ -89,6 +55,39 @@ class CarMapLifecycleTest {
         mapLifecycle.onDestroy(owner)
 
         verify(carMap).clearObservers()
+    }
+
+    @Test
+    fun `surface attachment keeps all navigation camera updates at zero pitch`() {
+        val surface = mock(MapboxCarMapSurface::class.java, RETURNS_DEEP_STUBS)
+        val map = mock(MapboxMap::class.java, RETURNS_DEEP_STUBS)
+        `when`(surface.mapSurface.mapboxMap).thenReturn(map)
+
+        mapLifecycle.onAttached(surface)
+
+        val arguments = mockingDetails(map).invocations.flatMap { it.arguments.toList() }
+        val bounds = arguments.filterIsInstance<CameraBoundsOptions>().single()
+        val camera = arguments.filterIsInstance<CameraOptions>().single()
+        assertEquals(0.0, bounds.minPitch)
+        assertEquals(0.0, bounds.maxPitch)
+        assertEquals(0.0, camera.pitch)
+    }
+
+    @Test
+    fun `surface detachment cancels style configuration subscription`() {
+        val surface = mock(MapboxCarMapSurface::class.java, RETURNS_DEEP_STUBS)
+        val map = mock(MapboxMap::class.java, RETURNS_DEEP_STUBS)
+        `when`(surface.mapSurface.mapboxMap).thenReturn(map)
+        mapLifecycle.onAttached(surface)
+        val callback = mockingDetails(map).invocations
+            .flatMap { it.arguments.toList() }
+            .filterIsInstance<StyleLoadedCallback>()
+            .single()
+        val subscription = map.subscribeStyleLoaded(callback)
+
+        mapLifecycle.onDetached(surface)
+
+        verify(subscription).cancel()
     }
 
     private fun registeredObservers(): List<MapboxCarMapObserver> =

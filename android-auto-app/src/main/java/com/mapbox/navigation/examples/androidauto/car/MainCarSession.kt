@@ -4,8 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import androidx.car.app.Screen
 import androidx.car.app.Session
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.core.content.ContextCompat
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -21,64 +20,64 @@ import com.mapbox.navigation.ui.androidauto.search.CarSearchMode
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainCarSession : Session() {
 
+    // Tie the car map to this session and register the SDK's built-in screens.
     private val mapboxCarContext: MapboxCarContext = MapboxCarContext(lifecycle, MapboxCarMap())
         .prepareScreens()
         .apply {
+            // Replace the default settings screen with this example's voice guidance setting.
             mapboxScreenManager[MapboxScreen.SETTINGS] = MapboxScreenFactory {
-                CarSettingsScreen(this) { carMapLifecycle.updateCompass() }
+                CarSettingsScreen(this)
             }
         }
         .customize {
+            // Use SearchBox for place search and apply this example's buttons and route styling.
             searchMode = CarSearchMode.SearchBox
             actionsStripProvider = CarMapCustomization.actionStripProvider
-            // Read once per connection, so surface reattachments keep the same customization.
             routeLineRendererOptions = CarMapCustomization.routeLineRendererOptions()
         }
 
     private val carMapLifecycle = CarMapLifecycle(mapboxCarContext)
-    private var startIntent: Intent? = null
 
     init {
+        // Keep the phone UI and car UI in sync as navigation state changes.
         CarAppSyncComponent.getInstance().setCarSession(this)
 
+        // Let the helpers manage map rendering and trip/replay sessions as the car connects or disconnects.
         lifecycle.addObserver(carMapLifecycle)
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                checkLocationPermissions()
-            }
-
-            override fun onStart(owner: LifecycleOwner) {
-                startIntent?.let(::handleGeoDeeplink)
-                startIntent = null
-            }
-        })
-        lifecycle.addObserver(CarTripSessionController(this, mapboxCarContext))
+        lifecycle.addObserver(CarTripSessionController(mapboxCarContext))
     }
 
     override fun onCreateScreen(intent: Intent): Screen {
+        // Show the permission screen if needed; otherwise use the selected navigation screen.
+        checkLocationPermissions()
         val screenKey = MapboxScreenManager.current()?.key
         checkNotNull(screenKey) { "The screen key should be set before the Screen is requested." }
-        // Push deeplink results only after the root screen has been added to the back stack.
-        startIntent = intent
-        return mapboxCarContext.mapboxScreenManager.createScreen(screenKey)
+        val screen = mapboxCarContext.mapboxScreenManager.createScreen(screenKey)
+        // Queue behind root-screen installation so deeplink results stay on top.
+        ContextCompat.getMainExecutor(carContext).execute { handleGeoDeeplink(intent) }
+        return screen
     }
 
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
+        // Update the map style when the car switches between day and night mode.
         carMapLifecycle.onCarConfigurationChanged()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // Handle new navigation requests while the car session is already running.
         handleGeoDeeplink(intent)
     }
 
     private fun handleGeoDeeplink(intent: Intent) {
+        // Geo intents can come from voice requests such as "Navigate to a coffee shop".
         if (PermissionsManager.areLocationPermissionsGranted(carContext)) {
             GeoDeeplinkNavigateAction(mapboxCarContext).onNewIntent(intent)
         }
     }
 
     private fun checkLocationPermissions() {
+        // Location permission must be granted on the phone before the car can use navigation.
         PermissionsManager.areLocationPermissionsGranted(carContext).also { isGranted ->
             val currentKey = MapboxScreenManager.current()?.key
             if (!isGranted) {

@@ -29,9 +29,6 @@ internal object CarMapCustomization {
     }
 
     fun routeLineRendererOptions(): CarRouteLineRendererOptions {
-        if (!CarRouteLineCustomizationSettings.useCustomRouteLineAndArrow) {
-            return CarRouteLineRendererOptions.Builder().build()
-        }
         return CarRouteLineRendererOptions.Builder()
             .routeLineApiOptionsProvider {
                 MapboxRouteLineApiOptions.Builder()
@@ -40,17 +37,13 @@ internal object CarMapCustomization {
             }
             .routeLineViewOptionsProvider { surface ->
                 val context = surface.carContext
-                val style = surface.mapSurface.mapboxMap.style
                 MapboxRouteLineViewOptions.Builder(context)
                     .routeLineColorResources(
                         RouteLineColorResources.Builder()
                             .routeDefaultColor(context.getColor(R.color.car_route_line_color))
                             .build(),
                     )
-                    .routeLineBelowLayerId(
-                        style?.styleLayers?.firstOrNull { it.id.contains("road-label") }?.id
-                            ?: "road-label-navigation",
-                    )
+                    .slotName("middle")
                     .build()
             }
             .routeArrowOptionsProvider { surface ->

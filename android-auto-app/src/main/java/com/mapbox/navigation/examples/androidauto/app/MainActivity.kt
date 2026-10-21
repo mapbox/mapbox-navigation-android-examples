@@ -8,35 +8,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.extension.compose.DisposableMapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
-import com.mapbox.maps.extension.compose.style.MapStyle
+import com.mapbox.maps.extension.compose.style.BooleanValue
+import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
+import com.mapbox.maps.extension.compose.style.standard.rememberStandardStyleState
 import com.mapbox.maps.logI
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
@@ -58,10 +56,8 @@ import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import com.mapbox.navigation.examples.androidauto.PhoneScreen
-import com.mapbox.navigation.examples.androidauto.car.CarRouteLineCustomizationSettings
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.components.R
-import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
 import com.mapbox.navigation.ui.maps.camera.lifecycle.NavigationBasicGesturesHandler
@@ -71,7 +67,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineApiOptions
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
-import com.mapbox.navigation.examples.androidauto.R as ExampleR
 
 /**
  * Phone-side screen for the Android Auto example.
@@ -231,12 +226,12 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
         routeLineView = MapboxRouteLineView(
             MapboxRouteLineViewOptions.Builder(this)
-                .routeLineBelowLayerId("road-label-navigation")
+                .slotName("middle")
                 .build(),
         )
 
         setContent {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 MapboxMapScreen()
                 CarAppStateOverlay()
             }
@@ -391,11 +386,19 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 requestRoute(point)
                 true
             },
-            style = { MapStyle(NavigationStyles.NAVIGATION_DAY_STYLE) },
+            style = {
+                MapboxStandardStyle(
+                    standardStyleState = rememberStandardStyleState {
+                        configurationsState.show3dObjects = BooleanValue(true)
+                        configurationsState.show3dBuildings = BooleanValue(true)
+                    },
+                )
+            },
             compass = {},
         ) {
             DisposableMapEffect(Unit) { mapView ->
                 mapboxMap = mapView.mapboxMap
+                mapView.mapboxMap.setCamera(CameraOptions.Builder().pitch(0.0).build())
 
                 mapView.location.apply {
                     setLocationProvider(navigationLocationProvider)
@@ -407,6 +410,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 }
 
                 val dataSource = MapboxNavigationViewportDataSource(mapView.mapboxMap)
+                dataSource.options.followingFrameOptions.defaultPitch = 0.0
                 viewportDataSource = dataSource
                 dataSource.followingPadding = EdgeInsets(180.0, 40.0, 150.0, 40.0)
                 dataSource.overviewPadding = EdgeInsets(140.0, 40.0, 120.0, 40.0)
@@ -432,27 +436,6 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     @Composable
     private fun BoxScope.CarAppStateOverlay() {
-        var customRouteLine by remember {
-            mutableStateOf(CarRouteLineCustomizationSettings.useCustomRouteLineAndArrow)
-        }
-        Surface(modifier = Modifier.align(Alignment.TopCenter)) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(ExampleR.string.custom_car_route_line),
-                        modifier = Modifier.weight(1f),
-                    )
-                    Switch(
-                        checked = customRouteLine,
-                        onCheckedChange = {
-                            customRouteLine = it
-                            CarRouteLineCustomizationSettings.useCustomRouteLineAndArrow = it
-                        },
-                    )
-                }
-                Text(stringResource(ExampleR.string.custom_car_route_line_hint))
-            }
-        }
         when (val state = uiState) {
             is CarAppUiState.RoutePreview -> {
                 Button(

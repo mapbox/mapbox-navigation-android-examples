@@ -20,11 +20,9 @@ import kotlinx.coroutines.launch
 
 internal class CarSettingsScreen(
     private val mapboxCarContext: MapboxCarContext,
-    private val onCompassChanged: () -> Unit,
 ) : Screen(mapboxCarContext.carContext) {
 
     private val audioGuidance = MapboxAudioGuidance.getRegisteredInstance()
-    private val storage = mapboxCarContext.mapboxCarStorage
 
     init {
         carContext.onBackPressedDispatcher.addCallback(
@@ -57,32 +55,14 @@ internal class CarSettingsScreen(
                     .build(),
             )
             .build()
-        val compassRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.car_settings_show_compass))
-            .addText(carContext.getString(R.string.car_settings_show_compass_description))
-            .setToggle(
-                Toggle.Builder { enabled ->
-                    storage.writeSharedPref(SHOW_COMPASS_PREF, enabled)
-                    onCompassChanged()
-                    invalidate()
-                }
-                    .setChecked(storage.readSharedPref(SHOW_COMPASS_PREF, true))
-                    .build(),
-            )
-            .build()
         return ListTemplate.Builder()
             .setTitle(carContext.getString(R.string.car_settings_title))
             .setHeaderAction(Action.BACK)
             .setSingleList(
                 ItemList.Builder()
                     .addItem(voiceGuidanceRow)
-                    .addItem(compassRow)
                     .build(),
             )
             .build()
-    }
-
-    companion object {
-        const val SHOW_COMPASS_PREF = "example_show_compass"
     }
 }
