@@ -3,10 +3,11 @@ package com.mapbox.navigation.examples.androidauto.car
 import android.content.pm.ApplicationInfo
 import androidx.car.app.CarAppService
 import androidx.car.app.validation.HostValidator
+import com.mapbox.navigation.examples.androidauto.BuildConfig
 
 class MainCarAppService : CarAppService() {
     override fun createHostValidator(): HostValidator {
-        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+        if (BuildConfig.DEBUG) {
             // Allows the Desktop Head Unit and any other development host.
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
         }
