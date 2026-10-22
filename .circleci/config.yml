@@ -22,6 +22,9 @@ workflows:
       - static-analysis:
           requires:
             - prepare-and-assemble
+      - android-auto-unit-tests:
+          requires:
+            - prepare-and-assemble
 
 #------------------------------
 #---------- COMMANDS ----------
@@ -97,3 +100,16 @@ jobs:
     steps:
       - read-workspace
       - verify-codebase
+
+  android-auto-unit-tests:
+    executor: default-executor
+    steps:
+      - read-workspace
+      - restore-gradle-cache
+      - run:
+          name: Run Android Auto unit tests
+          command: ./gradlew :android-auto-app:testDebugUnitTest --max-workers=2
+      - store_test_results:
+          path: android-auto-app/build/test-results/testDebugUnitTest
+      - store_artifacts:
+          path: android-auto-app/build/reports/tests/testDebugUnitTest

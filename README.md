@@ -37,8 +37,7 @@ then run the phone app and connect Android Auto or the Desktop Head Unit. Grant 
 on the phone before using navigation.
 
 The phone map stays clear of the system bars. Both phone and car maps use Mapbox Standard with
-3D buildings and no traffic overlay, with a flat, zero-degree navigation camera pitch. The car
-map also follows the head unit's day/night mode.
+3D buildings and no traffic overlay, with a flat, zero-degree navigation camera pitch.
 
 The example uses SearchBox, experimental route preview, and a unified navigation screen on hosts
 supporting Car App API 7 or newer; older hosts use separate free-drive and guidance screens.

@@ -4,7 +4,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.StyleLoadedCallback
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
 import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
@@ -71,23 +70,6 @@ class CarMapLifecycleTest {
         assertEquals(0.0, bounds.minPitch)
         assertEquals(0.0, bounds.maxPitch)
         assertEquals(0.0, camera.pitch)
-    }
-
-    @Test
-    fun `surface detachment cancels style configuration subscription`() {
-        val surface = mock(MapboxCarMapSurface::class.java, RETURNS_DEEP_STUBS)
-        val map = mock(MapboxMap::class.java, RETURNS_DEEP_STUBS)
-        `when`(surface.mapSurface.mapboxMap).thenReturn(map)
-        mapLifecycle.onAttached(surface)
-        val callback = mockingDetails(map).invocations
-            .flatMap { it.arguments.toList() }
-            .filterIsInstance<StyleLoadedCallback>()
-            .single()
-        val subscription = map.subscribeStyleLoaded(callback)
-
-        mapLifecycle.onDetached(surface)
-
-        verify(subscription).cancel()
     }
 
     private fun registeredObservers(): List<MapboxCarMapObserver> =

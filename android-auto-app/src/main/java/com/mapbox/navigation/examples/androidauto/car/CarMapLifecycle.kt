@@ -23,7 +23,7 @@ internal class CarMapLifecycle(
 
     private val mapLoader = MapboxCarMapLoader()
         .setLightStyleOverride(style(Style.STANDARD) { })
-        .setDarkStyleOverride(style(Style.STANDARD) { })
+        .setDarkStyleOverride(style(Style.DARK) { })
 
     private val logoRenderer = CarLogoRenderer()
 
