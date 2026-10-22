@@ -11,12 +11,14 @@ import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.replay.route.ReplayRouteSession
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.examples.androidauto.app.MainActivity
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
 import kotlinx.coroutines.launch
 
 /**
  * Manages the trip session shared by the phone and Android Auto, using device locations for
- * normal navigation or simulated locations for auto drive.
+ * normal navigation or simulated locations for auto drive. [MainActivity] enables
+ * app-scoped replay by default; this controller manages host auto drive only when it is disabled.
  *
  * Auto drive is a testing mode that simulates driving along the active route without moving
  * the device. It uses [ReplayRouteSession] to feed recorded/generated locations into navigation;
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
  * ```
  *
  * This controller observes the host's auto-drive state while the car session is started.
- * When auto drive ends or the car disconnects, it unregisters its replay observer and restores
+ * When host auto drive ends or the car disconnects, it unregisters its replay observer and restores
  * device locations if the trip session is still running and location permission is granted.
  */
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
@@ -37,7 +39,7 @@ internal class CarTripSessionController(
 
     // Create the SDK's route simulator only when auto drive is first enabled.
     private val replayRouteSession by lazy { ReplayRouteSession() }
-    // Track replay owned by this car session, rather than by the phone.
+    // Track host-controlled replay separately from the app-scoped replay.
     private var isAutoDriveActive = false
 
     override fun onCreate(owner: LifecycleOwner) {
@@ -52,7 +54,7 @@ internal class CarTripSessionController(
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        // Disconnecting the car must not leave the phone using simulated locations.
+        // Stop host-controlled replay without disabling app-scoped replay.
         if (isAutoDriveActive) {
             refreshTripSession(isAutoDriveEnabled = false)
         }
@@ -74,6 +76,11 @@ internal class CarTripSessionController(
 
         if (!PermissionsManager.areLocationPermissionsGranted(context)) {
             // The phone may own the shared trip session; leave it untouched without permission.
+            return
+        }
+
+        if (MainActivity.USE_SIMULATED_ROUTE_REPLAY) {
+            MainActivity.startTripSession(navigation)
             return
         }
 

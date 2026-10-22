@@ -48,8 +48,10 @@ import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
+import com.mapbox.navigation.core.replay.route.ReplayRouteSession
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
@@ -100,6 +102,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private var uiState by mutableStateOf<CarAppUiState>(CarAppUiState.FreeDrive)
 
     private var firstLocationUpdateReceived = false
+    private var awaitingPhoneActiveGuidance = false
 
     private val locationObserver = object : LocationObserver {
         override fun onNewRawLocation(rawLocation: Location) {
@@ -205,9 +208,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 mapboxNavigation.getNavigationRoutes(),
             )
         }
-        if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-            mapboxNavigation.startTripSession()
-        }
+        startTripSession(mapboxNavigation)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -289,14 +290,13 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     private fun showRoutePreview(routes: List<NavigationRoute>) {
         mapboxNavigation.setRoutesPreview(routes)
-        onRoutePreview(routes)
-        CarAppSyncComponent.getInstance().notifyRoutePreview()
     }
 
     @SuppressLint("MissingPermission")
     private fun startActiveGuidance(routes: List<NavigationRoute>) {
         val next = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ACTIVE_GUIDANCE, routes)
         val activeGuidance = next as? CarAppUiState.ActiveGuidance ?: return
+        awaitingPhoneActiveGuidance = true
         if (mapboxNavigation.getRoutesPreview() != null) {
             mapboxNavigation.moveRoutesFromPreviewToNavigator()
         } else {
@@ -317,6 +317,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     @SuppressLint("MissingPermission")
     private fun finishTrip() {
+        awaitingPhoneActiveGuidance = false
         // routesObserver clears the route line and viewport route data in response to this.
         mapboxNavigation.setRoutesPreview(emptyList())
         mapboxNavigation.setNavigationRoutes(emptyList())
@@ -327,21 +328,27 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     // PhoneScreen: called when the CAR screen changes state, so the phone can mirror it.
     override fun onFreeDrive() {
+        // Removing the preview can report FreeDrive before the SDK confirms ActiveGuidance.
+        if (awaitingPhoneActiveGuidance) return
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.FREE_DRIVE)
         renderRoutes(emptyList())
         applyCameraAction(uiState.cameraAction())
     }
 
     override fun onRoutePreview(routes: List<NavigationRoute>) {
+        awaitingPhoneActiveGuidance = false
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ROUTE_PREVIEW, routes)
         renderRoutes(routes)
         applyCameraAction(uiState.cameraAction())
     }
 
     override fun onActiveGuidance(routes: List<NavigationRoute>) {
+        // SDK state changes and car-screen echoes must not animate over the phone's instant move.
+        val cameraAction = activeGuidanceCameraAction(uiState, awaitingPhoneActiveGuidance)
+        awaitingPhoneActiveGuidance = false
         uiState = CarAppUiStateReducer.reduce(uiState, MapboxScreen.ACTIVE_GUIDANCE, routes)
         renderRoutes(routes)
-        applyCameraAction(uiState.cameraAction())
+        applyCameraAction(cameraAction)
     }
 
     override fun onArrival(routes: List<NavigationRoute>) {
@@ -468,6 +475,25 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     }
 
     companion object {
+        const val USE_SIMULATED_ROUTE_REPLAY = true
+
         private const val LOG_TAG = "MainActivity"
+        private val replayRouteSession by lazy { ReplayRouteSession() }
+
+        @SuppressLint("MissingPermission")
+        internal fun startTripSession(
+            navigation: MapboxNavigation,
+            useSimulatedRouteReplay: Boolean = USE_SIMULATED_ROUTE_REPLAY,
+        ) {
+            if (useSimulatedRouteReplay) {
+                // Share one replay observer between the phone and car lifecycles.
+                MapboxNavigationApp.registerObserver(replayRouteSession)
+                if (navigation.getTripSessionState() != TripSessionState.STARTED) {
+                    navigation.startReplayTripSession()
+                }
+            } else if (navigation.getTripSessionState() != TripSessionState.STARTED) {
+                navigation.startTripSession()
+            }
+        }
     }
 }
