@@ -2,8 +2,6 @@ package com.mapbox.navigation.examples.androidauto.car
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.mapbox.bindgen.Value
-import com.mapbox.common.Cancelable
 import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.ContextMode
@@ -14,7 +12,6 @@ import com.mapbox.maps.applyDefaultParams
 import com.mapbox.maps.extension.androidauto.MapboxCarMapObserver
 import com.mapbox.maps.extension.androidauto.MapboxCarMapSurface
 import com.mapbox.maps.extension.style.style
-import com.mapbox.maps.logE
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
 import com.mapbox.navigation.ui.androidauto.map.MapboxCarMapLoader
 import com.mapbox.navigation.ui.androidauto.map.logo.CarLogoRenderer
