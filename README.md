@@ -30,6 +30,39 @@ Make sure you follow the steps under the [Installation](https://docs.mapbox.com/
 6. Ensure that your secret token is added to [build.gradle](./build.gradle) or to global `gradle.properties` as described in the installation guide.
 7. Run the examples under `app`.
 
+### [android-auto-app](android-auto-app)
+
+Configure the public access token in `android-auto-app/src/main/res/values/mapbox_access_token.xml`,
+then run the phone app and connect Android Auto or the Desktop Head Unit. Grant location permission
+on the phone before using navigation.
+
+The phone map stays clear of the system bars. Both phone and car maps use Mapbox Standard with
+3D buildings and no traffic overlay, with a flat, zero-degree navigation camera pitch.
+
+The example uses SearchBox, experimental route preview, and a unified navigation screen on hosts
+supporting Car App API 7 or newer; older hosts use separate free-drive and guidance screens.
+Phone and car share route-preview and navigation state. The SDK 3.33 compatibility helper in
+`CarContextExtensions.kt` checks the host API level because this SDK version does not yet expose
+the public `supportsUnifiedNavigation` extension.
+
+`MainCarSession` shows the SDK setup, screen registration, permissions, and intent handling.
+Map/rendering lifecycle is in `CarMapLifecycle`, auto-drive and replay management in
+`CarTripSessionController`, and route styling and action buttons in `CarMapCustomization`.
+
+Open **Navigation settings** from the car's settings action to toggle voice guidance. This applies
+immediately, persists across connections, and shares its mute state with the navigation screen's
+audio control.
+
+The car map always uses custom route colors and arrow icons, with the vanishing route line disabled.
+
+To simulate driving while the car app is open:
+
+```sh
+adb shell dumpsys activity service com.mapbox.navigation.examples.androidauto.car.MainCarAppService AUTO_DRIVE
+```
+
+Turning auto drive off or disconnecting the car restores device locations for the shared trip session.
+
 ## Previous versions
 
 If you're looking for code examples from previous versions of the Navigation SDK, you can access them through the following links:

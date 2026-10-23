@@ -58,3 +58,13 @@ internal fun CarAppUiState.cameraAction(): CameraAction = when (this) {
     is CarAppUiState.ActiveGuidance -> CameraAction.FOLLOWING
     is CarAppUiState.Arrival -> CameraAction.NONE
 }
+
+internal fun activeGuidanceCameraAction(
+    previousState: CarAppUiState,
+    awaitingPhoneActiveGuidance: Boolean,
+): CameraAction =
+    if (awaitingPhoneActiveGuidance || previousState is CarAppUiState.ActiveGuidance) {
+        CameraAction.NONE
+    } else {
+        CameraAction.FOLLOWING
+    }

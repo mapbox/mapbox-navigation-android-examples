@@ -4,7 +4,9 @@ import androidx.car.app.Session
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.maps.logI
+import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
@@ -12,13 +14,19 @@ import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import com.mapbox.navigation.core.preview.RoutesPreviewObserver
+import com.mapbox.navigation.core.trip.session.NavigationSessionState
+import com.mapbox.navigation.core.trip.session.NavigationSessionStateObserver
+import com.mapbox.navigation.examples.androidauto.car.supportsUnifiedNavigation
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenEvent
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 /**
@@ -32,10 +40,19 @@ import kotlinx.coroutines.launch
  * [onDetached] so that it keeps working while the phone screen is backgrounded/locked and only
  * the car screen is being driven - the most common real Android Auto usage.
  */
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
 
     private var phoneScreen: PhoneScreen? = null
-    private var session: Session? = null
+    private val sessions = LinkedHashSet<Session>()
+
+    private val navigationSessionStateObserver = NavigationSessionStateObserver {
+        syncNavigationState()
+    }
+
+    private val routesPreviewObserver = RoutesPreviewObserver {
+        syncNavigationState()
+    }
 
     private val arrivalObserver = object : ArrivalObserver {
         override fun onWaypointArrival(routeProgress: RouteProgress) {
@@ -70,16 +87,18 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
     }
 
     fun setCarSession(session: Session) {
-        this.session = session
         session.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
-                this@CarAppSyncComponent.session = session
-                MapboxNavigationApp.registerObserver(carSyncComponent)
+                sessions.add(session)
+                if (sessions.size == 1) {
+                    MapboxNavigationApp.registerObserver(carSyncComponent)
+                }
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
-                MapboxNavigationApp.unregisterObserver(carSyncComponent)
-                this@CarAppSyncComponent.session = null
+                if (sessions.remove(session) && sessions.isEmpty()) {
+                    MapboxNavigationApp.unregisterObserver(carSyncComponent)
+                }
             }
         })
     }
@@ -89,12 +108,16 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         // resumed state so arrival is still detected while only the car screen is being driven.
         logI(LOG_TAG, "onAttached CarAppSyncComponent")
         mapboxNavigation.registerArrivalObserver(arrivalObserver)
+        mapboxNavigation.registerNavigationSessionStateObserver(navigationSessionStateObserver)
+        mapboxNavigation.registerRoutesPreviewObserver(routesPreviewObserver)
     }
 
     override fun onDetached(mapboxNavigation: MapboxNavigation) {
         // Detached when the car and app are unavailable
         logI(LOG_TAG, "onDetached CarAppSyncComponent")
         mapboxNavigation.unregisterArrivalObserver(arrivalObserver)
+        mapboxNavigation.unregisterNavigationSessionStateObserver(navigationSessionStateObserver)
+        mapboxNavigation.unregisterRoutesPreviewObserver(routesPreviewObserver)
     }
 
     // phone -> car: called by the phone-side UI whenever its own state changes. Guarded against
@@ -102,17 +125,17 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
     // the phone (see onCarAppStateUpdate) doesn't bounce back into the car again.
     fun notifyFreeDrive() {
         logI(LOG_TAG, "notifyFreeDrive")
-        replaceTopIfNeeded(MapboxScreen.FREE_DRIVE)
+        replaceTopIfNeeded(mapScreenKey(MapboxScreen.FREE_DRIVE))
     }
 
     fun notifyRoutePreview() {
         logI(LOG_TAG, "notifyRoutePreview")
-        replaceTopIfNeeded(MapboxScreen.ROUTE_PREVIEW)
+        replaceTopIfNeeded(mapScreenKey(MapboxScreen.ROUTE_PREVIEW))
     }
 
     fun notifyActiveGuidance() {
         logI(LOG_TAG, "notifyActiveGuidance")
-        replaceTopIfNeeded(MapboxScreen.ACTIVE_GUIDANCE)
+        replaceTopIfNeeded(mapScreenKey(MapboxScreen.ACTIVE_GUIDANCE))
     }
 
     fun notifyArrival() {
@@ -121,8 +144,43 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
     }
 
     private fun replaceTopIfNeeded(key: String) {
+        if (
+            sessions.isNotEmpty() &&
+            !PermissionsManager.areLocationPermissionsGranted(sessions.last().carContext)
+        ) {
+            return
+        }
         if (shouldReplaceTop(MapboxScreenManager.current()?.key, key)) {
             MapboxScreenManager.replaceTop(key)
+        }
+    }
+
+    private fun mapScreenKey(legacyKey: String): String =
+        if (sessions.lastOrNull()?.carContext?.supportsUnifiedNavigation() == true) {
+            MapboxScreen.NAVIGATION
+        } else {
+            legacyKey
+        }
+
+    private fun syncNavigationState() {
+        // A unified screen keeps the same key as its route state changes.
+        val navigation = MapboxNavigationApp.current() ?: return
+        val preview = navigation.getRoutesPreview()
+        if (preview != null) {
+            phoneScreen?.onRoutePreview(preview.routesList)
+            notifyRoutePreview()
+            return
+        }
+        when (navigation.getNavigationSessionState()) {
+            is NavigationSessionState.ActiveGuidance -> {
+                phoneScreen?.onActiveGuidance(navigation.getNavigationRoutes())
+                notifyActiveGuidance()
+            }
+            is NavigationSessionState.FreeDrive -> {
+                phoneScreen?.onFreeDrive()
+                notifyFreeDrive()
+            }
+            NavigationSessionState.Idle -> Unit
         }
     }
 
@@ -133,8 +191,13 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         override fun onAttached(mapboxNavigation: MapboxNavigation) {
             super.onAttached(mapboxNavigation)
             logI(LOG_TAG, "onAttached app")
-            if (carSyncComponent.isAttached) {
+            if (
+                carSyncComponent.isAttached &&
+                MapboxScreenManager.current()?.key == MapboxScreen.ARRIVAL
+            ) {
                 onCarAppStateUpdate(MapboxScreenManager.current())
+            } else {
+                syncNavigationState()
             }
             isAttached = true
         }
@@ -154,8 +217,9 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
             logI(LOG_TAG, "onAttached car")
             carCoroutineScope = MainScope()
             isAttached = true
-            carCoroutineScope?.launch {
-                MapboxScreenManager.screenEvent.collect { onCarAppStateUpdate(it) }
+            carCoroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
+                val events = MapboxScreenManager.screenEvent
+                events.drop(events.replayCache.size).collect { onCarAppStateUpdate(it) }
             }
         }
 
@@ -178,7 +242,9 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
 
             MapboxScreen.ROUTE_PREVIEW -> {
                 logI(LOG_TAG, "phoneScreen.onRoutePreview()")
-                phoneScreen.onRoutePreview(routesOrEmpty())
+                phoneScreen.onRoutePreview(
+                    MapboxNavigationApp.current()?.getRoutesPreview()?.routesList.orEmpty(),
+                )
             }
 
             MapboxScreen.ACTIVE_GUIDANCE -> {
@@ -192,6 +258,8 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
                 val routes = routesOrEmpty()
                 phoneScreen.onArrival(routes)
             }
+
+            MapboxScreen.NAVIGATION -> syncNavigationState()
         }
     }
 

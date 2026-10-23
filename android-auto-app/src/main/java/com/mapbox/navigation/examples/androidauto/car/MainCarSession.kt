@@ -1,133 +1,98 @@
 package com.mapbox.navigation.examples.androidauto.car
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.car.app.Screen
 import androidx.car.app.Session
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.core.content.ContextCompat
 import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.maps.MapboxExperimental
-import com.mapbox.maps.extension.androidauto.mapboxMapInstaller
+import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
-import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
-import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
-import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
-import com.mapbox.navigation.examples.androidauto.ReplayRouteTripSession
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
 import com.mapbox.navigation.ui.androidauto.deeplink.GeoDeeplinkNavigateAction
-import com.mapbox.navigation.ui.androidauto.map.MapboxCarMapLoader
-import com.mapbox.navigation.ui.androidauto.map.compass.CarCompassRenderer
-import com.mapbox.navigation.ui.androidauto.map.logo.CarLogoRenderer
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
+import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenFactory
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.navigation.ui.androidauto.screenmanager.prepareScreens
-import kotlinx.coroutines.launch
+import com.mapbox.navigation.ui.androidauto.search.CarSearchMode
 
-@OptIn(MapboxExperimental::class)
+@OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainCarSession : Session() {
 
-    // The MapboxCarMapLoader will automatically load the map with night and day styles.
-    private val mapboxCarMapLoader = MapboxCarMapLoader()
-
-    // Use the mapboxMapInstaller for installing the Session lifecycle to a MapboxCarMap.
-    // Customizations that you want to be part of any Screen with a Mapbox Map can be done here.
-    private val mapboxCarMap = mapboxMapInstaller()
-        .onCreated(mapboxCarMapLoader)
-        .onResumed(CarLogoRenderer(), CarCompassRenderer())
-        .install()
-
-    // Prepare an AndroidAuto experience with MapboxCarContext.
-    private val mapboxCarContext = MapboxCarContext(lifecycle, mapboxCarMap)
+    // Tie the car map to this session and register the SDK's built-in screens.
+    private val mapboxCarContext: MapboxCarContext = MapboxCarContext(lifecycle, MapboxCarMap())
         .prepareScreens()
+        .apply {
+            // Replace the default settings screen with this example's voice guidance setting.
+            mapboxScreenManager[MapboxScreen.SETTINGS] = MapboxScreenFactory {
+                CarSettingsScreen(this)
+            }
+        }
+        .customize {
+            // Use SearchBox for place search and apply this example's buttons and route styling.
+            searchMode = CarSearchMode.SearchBox
+            actionsStripProvider = CarMapCustomization.actionStripProvider
+            routeLineRendererOptions = CarMapCustomization.routeLineRendererOptions()
+        }
 
-    // Many operations and customizations are available through MapboxNavigation.
-    private val mapboxNavigation by requireMapboxNavigation()
+    private val carMapLifecycle = CarMapLifecycle(mapboxCarContext)
 
     init {
-        // Decide how you want the car and app to interact. In this example, the car and app
-        // are kept in sync where they essentially mirror each other.
+        // Keep the phone UI and car UI in sync as navigation state changes.
         CarAppSyncComponent.getInstance().setCarSession(this)
 
-        // Add BitmapWidgets to the map that will be shown whenever the map is visible.
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                checkLocationPermissions()
-                observeAutoDrive()
-            }
-        })
+        // Let the helpers manage map rendering and trip/replay sessions as the car connects or disconnects.
+        lifecycle.addObserver(carMapLifecycle)
+        lifecycle.addObserver(CarTripSessionController(mapboxCarContext))
     }
 
-    // This logic is for you to decide. In this example the MapboxScreenManager.replaceTop is
-    // declared in other logical places. At this point the screen key should be already set.
     override fun onCreateScreen(intent: Intent): Screen {
+        // Show the permission screen if needed; otherwise use the selected navigation screen.
+        checkLocationPermissions()
         val screenKey = MapboxScreenManager.current()?.key
         checkNotNull(screenKey) { "The screen key should be set before the Screen is requested." }
-        return mapboxCarContext.mapboxScreenManager.createScreen(screenKey)
+        val screen = mapboxCarContext.mapboxScreenManager.createScreen(screenKey)
+        // Queue behind root-screen installation so deeplink results stay on top.
+        ContextCompat.getMainExecutor(carContext).execute { handleGeoDeeplink(intent) }
+        return screen
     }
 
-    // Forward the CarContext to the MapboxCarMapLoader with the configuration changes.
     override fun onCarConfigurationChanged(newConfiguration: Configuration) {
-        mapboxCarMapLoader.onCarConfigurationChanged(carContext)
+        // Update the map style when the car switches between day and night mode.
+        carMapLifecycle.onCarConfigurationChanged()
     }
 
-    // Handle the geo deeplink for voice activated navigation. This will handle the case when
-    // you ask the head unit to "Navigate to coffee shop".
-    @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // Handle new navigation requests while the car session is already running.
+        handleGeoDeeplink(intent)
+    }
+
+    private fun handleGeoDeeplink(intent: Intent) {
+        // Geo intents can come from voice requests such as "Navigate to a coffee shop".
         if (PermissionsManager.areLocationPermissionsGranted(carContext)) {
             GeoDeeplinkNavigateAction(mapboxCarContext).onNewIntent(intent)
         }
     }
 
-    // Location permissions are required for this example. Check the state and replace the current
-    // screen if there is not one already set.
     private fun checkLocationPermissions() {
+        // Location permission must be granted on the phone before the car can use navigation.
         PermissionsManager.areLocationPermissionsGranted(carContext).also { isGranted ->
             val currentKey = MapboxScreenManager.current()?.key
             if (!isGranted) {
                 MapboxScreenManager.replaceTop(MapboxScreen.NEEDS_LOCATION_PERMISSION)
             } else if (currentKey == null || currentKey == MapboxScreen.NEEDS_LOCATION_PERMISSION) {
-                MapboxScreenManager.replaceTop(MapboxScreen.FREE_DRIVE)
+                MapboxScreenManager.replaceTop(initialMapScreen())
             }
         }
     }
 
-    // Enable auto drive. Open the app on the head unit and then execute the following from your
-    // computer terminal.
-    // adb shell dumpsys activity service com.mapbox.navigation.examples.androidauto.car.MainCarAppService AUTO_DRIVE
-    private fun observeAutoDrive() {
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mapboxCarContext.mapboxNavigationManager.autoDriveEnabledFlow.collect {
-                    refreshTripSession()
-                }
-            }
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun refreshTripSession() {
-        val isAutoDriveEnabled = mapboxCarContext.mapboxNavigationManager
-            .autoDriveEnabledFlow.value
-        if (!PermissionsManager.areLocationPermissionsGranted(carContext)) {
-            mapboxNavigation.stopTripSession()
-            return
-        }
-
-        if (isAutoDriveEnabled) {
-            MapboxNavigationApp.registerObserver(ReplayRouteTripSession)
-        } else {
-            MapboxNavigationApp.unregisterObserver(ReplayRouteTripSession)
-            if (mapboxNavigation.getTripSessionState() != TripSessionState.STARTED) {
-                mapboxNavigation.startTripSession()
-            }
-        }
+    // Car App API 7+ uses one unified screen for free drive, active guidance, and route preview.
+    // Older hosts use separate screens, starting with free drive.
+    private fun initialMapScreen(): String = if (carContext.supportsUnifiedNavigation()) {
+        MapboxScreen.NAVIGATION
+    } else {
+        MapboxScreen.FREE_DRIVE
     }
 }
