@@ -1,6 +1,5 @@
 package com.mapbox.navigation.examples.androidauto.car
 
-import android.content.pm.ApplicationInfo
 import androidx.car.app.CarAppService
 import androidx.car.app.validation.HostValidator
 import com.mapbox.navigation.examples.androidauto.BuildConfig
