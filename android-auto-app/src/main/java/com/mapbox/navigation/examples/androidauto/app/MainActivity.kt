@@ -21,9 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.bindgen.ExpectedFactory
 import com.mapbox.common.location.Location
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -39,15 +41,18 @@ import com.mapbox.maps.logI
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
 import com.mapbox.navigation.base.extensions.applyLanguageAndVoiceUnitOptions
+import com.mapbox.navigation.base.formatter.DistanceFormatterOptions
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.NavigationRouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.directions.session.RoutesObserver
+import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
@@ -58,8 +63,11 @@ import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import com.mapbox.navigation.examples.androidauto.PhoneScreen
+import com.mapbox.navigation.tripdata.maneuver.api.MapboxManeuverApi
+import com.mapbox.navigation.tripdata.maneuver.model.Maneuver
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.components.R
+import com.mapbox.navigation.ui.components.maneuver.view.MapboxManeuverView
 import com.mapbox.navigation.ui.maps.camera.NavigationCamera
 import com.mapbox.navigation.ui.maps.camera.data.MapboxNavigationViewportDataSource
 import com.mapbox.navigation.ui.maps.camera.lifecycle.NavigationBasicGesturesHandler
@@ -94,10 +102,22 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private var viewportDataSource: MapboxNavigationViewportDataSource? = null
     private var mapboxMap: MapboxMap? = null
 
-    private val routeLineApi = MapboxRouteLineApi(MapboxRouteLineApiOptions.Builder().build())
+    private val routeLineApi = MapboxRouteLineApi(
+        MapboxRouteLineApiOptions.Builder()
+            .vanishingRouteLineEnabled(true)
+            .build()
+    )
     private lateinit var routeLineView: MapboxRouteLineView
 
     private val navigationLocationProvider = NavigationLocationProvider()
+
+    private val maneuverApi by lazy {
+        MapboxManeuverApi(
+            MapboxDistanceFormatter(DistanceFormatterOptions.Builder(this).build()),
+        )
+    }
+    private var maneuvers by mutableStateOf<List<Maneuver>>(emptyList())
+    private var maneuverRouteId: String? = null
 
     private var uiState by mutableStateOf<CarAppUiState>(CarAppUiState.FreeDrive)
 
@@ -151,9 +171,17 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
         )
     }
 
-    // Advances the route line's traveled/remaining split (vanishing point) as guidance
-    // progresses, and keeps the camera's route-following framing up to date.
+    // Updates the geometry index used by the puck-position listener for the vanishing route
+    // line, and keeps the camera's route-following framing up to date.
     private val routeProgressObserver = RouteProgressObserver { routeProgress ->
+        maneuverRouteId = routeProgress.navigationRoute.id
+        maneuverApi.getManeuvers(routeProgress).fold(
+            { error ->
+                logI(LOG_TAG, "Maneuver update failed: ${error.errorMessage}")
+                maneuvers = emptyList()
+            },
+            { maneuvers = it },
+        )
         viewportDataSource?.onRouteProgressChanged(routeProgress)
         viewportDataSource?.evaluate()
         mapboxMap?.style?.let { style ->
@@ -234,6 +262,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
         setContent {
             Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 MapboxMapScreen()
+                ManeuverBanner()
                 CarAppStateOverlay()
             }
         }
@@ -243,6 +272,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
         super.onDestroy()
         routeLineApi.cancel()
         routeLineView.cancel()
+        maneuverApi.cancel()
     }
 
     @SuppressLint("MissingPermission")
@@ -261,6 +291,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
             RouteOptions.builder()
                 .applyDefaultNavigationOptions()
                 .applyLanguageAndVoiceUnitOptions(this)
+                .alternatives(true)
                 .coordinatesList(listOf(originPoint, destination))
                 // Provide the bearing for the origin so the returned route faces the direction
                 // the puck is already moving in - otherwise the route can snap onto a road
@@ -357,6 +388,10 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     }
 
     private fun renderRoutes(routes: List<NavigationRoute>) {
+        if (routes.firstOrNull()?.id != maneuverRouteId || routes.isEmpty()) {
+            maneuvers = emptyList()
+            maneuverRouteId = null
+        }
         mapboxMap?.style?.let { style ->
             if (routes.isEmpty()) {
                 routeLineApi.clearRouteLine { value ->
@@ -407,8 +442,15 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 mapboxMap = mapView.mapboxMap
                 mapView.mapboxMap.setCamera(CameraOptions.Builder().pitch(0.0).build())
 
+                val positionListener = OnIndicatorPositionChangedListener { point ->
+                    val update = routeLineApi.updateTraveledRouteLine(point)
+                    mapView.mapboxMap.style?.let { style ->
+                        routeLineView.renderRouteLineUpdate(style, update)
+                    }
+                }
                 mapView.location.apply {
                     setLocationProvider(navigationLocationProvider)
+                    addOnIndicatorPositionChangedListener(positionListener)
                     locationPuck = LocationPuck2D(
                         bearingImage = ImageHolder.from(R.drawable.mapbox_navigation_puck_icon),
                     )
@@ -433,12 +475,27 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 }
 
                 onDispose {
+                    mapView.location.removeOnIndicatorPositionChangedListener(positionListener)
                     navigationCamera = null
                     viewportDataSource = null
                     mapboxMap = null
                 }
             }
         }
+    }
+
+    @Composable
+    private fun BoxScope.ManeuverBanner() {
+        if (uiState !is CarAppUiState.ActiveGuidance || maneuvers.isEmpty()) return
+
+        AndroidView(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .padding(8.dp),
+            factory = { MapboxManeuverView(it) },
+            update = { it.renderManeuvers(ExpectedFactory.createValue(maneuvers)) },
+        )
     }
 
     @Composable

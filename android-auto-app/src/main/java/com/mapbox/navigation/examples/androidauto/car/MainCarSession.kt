@@ -11,6 +11,7 @@ import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
 import com.mapbox.navigation.ui.androidauto.deeplink.GeoDeeplinkNavigateAction
+import com.mapbox.navigation.ui.androidauto.preview.CarRouteOptionsInterceptor
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenFactory
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
@@ -32,6 +33,9 @@ class MainCarSession : Session() {
         .customize {
             // Use SearchBox for place search and apply this example's buttons and route styling.
             searchMode = CarSearchMode.SearchBox
+            routeOptionsInterceptor = CarRouteOptionsInterceptor { builder ->
+                builder.alternatives(true)
+            }
             actionsStripProvider = CarMapCustomization.actionStripProvider
             routeLineRendererOptions = CarMapCustomization.routeLineRendererOptions()
         }

@@ -11,6 +11,24 @@ This module demonstrates the Mapbox Navigation SDK's voice feedback capabilities
 
 ## Usage
 
+### Setup
+
+This module's MapGPT Maven artifacts require a secret Mapbox token with **Downloads:Read**
+scope. Add it to your global `~/.gradle/gradle.properties`:
+
+```properties
+MAPBOX_DOWNLOADS_TOKEN=YOUR_SECRET_MAPBOX_TOKEN
+```
+
+Alternatively, set the `MAPBOX_DOWNLOADS_TOKEN` environment variable. The Gradle property takes
+precedence if both are set. Authentication is configured only for this module's Mapbox Maven
+repository. Keep the secret out of source control and app resources.
+
+For CircleCI builds that include this module, set `MAPBOX_DOWNLOADS_TOKEN` in
+**Project Settings > Environment Variables** to a secret token with **Downloads:Read** scope.
+
+### Using the app
+
 1. Tap "Connect" to establish connection with the voice feedback service
 2. Tap "Start Listening" to begin voice input
 3. Speak your feedback
