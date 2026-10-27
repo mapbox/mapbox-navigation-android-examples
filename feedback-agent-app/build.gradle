@@ -1,3 +1,5 @@
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.authentication.http.BasicAuthentication
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 apply plugin: 'com.android.application'
@@ -7,6 +9,19 @@ apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 apply plugin: 'com.mapbox.maps.token'
 apply from: "${rootDir}/gradle/script-git-version.gradle"
 apply from: "${rootDir}/gradle/ktlint.gradle"
+
+repositories.withType(MavenArtifactRepository).configureEach { repository ->
+    if (repository.url.toString() == 'https://api.mapbox.com/downloads/v2/releases/maven') {
+        repository.credentials {
+            username = 'mapbox'
+            password = providers.gradleProperty('MAPBOX_DOWNLOADS_TOKEN')
+                    .orElse(providers.environmentVariable('MAPBOX_DOWNLOADS_TOKEN')).orNull
+        }
+        repository.authentication {
+            basic(BasicAuthentication)
+        }
+    }
+}
 
 android {
     namespace = "com.mapbox.navigation.examples.feedbackagent"
