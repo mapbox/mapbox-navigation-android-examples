@@ -2,8 +2,11 @@
 
 The android-auto-app showcases the minimum integration needed to support the android-auto module in your application, it's a portable example that can be copied into your app. See instructions for integrating below.
 
+Route requests from both the phone and Android Auto request alternative routes when available.
+During active guidance, the phone displays upcoming maneuver instructions at the top of the map.
+
 <div align="center" padding="100">
-  <img src="../.github/android_auto_example.png"/>
+  <img src="../.github/android_auto_example_2026.png"/>
 </div>
 
 ## Installation
@@ -18,13 +21,14 @@ The android-auto-app showcases the minimum integration needed to support the and
 1. Run "android-auto-app" which installs the app on your device
 1. Run the app on "Desktop Head Unit"
 
-## Enable route replay (AUTO_DRIVE)
+## Route Simulation
 
-When testing Android Auto, it is easy to simulate a route instead of using mock locations. Follow these instructions, to enable route replay.
-https://docs.mapbox.com/android/navigation/guides/developer-tools/route-replay/
+By default, the example uses route simulation to replay movement along the selected route, so you can test navigation without physically driving.
 
+To use the device's real GPS location instead, set `USE_SIMULATED_ROUTE_REPLAY` to `false` in the companion object of [`MainActivity.kt`](src/main/java/com/mapbox/navigation/examples/androidauto/app/MainActivity.kt):
+
+```kotlin
+const val USE_SIMULATED_ROUTE_REPLAY = false
 ```
-1. Start the desktop head unit
-2. Open your navigation app
-3. $ adb shell dumpsys activity service com.mapbox.navigation.examples.androidauto.car.MainCarAppService AUTO_DRIVE
-```
+
+Rebuild and run the app to apply the change. This setting applies to both the phone and Android Auto. Location permission is required in either mode.

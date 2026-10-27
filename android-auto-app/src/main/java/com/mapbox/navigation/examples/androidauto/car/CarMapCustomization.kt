@@ -32,7 +32,7 @@ internal object CarMapCustomization {
         return CarRouteLineRendererOptions.Builder()
             .routeLineApiOptionsProvider {
                 MapboxRouteLineApiOptions.Builder()
-                    .vanishingRouteLineEnabled(false)
+                    .vanishingRouteLineEnabled(true)
                     .build()
             }
             .routeLineViewOptionsProvider { surface ->
