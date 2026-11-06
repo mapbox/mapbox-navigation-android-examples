@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
  * Manages the trip session shared by the phone and Android Auto, using device locations for
  * normal navigation or simulated locations for auto drive. [MainActivity] enables
  * app-scoped replay by default; this controller manages host auto drive only when it is disabled.
+ * The trip session must first be started with the phone's "Start free drive" button.
  *
  * Auto drive is a testing mode that simulates driving along the active route without moving
  * the device. It uses [ReplayRouteSession] to feed recorded/generated locations into navigation;
@@ -61,8 +62,9 @@ internal class CarTripSessionController(
     }
 
     @SuppressLint("MissingPermission")
-    private fun refreshTripSession(
-        isAutoDriveEnabled: Boolean
+    internal fun refreshTripSession(
+        isAutoDriveEnabled: Boolean,
+        useSimulatedRouteReplay: Boolean = MainActivity.USE_SIMULATED_ROUTE_REPLAY,
     ) {
         // Remember whether we are leaving replay before unregistering its observer.
         val wasAutoDriveActive = isAutoDriveActive
@@ -79,8 +81,13 @@ internal class CarTripSessionController(
             return
         }
 
-        if (MainActivity.USE_SIMULATED_ROUTE_REPLAY) {
-            MainActivity.startTripSession(navigation)
+        // Starting free drive is billed. Connecting the car must not start a trip session;
+        // the user must explicitly start it with the phone's "Start free drive" button.
+        if (navigation.getTripSessionState() != TripSessionState.STARTED) {
+            return
+        }
+
+        if (useSimulatedRouteReplay) {
             return
         }
 
@@ -88,18 +95,9 @@ internal class CarTripSessionController(
             // The SDK starts replay and feeds simulated locations along the active route.
             MapboxNavigationApp.registerObserver(replayRouteSession)
             isAutoDriveActive = true
-        } else {
-            val isTripSessionStarted = navigation.getTripSessionState() == TripSessionState.STARTED
-            // Restore device locations after replay, but do not restart a stopped replay session.
-            val shouldStartTripSession = if (wasAutoDriveActive) {
-                isTripSessionStarted
-            } else {
-                // Without replay, leave a running session alone and start one only if needed.
-                !isTripSessionStarted
-            }
-            if (shouldStartTripSession) {
-                navigation.startTripSession()
-            }
+        } else if (wasAutoDriveActive) {
+            // Restore device locations only for a session the user already started.
+            navigation.startTripSession()
         }
     }
 

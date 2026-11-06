@@ -5,6 +5,12 @@ The android-auto-app showcases the minimum integration needed to support the and
 Route requests from both the phone and Android Auto request alternative routes when available.
 During active guidance, the phone displays upcoming maneuver instructions at the top of the map.
 
+Free drive does not start automatically when the app opens, location permission is granted, or
+Android Auto connects. Tap **Start free drive** on the phone to start the shared trip session
+before requesting a route. Starting a trip session begins billing, including in free drive.
+With location permission granted, the phone still shows and centers on your device's current
+location before you tap the button; this uses the map's location provider, not a trip session.
+
 <div align="center" padding="100">
   <img src="../.github/android_auto_example_2026.png"/>
 </div>
