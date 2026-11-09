@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.extension.compose.DisposableMapEffect
+import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.style.BooleanValue
 import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
@@ -41,6 +43,7 @@ import com.mapbox.maps.logI
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
+import com.mapbox.maps.plugin.locationcomponent.DefaultLocationProvider
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -61,6 +64,7 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.core.trip.session.TripSessionStateObserver
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
 import com.mapbox.navigation.examples.androidauto.PhoneScreen
 import com.mapbox.navigation.tripdata.maneuver.api.MapboxManeuverApi
@@ -87,6 +91,7 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
  * other one to mirror it.
  *
  * How to use this example:
+ * - Tap "Start free drive" on the phone or Android Auto to start the billed trip session
  * - Long press on the map to request a route to that point
  * - Tap "Start navigation" to begin active guidance; this also switches the car screen
  * - Tap "Done" once arrived to go back to free drive
@@ -120,6 +125,13 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private var maneuverRouteId: String? = null
 
     private var uiState by mutableStateOf<CarAppUiState>(CarAppUiState.FreeDrive)
+    private var hasLocationPermission by mutableStateOf(false)
+    private var isTripSessionStarted by mutableStateOf(false)
+    private var awaitingTripSessionPermission = false
+
+    private val tripSessionStateObserver = TripSessionStateObserver { state ->
+        isTripSessionStarted = state == TripSessionState.STARTED
+    }
 
     private var firstLocationUpdateReceived = false
     private var awaitingPhoneActiveGuidance = false
@@ -194,16 +206,26 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
         onResumedObserver = object : MapboxNavigationObserver {
             override fun onAttached(mapboxNavigation: MapboxNavigation) {
+                hasLocationPermission = PermissionsManager.areLocationPermissionsGranted(this@MainActivity)
                 mapboxNavigation.registerLocationObserver(locationObserver)
                 mapboxNavigation.registerRoutesObserver(routesObserver)
                 mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
-                startTripSessionIfPermitted()
+                isTripSessionStarted = mapboxNavigation.getTripSessionState() == TripSessionState.STARTED
+                mapboxNavigation.registerTripSessionStateObserver(tripSessionStateObserver)
+                if (uiState is CarAppUiState.FreeDrive) {
+                    uiState = CarAppUiStateReducer.reduce(
+                        uiState,
+                        MapboxScreen.ACTIVE_GUIDANCE,
+                        mapboxNavigation.getNavigationRoutes(),
+                    )
+                }
             }
 
             override fun onDetached(mapboxNavigation: MapboxNavigation) {
                 mapboxNavigation.unregisterLocationObserver(locationObserver)
                 mapboxNavigation.unregisterRoutesObserver(routesObserver)
                 mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+                mapboxNavigation.unregisterTripSessionStateObserver(tripSessionStateObserver)
             }
         },
     )
@@ -213,9 +235,14 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { grantedPermissions ->
+        hasLocationPermission = PermissionsManager.areLocationPermissionsGranted(this)
+        val shouldStartTripSession = awaitingTripSessionPermission
+        awaitingTripSessionPermission = false
         if (grantedPermissions.values.any { it }) {
             logI(LOG_TAG, "Location permission granted")
-            startTripSessionIfPermitted()
+            if (shouldStartTripSession) {
+                startTripSessionIfPermitted()
+            }
         } else {
             logI(LOG_TAG, "Location permission denied")
         }
@@ -225,17 +252,17 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     private fun startTripSessionIfPermitted() {
         if (!PermissionsManager.areLocationPermissionsGranted(this)) {
             logI(LOG_TAG, "Location permissions are not granted, trip session not started")
+            awaitingTripSessionPermission = true
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ),
+            )
             return
         }
-        // If a route is already active (e.g. this activity was recreated mid-guidance, or
-        // guidance was started from the car), reflect that instead of defaulting to free drive.
-        if (uiState is CarAppUiState.FreeDrive) {
-            uiState = CarAppUiStateReducer.reduce(
-                uiState,
-                MapboxScreen.ACTIVE_GUIDANCE,
-                mapboxNavigation.getNavigationRoutes(),
-            )
-        }
+        // Starting a trip session begins billing, including in free drive.
+        // Only start after the user taps "Start free drive", never on resume or permission grant alone.
         startTripSession(mapboxNavigation)
     }
 
@@ -422,6 +449,7 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
     @SuppressLint("VisibleForTests")
     @Composable
     private fun MapboxMapScreen() {
+        val deviceLocationProvider = remember { DefaultLocationProvider(this@MainActivity) }
         MapboxMap(
             modifier = Modifier.fillMaxSize(),
             onMapLongClickListener = OnMapLongClickListener { point ->
@@ -442,20 +470,25 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                 mapboxMap = mapView.mapboxMap
                 mapView.mapboxMap.setCamera(CameraOptions.Builder().pitch(0.0).build())
 
+                var hasCenteredOnDeviceLocation = false
                 val positionListener = OnIndicatorPositionChangedListener { point ->
+                    if (!isTripSessionStarted && !hasCenteredOnDeviceLocation) {
+                        hasCenteredOnDeviceLocation = true
+                        mapView.mapboxMap.setCamera(
+                            CameraOptions.Builder().center(point).zoom(15.0).build(),
+                        )
+                    }
                     val update = routeLineApi.updateTraveledRouteLine(point)
                     mapView.mapboxMap.style?.let { style ->
                         routeLineView.renderRouteLineUpdate(style, update)
                     }
                 }
                 mapView.location.apply {
-                    setLocationProvider(navigationLocationProvider)
                     addOnIndicatorPositionChangedListener(positionListener)
                     locationPuck = LocationPuck2D(
                         bearingImage = ImageHolder.from(R.drawable.mapbox_navigation_puck_icon),
                     )
                     puckBearingEnabled = true
-                    enabled = true
                 }
 
                 val dataSource = MapboxNavigationViewportDataSource(mapView.mapboxMap)
@@ -481,6 +514,14 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
                     mapboxMap = null
                 }
             }
+            MapEffect(isTripSessionStarted, hasLocationPermission) { mapView ->
+                // Device location centers the map without starting a billed trip session.
+                // Switch to navigation's enhanced/replayed locations only after the button click.
+                mapView.location.setLocationProvider(
+                    if (isTripSessionStarted) navigationLocationProvider else deviceLocationProvider,
+                )
+                mapView.location.enabled = hasLocationPermission
+            }
         }
     }
 
@@ -500,6 +541,19 @@ class MainActivity : AppCompatActivity(), PhoneScreen {
 
     @Composable
     private fun BoxScope.CarAppStateOverlay() {
+        if (!isTripSessionStarted) {
+            Button(
+                onClick = { startTripSessionIfPermitted() },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Text("Start free drive")
+            }
+            return
+        }
+
         when (val state = uiState) {
             is CarAppUiState.RoutePreview -> {
                 Button(

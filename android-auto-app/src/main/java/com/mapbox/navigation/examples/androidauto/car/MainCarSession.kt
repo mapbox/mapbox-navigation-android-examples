@@ -2,13 +2,18 @@ package com.mapbox.navigation.examples.androidauto.car
 
 import android.content.Intent
 import android.content.res.Configuration
+import androidx.car.app.CarToast
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import androidx.core.content.ContextCompat
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.maps.extension.androidauto.MapboxCarMap
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
+import com.mapbox.navigation.core.geodeeplink.GeoDeeplinkParser
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.examples.androidauto.CarAppSyncComponent
+import com.mapbox.navigation.examples.androidauto.R
 import com.mapbox.navigation.ui.androidauto.MapboxCarContext
 import com.mapbox.navigation.ui.androidauto.deeplink.GeoDeeplinkNavigateAction
 import com.mapbox.navigation.ui.androidauto.preview.CarRouteOptionsInterceptor
@@ -25,6 +30,9 @@ class MainCarSession : Session() {
     private val mapboxCarContext: MapboxCarContext = MapboxCarContext(lifecycle, MapboxCarMap())
         .prepareScreens()
         .apply {
+            mapboxScreenManager[CarStartFreeDriveScreen.KEY] = MapboxScreenFactory {
+                CarStartFreeDriveScreen(this)
+            }
             // Replace the default settings screen with this example's voice guidance setting.
             mapboxScreenManager[MapboxScreen.SETTINGS] = MapboxScreenFactory {
                 CarSettingsScreen(this)
@@ -52,8 +60,7 @@ class MainCarSession : Session() {
     }
 
     override fun onCreateScreen(intent: Intent): Screen {
-        // Show the permission screen if needed; otherwise use the selected navigation screen.
-        checkLocationPermissions()
+        checkNavigationPrerequisites()
         val screenKey = MapboxScreenManager.current()?.key
         checkNotNull(screenKey) { "The screen key should be set before the Screen is requested." }
         val screen = mapboxCarContext.mapboxScreenManager.createScreen(screenKey)
@@ -75,28 +82,43 @@ class MainCarSession : Session() {
 
     private fun handleGeoDeeplink(intent: Intent) {
         // Geo intents can come from voice requests such as "Navigate to a coffee shop".
-        if (PermissionsManager.areLocationPermissionsGranted(carContext)) {
-            GeoDeeplinkNavigateAction(mapboxCarContext).onNewIntent(intent)
+        if (GeoDeeplinkParser.parse(intent.dataString) == null) return
+        if (!PermissionsManager.areLocationPermissionsGranted(carContext)) {
+            MapboxScreenManager.replaceTop(MapboxScreen.NEEDS_LOCATION_PERMISSION)
+            return
         }
+        if (MapboxNavigationApp.current()?.getTripSessionState() != TripSessionState.STARTED) {
+            MapboxScreenManager.replaceTop(CarStartFreeDriveScreen.KEY)
+            CarToast.makeText(carContext, R.string.car_start_free_drive_before_voice, CarToast.LENGTH_LONG).show()
+            return
+        }
+        GeoDeeplinkNavigateAction(mapboxCarContext).onNewIntent(intent)
     }
 
-    private fun checkLocationPermissions() {
-        // Location permission must be granted on the phone before the car can use navigation.
-        PermissionsManager.areLocationPermissionsGranted(carContext).also { isGranted ->
-            val currentKey = MapboxScreenManager.current()?.key
-            if (!isGranted) {
-                MapboxScreenManager.replaceTop(MapboxScreen.NEEDS_LOCATION_PERMISSION)
-            } else if (currentKey == null || currentKey == MapboxScreen.NEEDS_LOCATION_PERMISSION) {
-                MapboxScreenManager.replaceTop(initialMapScreen())
-            }
+    private fun checkNavigationPrerequisites() {
+        val currentKey = MapboxScreenManager.current()?.key
+        val targetKey = carScreenForSession(
+            currentKey = currentKey,
+            hasLocationPermission = PermissionsManager.areLocationPermissionsGranted(carContext),
+            isTripSessionStarted = MapboxNavigationApp.current()?.getTripSessionState() == TripSessionState.STARTED,
+            mapScreenKey = carContext.navigationMapScreenKey(),
+        )
+        if (targetKey != currentKey) {
+            MapboxScreenManager.replaceTop(targetKey)
         }
     }
+}
 
-    // Car App API 7+ uses one unified screen for free drive, active guidance, and route preview.
-    // Older hosts use separate screens, starting with free drive.
-    private fun initialMapScreen(): String = if (carContext.supportsUnifiedNavigation()) {
-        MapboxScreen.NAVIGATION
-    } else {
-        MapboxScreen.FREE_DRIVE
-    }
+internal fun carScreenForSession(
+    currentKey: String?,
+    hasLocationPermission: Boolean,
+    isTripSessionStarted: Boolean,
+    mapScreenKey: String,
+): String = when {
+    !hasLocationPermission -> MapboxScreen.NEEDS_LOCATION_PERMISSION
+    !isTripSessionStarted -> CarStartFreeDriveScreen.KEY
+    currentKey == null ||
+        currentKey == MapboxScreen.NEEDS_LOCATION_PERMISSION ||
+        currentKey == CarStartFreeDriveScreen.KEY -> mapScreenKey
+    else -> currentKey
 }

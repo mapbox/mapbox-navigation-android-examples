@@ -3,6 +3,13 @@
     <string name="car_settings_title">Navigation settings</string>
     <string name="car_settings_voice_guidance">Voice guidance</string>
     <string name="car_settings_voice_guidance_description">Read turn-by-turn directions aloud.</string>
+    <string name="car_start_free_drive_title">Start free drive</string>
+    <string name="car_start_free_drive_explanation_title">Location and navigation are paused</string>
+    <string name="car_start_free_drive_explanation">Start free drive to show your location and enable search, favorites, and voice navigation.</string>
+    <string name="car_start_free_drive_billing_title">Billing</string>
+    <string name="car_start_free_drive_billing">Starting a trip session begins billing, including in free drive.</string>
+    <string name="car_start_free_drive_before_voice">Start free drive, wait for your location, then repeat your navigation request.</string>
+    <string name="car_navigation_not_ready">Navigation is initializing. Please try again.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

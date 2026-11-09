@@ -79,8 +79,8 @@ kotlin {
 }
 
 dependencies {
-    implementation("com.mapbox.navigationcore:navigation-ndk27:3.33.0")
-    implementation("com.mapbox.navigationcore:core-mapgpt-ndk27:3.33.0")
+    implementation("com.mapbox.navigationcore:navigation-ndk27:3.34.2")
+    implementation("com.mapbox.navigationcore:core-mapgpt-ndk27:3.34.2")
     implementation("com.mapbox.mapgpt.experimental:mapgpt-ndk27:24.33.0")
 
     // Kotlin support
