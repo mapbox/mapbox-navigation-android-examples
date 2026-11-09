@@ -91,7 +91,7 @@ import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineViewOptions
  * other one to mirror it.
  *
  * How to use this example:
- * - Tap "Start free drive" on the phone to start the billed trip session
+ * - Tap "Start free drive" on the phone or Android Auto to start the billed trip session
  * - Long press on the map to request a route to that point
  * - Tap "Start navigation" to begin active guidance; this also switches the car screen
  * - Tap "Done" once arrived to go back to free drive

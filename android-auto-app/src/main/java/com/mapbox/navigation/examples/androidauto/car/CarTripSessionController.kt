@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * Manages the trip session shared by the phone and Android Auto, using device locations for
  * normal navigation or simulated locations for auto drive. [MainActivity] enables
  * app-scoped replay by default; this controller manages host auto drive only when it is disabled.
- * The trip session must first be started with the phone's "Start free drive" button.
+ * The trip session must first be started with "Start free drive" on the phone or Android Auto.
  *
  * Auto drive is a testing mode that simulates driving along the active route without moving
  * the device. It uses [ReplayRouteSession] to feed recorded/generated locations into navigation;
@@ -82,7 +82,7 @@ internal class CarTripSessionController(
         }
 
         // Starting free drive is billed. Connecting the car must not start a trip session;
-        // the user must explicitly start it with the phone's "Start free drive" button.
+        // the user must explicitly tap "Start free drive" on the phone or Android Auto.
         if (navigation.getTripSessionState() != TripSessionState.STARTED) {
             return
         }

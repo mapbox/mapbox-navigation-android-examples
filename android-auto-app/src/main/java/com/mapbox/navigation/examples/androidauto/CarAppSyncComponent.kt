@@ -17,6 +17,8 @@ import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.preview.RoutesPreviewObserver
 import com.mapbox.navigation.core.trip.session.NavigationSessionState
 import com.mapbox.navigation.core.trip.session.NavigationSessionStateObserver
+import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.examples.androidauto.car.CarStartFreeDriveScreen
 import com.mapbox.navigation.examples.androidauto.car.supportsUnifiedNavigation
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreen
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenEvent
@@ -150,8 +152,13 @@ class CarAppSyncComponent private constructor() : MapboxNavigationObserver {
         ) {
             return
         }
-        if (shouldReplaceTop(MapboxScreenManager.current()?.key, key)) {
-            MapboxScreenManager.replaceTop(key)
+        val targetKey = if (MapboxNavigationApp.current()?.getTripSessionState() == TripSessionState.STARTED) {
+            key
+        } else {
+            CarStartFreeDriveScreen.KEY
+        }
+        if (shouldReplaceTop(MapboxScreenManager.current()?.key, targetKey)) {
+            MapboxScreenManager.replaceTop(targetKey)
         }
     }
 
