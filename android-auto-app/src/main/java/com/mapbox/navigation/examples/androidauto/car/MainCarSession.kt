@@ -22,6 +22,7 @@ import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenFactory
 import com.mapbox.navigation.ui.androidauto.screenmanager.MapboxScreenManager
 import com.mapbox.navigation.ui.androidauto.screenmanager.prepareScreens
 import com.mapbox.navigation.ui.androidauto.search.CarSearchMode
+import com.mapbox.navigation.ui.androidauto.settings.CarSettingsTemplateProvider
 
 @OptIn(ExperimentalPreviewMapboxNavigationAPI::class)
 class MainCarSession : Session() {
@@ -33,7 +34,7 @@ class MainCarSession : Session() {
             mapboxScreenManager[CarStartFreeDriveScreen.KEY] = MapboxScreenFactory {
                 CarStartFreeDriveScreen(this)
             }
-            // Replace the default settings screen with this example's voice guidance setting.
+            // Older hosts still open a dedicated settings screen.
             mapboxScreenManager[MapboxScreen.SETTINGS] = MapboxScreenFactory {
                 CarSettingsScreen(this)
             }
@@ -41,6 +42,9 @@ class MainCarSession : Session() {
         .customize {
             // Use SearchBox for place search and apply this example's buttons and route styling.
             searchMode = CarSearchMode.SearchBox
+            settingsTemplateProvider = CarSettingsTemplateProvider { screen, _ ->
+                buildCarSettingsTemplate(screen)
+            }
             routeOptionsInterceptor = CarRouteOptionsInterceptor { builder ->
                 builder.alternatives(true)
             }

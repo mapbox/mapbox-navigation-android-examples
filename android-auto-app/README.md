@@ -17,6 +17,19 @@ before using search, favorites, or voice navigation. If a "Navigate to..." reque
 the session starts, the app shows the start screen and asks you to repeat the request afterward.
 Location permission still needs to be granted on the phone.
 
+## Navigation settings
+
+This example uses Navigation SDK `3.35.0-rc.1` for inline settings. On Car App API 7 or newer,
+the settings action opens **Navigation settings** alongside the map in free drive, route preview,
+and active guidance. Back closes the panel without clearing the route preview or stopping guidance.
+Settings also close when the navigation mode changes or another screen covers navigation.
+
+`MainCarSession` registers a `CarSettingsTemplateProvider` that shares the voice-guidance toggle
+with `CarSettingsScreen`, the fallback for older hosts. Changes apply immediately and use the same
+stored mute state as the navigation audio control. `CarMapCustomization` retains the SDK's default
+unified actions and adds settings to legacy preview and guidance strips without removing feedback,
+audio guidance, or Stop.
+
 <div align="center" padding="100">
   <img src="../.github/android_auto_example_2026.png"/>
 </div>
