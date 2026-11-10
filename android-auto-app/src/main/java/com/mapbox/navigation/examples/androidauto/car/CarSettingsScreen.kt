@@ -43,26 +43,33 @@ internal class CarSettingsScreen(
         }
     }
 
-    override fun onGetTemplate(): Template {
-        val voiceGuidanceRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.car_settings_voice_guidance))
-            .addText(carContext.getString(R.string.car_settings_voice_guidance_description))
-            .setToggle(
-                Toggle.Builder { enabled ->
-                    if (enabled) audioGuidance.unmute() else audioGuidance.mute()
-                }
-                    .setChecked(!audioGuidance.stateFlow().value.isMuted)
-                    .build(),
-            )
-            .build()
-        return ListTemplate.Builder()
-            .setTitle(carContext.getString(R.string.car_settings_title))
-            .setHeaderAction(Action.BACK)
-            .setSingleList(
-                ItemList.Builder()
-                    .addItem(voiceGuidanceRow)
-                    .build(),
-            )
-            .build()
-    }
+    override fun onGetTemplate(): Template = buildCarSettingsTemplate(this, audioGuidance)
+}
+
+internal fun buildCarSettingsTemplate(
+    screen: Screen,
+    audioGuidance: MapboxAudioGuidance = MapboxAudioGuidance.getRegisteredInstance(),
+): ListTemplate {
+    val context = screen.carContext
+    val voiceGuidanceRow = Row.Builder()
+        .setTitle(context.getString(R.string.car_settings_voice_guidance))
+        .addText(context.getString(R.string.car_settings_voice_guidance_description))
+        .setToggle(
+            Toggle.Builder { enabled ->
+                if (enabled) audioGuidance.unmute() else audioGuidance.mute()
+                screen.invalidate()
+            }
+                .setChecked(!audioGuidance.stateFlow().value.isMuted)
+                .build(),
+        )
+        .build()
+    return ListTemplate.Builder()
+        .setTitle(context.getString(R.string.car_settings_title))
+        .setHeaderAction(Action.BACK)
+        .setSingleList(
+            ItemList.Builder()
+                .addItem(voiceGuidanceRow)
+                .build(),
+        )
+        .build()
 }
