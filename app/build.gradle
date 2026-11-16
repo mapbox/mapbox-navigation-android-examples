@@ -81,6 +81,7 @@ dependencies {
     implementation "com.mapbox.navigationcore:navigation:3.34.2"
     implementation "com.mapbox.navigationcore:ui-components:3.34.2"
     implementation "com.mapbox.extension:maps-compose:11.33.0"
+    implementation "com.mapbox.base:annotations:0.12.0"
 
     implementation "androidx.core:core-ktx:1.19.1"
     implementation "com.google.android.material:material:1.14.0"

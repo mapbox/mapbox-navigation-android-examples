@@ -14,6 +14,7 @@ import com.mapbox.navigation.examples.standalone.custompuck.CustomPuckActivity
 import com.mapbox.navigation.examples.standalone.fetchroute.FetchARouteActivity
 import com.mapbox.navigation.examples.standalone.isochrone.IsochroneRangeInMeters
 import com.mapbox.navigation.examples.standalone.location.ShowCurrentLocationActivity
+import com.mapbox.navigation.examples.standalone.logs.ManageLogsActivity
 import com.mapbox.navigation.examples.standalone.maneuvers.ShowManeuversActivity
 import com.mapbox.navigation.examples.standalone.preview.PreviewActivity
 import com.mapbox.navigation.examples.standalone.routeline.RenderRouteLineActivity
@@ -147,6 +148,13 @@ fun Context.examplesList() = listOf(
         getString(R.string.title_isochrone_range),
         getString(R.string.description_isochrone_range),
         IsochroneRangeInMeters::class.java
+    ),
+
+    MapboxExample(
+        ContextCompat.getDrawable(this, R.drawable.mapbox_screenshot_manage_logs),
+        getString(R.string.title_manage_logs),
+        getString(R.string.description_manage_logs),
+        ManageLogsActivity::class.java
     ),
 
     // TODO history replay doesn't work, will be fixed in the upcoming releases
