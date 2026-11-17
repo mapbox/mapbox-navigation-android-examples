@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="title_manage_logs">Manage Mapbox SDK logs</string>
+    <string name="description_manage_logs">Set the log levels of the Mapbox SDKs per category and keep only the Navigation SDK log lines with LogConfiguration and a custom LogWriterBackend.</string>
+    <string name="manage_logs_filter_switch">Log only [nav-sdk] lines</string>
+    <string name="manage_logs_start_replay">Start replay</string>
+
+</resources>

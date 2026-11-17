@@ -127,6 +127,11 @@
           android:screenOrientation="portrait"
           android:exported="false"
           />
+
+    <activity android:name=".standalone.logs.ManageLogsActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        />
   </application>
 
 </manifest>
