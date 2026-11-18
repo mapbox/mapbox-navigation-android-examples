@@ -5,7 +5,7 @@ import androidx.car.app.model.ActionStrip
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.examples.androidauto.R
 import com.mapbox.navigation.ui.androidauto.action.MapboxScreenActionStripProvider
-import com.mapbox.navigation.ui.androidauto.freedrive.FreeDriveActionStrip
+import com.mapbox.navigation.ui.androidauto.action.buildSettingsAction
 import com.mapbox.navigation.ui.androidauto.preview.CarRouteLineRendererOptions
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.model.RouteArrowOptions
@@ -17,13 +17,18 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineColorResources
 internal object CarMapCustomization {
 
     val actionStripProvider = object : MapboxScreenActionStripProvider() {
-        override fun getFreeDrive(screen: Screen): ActionStrip {
-            val actions = FreeDriveActionStrip(screen)
+        override fun getRoutePreview(screen: Screen): ActionStrip =
+            withSettingsAction(screen, super.getRoutePreview(screen))
+
+        override fun getActiveGuidance(screen: Screen): ActionStrip =
+            withSettingsAction(screen, super.getActiveGuidance(screen))
+
+        private fun withSettingsAction(screen: Screen, defaults: ActionStrip): ActionStrip {
+            // Unified strips already include settings and hide it while the panel is open.
+            if (screen.carContext.supportsUnifiedNavigation()) return defaults
             return ActionStrip.Builder()
-                .addAction(actions.buildSettingsAction())
-                .addAction(actions.buildFeedbackAction())
-                .addAction(actions.buildSearchAction())
-                .addAction(actions.buildFavoritesAction())
+                .addAction(buildSettingsAction(screen))
+                .apply { defaults.actions.forEach(::addAction) }
                 .build()
         }
     }

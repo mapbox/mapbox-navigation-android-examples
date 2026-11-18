@@ -51,7 +51,9 @@ Map/rendering lifecycle is in `CarMapLifecycle`, auto-drive and replay managemen
 
 Open **Navigation settings** from the car's settings action to toggle voice guidance. This applies
 immediately, persists across connections, and shares its mute state with the navigation screen's
-audio control.
+audio control. Settings are available in free drive, route preview, and active guidance. On Car App
+API 7 or newer, they open alongside the map; Back restores navigation without clearing the route
+preview or stopping guidance. Older hosts use the dedicated settings screen.
 
 The car map always uses custom route colors and arrow icons, with the vanishing route line disabled.
 
